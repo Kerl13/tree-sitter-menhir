@@ -1,0 +1,18 @@
+{
+  "name": "tree-sitter-menhir",
+  "version": "1.0.0",
+  "description": "Tree-sitter parser for menhir files",
+  "main": "index.js",
+  "repository": "https://github.com/Kerl13/tree-sitter-menhir",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Martin Pépin <kerl@wkerl.me>",
+  "license": "LGPL-3.0-or-later",
+  "dependencies": {
+    "nan": "^2.12.1"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.14.0-beta3"
+  }
+}

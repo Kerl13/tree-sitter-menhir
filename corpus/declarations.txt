@@ -1,0 +1,37 @@
+=====
+Test name
+=====
+
+%{ocaml_code%}
+%parameter<ocaml_type>
+%token Add Mul
+%token<ocaml_type> Uident Lident
+%nonassoc Uminus
+%left Add Mul
+%right Arrow
+%type<ocaml_type> expr
+%start program file
+%start<ocaml_type> program file
+%attribute actual [@attribute]
+%[@grammar_attribute]
+%on_error_reduce a b c
+
+%%
+---
+
+(source_file
+  (declaration (header))
+  (declaration (ocaml_type))
+  (declaration (terminal_alias_attrs (uid)) (terminal_alias_attrs (uid)))
+  (declaration (ocaml_type) (terminal_alias_attrs (uid)) (terminal_alias_attrs (uid)))
+  (declaration (priority_keyword) (symbol (uid)))
+  (declaration (priority_keyword) (symbol (uid)) (symbol (uid)))
+  (declaration (priority_keyword) (symbol (uid)))
+  (declaration (ocaml_type) (strict_actual (symbol (lid))))
+  (declaration (non_terminal (lid)) (non_terminal (lid)))
+  (declaration (ocaml_type) (non_terminal (lid)) (non_terminal (lid)))
+  (declaration (strict_actual (symbol (lid))) (attribute))
+  (declaration (grammar_attribute))
+  (declaration (strict_actual (symbol (lid)))
+               (strict_actual (symbol (lid)))
+               (strict_actual (symbol (lid)))))
