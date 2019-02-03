@@ -3,6 +3,15 @@ module.exports = grammar({
 
   inline: $ => [$.rule],
 
+  externals: $ => [
+    // OCaml stuff
+    $.header,             // %{ ... %}
+    $.ocaml_type,         // < ... >
+    $.action,             // { ... }
+    $.attribute,          // [@ ... ]
+    $.grammar_attribute   // %[@ ... ]
+  ],
+
   rules: {
     source_file: $ => seq(
       repeat($.declaration),
@@ -14,14 +23,6 @@ module.exports = grammar({
     // Hackish?
 
     bar: $ => prec(20, '|'),
-
-    // OCaml stuff
-
-    header: $ => seq('%{ocaml_code%}'),
-    ocaml_type: $ => seq('<ocaml_type>'),
-    action: $ => seq('{action}'),
-    attribute: $ => '[@attribute]',
-    grammar_attribute: $ => '%[@grammar_attribute]',
 
     // Indentifiers
 

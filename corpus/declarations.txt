@@ -2,18 +2,22 @@
 Test name
 =====
 
-%{ocaml_code%}
-%parameter<ocaml_type>
+%{
+  let message =
+    let id x = x in
+  id "coucou"
+%}
+%parameter<Module.SIG>
 %token Add Mul
-%token<ocaml_type> Uident Lident
+%token<string> Uident Lident
 %nonassoc Uminus
 %left Add Mul
 %right Arrow
-%type<ocaml_type> expr
+%type<'a Ast.expr> expr
 %start program file
-%start<ocaml_type> program file
-%attribute actual [@attribute]
-%[@grammar_attribute]
+%start<Ast.t> program file
+%attribute actual [@hey]
+%[@ho haha]
 %on_error_reduce a b c
 
 %%
