@@ -1,3 +1,8 @@
+// Reference: https://gitlab.inria.fr/fpottier/menhir/blob/master/src/lexer.mll
+const lowercase = "[a-zß-öø-ÿ_]"
+const uppercase = "[A-ZÀ-ÖØ-Þ]"
+const identchar = "[a-zA-Z_À-ÖØ-öø-ÿ0-9]"
+
 module.exports = grammar({
   name: 'menhir',
 
@@ -27,9 +32,9 @@ module.exports = grammar({
 
     // Indentifiers
 
-    lid: $ => /[a-z][a-zA-Z0-8_]*/, // FIXME: https://gitlab.inria.fr/fpottier/menhir/blob/master/src/lexer.mll
-    uid: $ => /[A-Z][a-zA-Z0-8_]*/, // FIXME: https://gitlab.inria.fr/fpottier/menhir/blob/master/src/lexer.mll,
-    qid: $ => "QID", // TODO
+    lid: $ => RegExp(lowercase + identchar + '*'),
+    uid: $ => RegExp(uppercase + identchar + '*'),
+    qid: $ => /"[ -!\]-~]+"/,
     symbol: $ => choice($.lid, $.uid, $.qid),
 
     // Declarations
