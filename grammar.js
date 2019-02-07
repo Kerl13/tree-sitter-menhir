@@ -9,7 +9,8 @@ module.exports = grammar({
     $.ocaml_type,         // < ... >
     $.action,             // { ... }
     $.attribute,          // [@ ... ]
-    $.grammar_attribute   // %[@ ... ]
+    $.grammar_attribute,  // %[@ ... ]
+    $.postlude            // %% → eof
   ],
 
   rules: {
@@ -17,7 +18,7 @@ module.exports = grammar({
       repeat($.declaration),
       '%%',
       repeat($.rule),
-      optional($.postlude)
+      optional($._postlude)
     ),
 
     // Hackish?
@@ -133,7 +134,7 @@ module.exports = grammar({
 
     // Postlude
 
-    postlude: $ => '%%postlude'
+    _postlude: $ => seq('%%', $.postlude)
   }
 })
 

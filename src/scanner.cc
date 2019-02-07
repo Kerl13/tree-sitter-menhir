@@ -9,7 +9,8 @@ enum {
   OCAML_TYPE,         // < ... >
   ACTION,             // { ... }
   ATTRIBUTE,          // [@ ... ]
-  GRAMMAR_ATTRIBUTE   // %[@ ... ]
+  GRAMMAR_ATTRIBUTE,  // %[@ ... ]
+  POSTLUDE
 };
 
 struct Scanner {
@@ -56,6 +57,9 @@ struct Scanner {
       advance(lexer);
       lexer->result_symbol = ATTRIBUTE;
       return scan_attribute(lexer);
+    } else if (valid_symbols[POSTLUDE]) {
+      lexer->result_symbol = POSTLUDE;
+      return scan_postlude(lexer);
     }
 
     return false;
@@ -150,6 +154,13 @@ struct Scanner {
           advance(lexer);
       }
     }
+  }
+
+  bool scan_postlude(TSLexer *lexer) {
+    while (lexer->lookahead != '\0') {
+      advance(lexer);
+    }
+    return true;
   }
 
   bool scan_comment(TSLexer *lexer) {
