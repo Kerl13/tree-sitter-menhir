@@ -1,0 +1,26 @@
+=====
+Comments
+=====
+
+// Line comment
+
+/*
+multi
+line
+comment
+*/
+
+%%
+
+(*
+ocaml
+style
+comment
+*)
+
+---
+
+(source_file
+  (line_comment)
+  (comment)
+  (ocaml_comment))

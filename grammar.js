@@ -6,6 +6,13 @@ const identchar = "[a-zA-Z_À-ÖØ-öø-ÿ0-9]"
 module.exports = grammar({
   name: 'menhir',
 
+  extras: $ => [
+    /\s/,
+    $.line_comment,
+    $.comment,
+    $.ocaml_comment
+  ],
+
   inline: $ => [$.rule],
 
   externals: $ => [
@@ -15,7 +22,11 @@ module.exports = grammar({
     $.action,             // { ... }
     $.attribute,          // [@ ... ]
     $.grammar_attribute,  // %[@ ... ]
-    $.postlude            // %% → eof
+    $.postlude,           // %% → eof
+    // Comments
+    $.line_comment,       // // ...
+    $.comment,            // /* ... */
+    $.ocaml_comment       // (* ... *)
   ],
 
   rules: {

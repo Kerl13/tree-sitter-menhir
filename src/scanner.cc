@@ -10,7 +10,10 @@ enum {
   ACTION,             // { ... }
   ATTRIBUTE,          // [@ ... ]
   GRAMMAR_ATTRIBUTE,  // %[@ ... ]
-  POSTLUDE
+  POSTLUDE,           // %% → eof
+  LINE_COMMENT,       // // ...
+  COMMENT,            // /* ... */
+  OCAML_COMMENT       // (* ... *)
 };
 
 struct Scanner {
@@ -33,6 +36,7 @@ struct Scanner {
       skip(lexer);
     }
 
+    // --- %{ and %[ ------------------------------------------------------- //
     if (lexer->lookahead == '%') {
       advance(lexer);
       if (valid_symbols[HEADER] && lexer->lookahead == '{') {
@@ -45,18 +49,42 @@ struct Scanner {
         return scan_attribute(lexer);
       }
       return false;
+
+    // --- // and /* ------------------------------------------------------- //
+    } else if (lexer->lookahead == '/') {
+      advance(lexer);
+      if (valid_symbols[LINE_COMMENT] && lexer->lookahead == '/') {
+        advance(lexer);
+        lexer->result_symbol = LINE_COMMENT;
+        return scan_line_comment(lexer);
+      } else if (valid_symbols[COMMENT] && lexer->lookahead == '*') {
+        advance(lexer);
+        lexer->result_symbol = COMMENT;
+        return scan_comment(lexer);
+      }
+      return false;
+
+    // --- (* ... *) ------------------------------------------------------- //
+    } else if (valid_symbols[OCAML_COMMENT] && lexer->lookahead == '(') {
+      advance(lexer);
+      lexer->result_symbol = OCAML_COMMENT;
+      return scan_ocaml_comment(lexer);
+    // --- < ... > --------------------------------------------------------- //
     } else if (valid_symbols[OCAML_TYPE] && lexer->lookahead == '<') {
       advance(lexer);
       lexer->result_symbol = OCAML_TYPE;
       return scan_ocaml_type(lexer);
+    // --- { ... } --------------------------------------------------------- //
     } else if (valid_symbols[ACTION] && lexer->lookahead == '{') {
       advance(lexer);
       lexer->result_symbol = ACTION;
       return scan_action(false, lexer);
+    // --- [@ ... ] -------------------------------------------------------- //
     } else if (valid_symbols[ATTRIBUTE] && lexer->lookahead == '[') {
       advance(lexer);
       lexer->result_symbol = ATTRIBUTE;
       return scan_attribute(lexer);
+    // --- %% ... ---------------------------------------------------------- //
     } else if (valid_symbols[POSTLUDE]) {
       lexer->result_symbol = POSTLUDE;
       return scan_postlude(lexer);
@@ -97,7 +125,7 @@ struct Scanner {
           break;
         case '(':
           advance(lexer);
-          scan_comment(lexer);
+          scan_ocaml_comment(lexer);
           break;
         default:
           advance(lexer);
@@ -110,7 +138,7 @@ struct Scanner {
       switch (lexer->lookahead) {
         case '(':
           advance(lexer);
-          scan_comment(lexer);
+          scan_ocaml_comment(lexer);
           break;
         case '>':
           advance(lexer);
@@ -163,7 +191,49 @@ struct Scanner {
     return true;
   }
 
+  bool scan_line_comment(TSLexer *lexer) {
+    while (lexer->lookahead != '\n' && lexer->lookahead != '\r') {
+      if (lexer->lookahead == '\0') { return true; }
+      advance(lexer);
+    }
+    advance(lexer);
+    return true;
+  }
+
   bool scan_comment(TSLexer *lexer) {
+    for (;;) {
+      switch (lexer->lookahead) {
+        case '*':
+          advance(lexer);
+          if (lexer->lookahead == '/') {
+            advance(lexer);
+            return true;
+          }
+          break;
+        case '\'':
+          advance(lexer);
+          scan_character(lexer);
+          break;
+        case '"':
+          advance(lexer);
+          scan_string(lexer);
+          break;
+        case '\0':
+          return true;
+        default:
+          if (isalpha(lexer->lookahead) || lexer->lookahead == '_') {
+            advance(lexer);
+            while (isalnum(lexer->lookahead) || lexer->lookahead == '_' || lexer->lookahead == '\'') {
+              advance(lexer);
+            }
+          } else {
+            advance(lexer);
+          }
+      }
+    }
+  }
+
+  bool scan_ocaml_comment(TSLexer *lexer) {
     if (lexer->lookahead != '*') return false;
     advance(lexer);
 
@@ -171,7 +241,7 @@ struct Scanner {
       switch (lexer->lookahead) {
         case '(':
           advance(lexer);
-          scan_comment(lexer);
+          scan_ocaml_comment(lexer);
           break;
         case '*':
           advance(lexer);
