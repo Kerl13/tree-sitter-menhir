@@ -36,7 +36,7 @@ struct Scanner {
       skip(lexer);
     }
 
-    // --- %{ and %[ ------------------------------------------------------- //
+    // --- %{ and %[ and %% ------------------------------------------------ //
     if (lexer->lookahead == '%') {
       advance(lexer);
       if (valid_symbols[HEADER] && lexer->lookahead == '{') {
@@ -47,6 +47,9 @@ struct Scanner {
         advance(lexer);
         lexer->result_symbol = GRAMMAR_ATTRIBUTE;
         return scan_attribute(lexer);
+      } else if (valid_symbols[POSTLUDE] && lexer->lookahead == '%') {
+        lexer->result_symbol = POSTLUDE;
+        return scan_postlude(lexer);
       }
       return false;
 
@@ -84,10 +87,6 @@ struct Scanner {
       advance(lexer);
       lexer->result_symbol = ATTRIBUTE;
       return scan_attribute(lexer);
-    // --- %% ... ---------------------------------------------------------- //
-    } else if (valid_symbols[POSTLUDE]) {
-      lexer->result_symbol = POSTLUDE;
-      return scan_postlude(lexer);
     }
 
     return false;

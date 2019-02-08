@@ -34,7 +34,7 @@ module.exports = grammar({
       repeat($.declaration),
       '%%',
       repeat($.rule),
-      optional($._postlude)
+      optional($.postlude)
     ),
 
     // Hackish?
@@ -147,10 +147,6 @@ module.exports = grammar({
     // Production rules -- new sytax
 
     new_rule: $ => "new_rule", // TODO
-
-    // Postlude
-
-    _postlude: $ => seq('%%', $.postlude)
   }
 })
 
