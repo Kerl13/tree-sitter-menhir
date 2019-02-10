@@ -5,7 +5,8 @@
   "main": "index.js",
   "repository": "https://github.com/Kerl13/tree-sitter-menhir",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tree-sitter generate && node-gyp build",
+    "test": "tree-sitter test"
   },
   "author": "Martin Pépin <kerl@wkerl.me>",
   "license": "LGPL-3.0-or-later",
