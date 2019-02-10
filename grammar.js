@@ -37,9 +37,11 @@ module.exports = grammar({
       optional($.postlude)
     ),
 
-    // Hackish?
+    // Bars are a little annoying, see comment in
+    // https://gitlab.inria.fr/fpottier/menhir/blob/master/src/lexer.mll
 
-    bar: $ => prec(20, '|'),
+    high_prec_bar: $ => prec(20, '|'),
+    low_prec_bar: $ => prec(10, '|'),
 
     // Indentifiers
 
@@ -97,8 +99,8 @@ module.exports = grammar({
       repeat($.attribute),
       plist($.symbol),
       ':',
-      prec(10, optional('|')),
-      separated_nonempty_list($.bar, $.production_group),
+      optional($.low_prec_bar),
+      separated_nonempty_list($.high_prec_bar, $.production_group),
       repeat(';')
     ),
 
@@ -111,7 +113,7 @@ module.exports = grammar({
 
     production_group: $ => seq(
       separated_nonempty_list(
-        $.bar,
+        $.high_prec_bar,
         seq(repeat($.producer), optional($.precedence))
       ),
       choice($.action, $.ocaml_type),
@@ -137,7 +139,7 @@ module.exports = grammar({
 
     lax_actual: $ => choice(
       generic_actual($, $.lax_actual, $.actual),
-      separated_nonempty_list('|', $.production_group)
+      separated_nonempty_list($.high_prec_bar, $.production_group)
     ),
 
     modifier: $ => choice(
