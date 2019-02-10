@@ -40,8 +40,8 @@ module.exports = grammar({
     // Bars are a little annoying, see comment in
     // https://gitlab.inria.fr/fpottier/menhir/blob/master/src/lexer.mll
 
-    high_prec_bar: $ => prec(20, '|'),
-    low_prec_bar: $ => prec(10, '|'),
+    _high_prec_bar: $ => prec(20, '|'),
+    _low_prec_bar: $ => prec(10, '|'),
 
     // Indentifiers
 
@@ -99,8 +99,8 @@ module.exports = grammar({
       repeat($.attribute),
       plist($.symbol),
       ':',
-      optional($.low_prec_bar),
-      separated_nonempty_list($.high_prec_bar, $.production_group),
+      optional($._low_prec_bar),
+      separated_nonempty_list($._high_prec_bar, $.production_group),
       repeat(';')
     ),
 
@@ -113,7 +113,7 @@ module.exports = grammar({
 
     production_group: $ => seq(
       separated_nonempty_list(
-        $.high_prec_bar,
+        $._high_prec_bar,
         seq(repeat($.producer), optional($.precedence))
       ),
       choice($.action, $.ocaml_type),
@@ -139,7 +139,7 @@ module.exports = grammar({
 
     lax_actual: $ => choice(
       generic_actual($, $.lax_actual, $.actual),
-      separated_nonempty_list($.high_prec_bar, $.production_group)
+      separated_nonempty_list($._high_prec_bar, $.production_group)
     ),
 
     modifier: $ => choice(
@@ -161,8 +161,8 @@ module.exports = grammar({
     equality_symbol: $ => choice('==', ':='),
 
     expression: $ => seq(
-      optional($.low_prec_bar),
-      separated_nonempty_list($.high_prec_bar, $.seq_expression)
+      optional('|'),
+      separated_nonempty_list('|', $.seq_expression)
     ),
 
     seq_expression: $ => choice(
@@ -175,7 +175,7 @@ module.exports = grammar({
       $.action_expression
     ),
 
-    continuation: $ => seq(',', $.seq_expression),
+    continuation: $ => seq(';', $.seq_expression),
 
     symbol_expression: $ => choice(
       seq($.symbol, plist($.expression), repeat($.attribute)),
