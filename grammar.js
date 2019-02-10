@@ -13,7 +13,7 @@ module.exports = grammar({
     $.ocaml_comment
   ],
 
-  inline: $ => [$.rule],
+  inline: $ => [$.rule, $.continuation],
 
   externals: $ => [
     // OCaml stuff
@@ -148,7 +148,62 @@ module.exports = grammar({
 
     // Production rules -- new sytax
 
-    new_rule: $ => "new_rule", // TODO
+    new_rule: $ => seq(
+      optional('%public'),
+      'let',
+      $.lid,
+      repeat($.attribute),
+      plist($.symbol),
+      $.equality_symbol,
+      $.expression
+    ),
+
+    equality_symbol: $ => choice('==', ':='),
+
+    expression: $ => seq(
+      optional($.low_prec_bar),
+      separated_nonempty_list($.high_prec_bar, $.seq_expression)
+    ),
+
+    seq_expression: $ => choice(
+      seq($.symbol_expression, $.continuation),
+
+      seq($.pattern, '=', $.symbol_expression, $.continuation),
+
+      $.symbol_expression,
+
+      $.action_expression
+    ),
+
+    continuation: $ => seq(',', $.seq_expression),
+
+    symbol_expression: $ => choice(
+      seq($.symbol, plist($.expression), repeat($.attribute)),
+
+      seq($.symbol_expression, $.modifier, repeat($.attribute))
+    ),
+
+    action_expression: $ => choice(
+      $.menhir_action,
+
+      seq($.precedence, $.menhir_action),
+
+      seq($.menhir_action, $.precedence)
+    ),
+
+    menhir_action: $ => choice(
+      $.action,
+      $.ocaml_type
+    ),
+
+    pattern: $ => choice(
+      $.lid,
+      '_',
+      '~',
+      // '(' [separated_list(',', pattern)] ')'
+      seq('(', ')'),
+      seq('(', separated_nonempty_list(',', $.pattern), ')')
+    )
   }
 })
 
