@@ -126,6 +126,8 @@ struct Scanner {
           advance(lexer);
           scan_ocaml_comment(lexer);
           break;
+        case '\0':
+          return true;
         default:
           advance(lexer);
       }
@@ -177,6 +179,8 @@ struct Scanner {
           advance(lexer);
           scan_character(lexer);
           break;
+        case '\0':
+          return true;
         default:
           advance(lexer);
       }
