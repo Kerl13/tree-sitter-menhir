@@ -1,0 +1,87 @@
+=====
+Simple production rules
+=====
+
+%%
+
+expr:
+  | e1 = expr PLUS e2 = expr  { Plus (e1, e2) }
+  | id = ident                { Ident id }
+
+ident: IDENT { $1 }
+
+--------
+(source_file
+  (old_rule
+    (symbol (lid))
+    (production_group
+      (producer (lid) (actual (symbol (lid))))
+      (producer (actual (symbol (uid))))
+      (producer (lid) (actual (symbol (lid))))
+      (action))
+    (production_group
+      (producer (lid) (actual (symbol (lid))))
+      (action)))
+
+  (old_rule
+    (symbol (lid))
+    (production_group
+      (producer (actual (symbol (uid))))
+      (action))))
+
+=====
+Annotations
+=====
+
+%%
+
+%public %inline binop:
+    PLUS
+  | MUL %prec mul_prec
+  | MINUS
+  | DIV %prec div_prec
+  { to_binop($1) }
+
+
+--------
+(source_file
+  (old_rule
+    (flags)
+    (symbol (lid))
+    (production_group
+      (producer (actual (symbol (uid))))
+      (producer (actual (symbol (uid)))) (precedence (symbol (lid)))
+      (producer (actual (symbol (uid))))
+      (producer (actual (symbol (uid)))) (precedence (symbol (lid)))
+      (action))))
+
+=====
+Parameterized non terminal
+=====
+
+%%
+
+%public separated_nonempty_list(separator, X):
+  x = X
+    { [ x ] }
+| x = X; separator; xs = separated_nonempty_list(separator, X)
+    { x :: xs }
+
+--------
+(source_file
+  (old_rule
+    (flags)
+    (symbol (lid)) (symbol (lid)) (symbol (uid))
+    (production_group
+      (producer (lid) (actual (symbol (uid))))
+      (action))
+    (production_group
+      (producer (lid) (actual (symbol (uid))))
+      (producer (actual (symbol (lid))))
+      (producer
+        (lid)
+        (actual
+          (symbol (lid))
+          (lax_actual (symbol (lid)))
+          (lax_actual (symbol (uid)))))
+      (action))))

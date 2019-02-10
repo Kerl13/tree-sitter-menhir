@@ -1,0 +1,96 @@
+=====
+Simple production rules
+=====
+
+%%
+
+let expr :=
+  | e1 = expr; PLUS; e2 = expr;  { Plus (e1, e2) }
+  | ~ = ident;                   < Ident >
+
+let ident ==
+  id = IDENT; < id >
+
+--------
+(source_file
+  (new_rule
+    (lid)
+    (equality_symbol)
+    (expression
+      (seq_expression
+        (pattern (lid)) (symbol_expression (symbol (lid)))
+      (seq_expression (symbol_expression (symbol (uid)))
+      (seq_expression
+        (pattern (lid))
+        (symbol_expression (symbol (lid)))
+      (seq_expression
+        (action_expression
+          (menhir_action (action)))))))
+
+      (seq_expression
+        (pattern)
+        (symbol_expression (symbol (lid)))
+      (seq_expression
+        (action_expression (menhir_action (ocaml_type)))))))
+
+  (new_rule
+    (lid)
+    (equality_symbol)
+    (expression
+      (seq_expression
+        (pattern (lid)) (symbol_expression (symbol (uid)))
+      (seq_expression
+        (action_expression
+          (menhir_action (ocaml_type))))))))
+
+
+=====
+Annotations
+=====
+
+%%
+
+%public let binop ==
+    op = PLUS;     { ( + ) } %prec a
+  | op = MUL;      { ( * ) } %prec b
+
+
+--------
+(source_file
+  (new_rule
+    (lid)
+    (equality_symbol)
+    (expression
+      (seq_expression (pattern (lid)) (symbol_expression (symbol (uid)))
+      (seq_expression
+        (action_expression
+          (menhir_action (action)) (precedence (symbol (lid))))))
+
+      (seq_expression (pattern (lid)) (symbol_expression (symbol (uid)))
+      (seq_expression
+        (action_expression
+          (menhir_action (action))
+          (precedence (symbol (lid)))))))))
+
+
+=====
+Parameterized non terminal
+=====
+
+%%
+
+let delimited(opening, x, closing) ==
+  opening ; ~ = x ; closing ; <>
+
+--------
+(source_file
+  (new_rule
+    (lid) (symbol (lid)) (symbol (lid)) (symbol (lid))
+    (equality_symbol)
+    (expression
+      (seq_expression (symbol_expression (symbol (lid)))
+      (seq_expression (pattern) (symbol_expression (symbol (lid)))
+      (seq_expression (symbol_expression (symbol (lid)))
+      (seq_expression
+        (action_expression
+          (menhir_action (ocaml_type))))))))))
