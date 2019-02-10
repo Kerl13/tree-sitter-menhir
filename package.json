@@ -1,15 +1,20 @@
 {
   "name": "tree-sitter-menhir",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Tree-sitter parser for menhir files",
   "main": "index.js",
   "repository": "https://github.com/Kerl13/tree-sitter-menhir",
+  "keywords": [
+    "parser",
+    "ocaml",
+    "menhir"
+  ],
   "scripts": {
     "build": "tree-sitter generate && node-gyp build",
     "test": "tree-sitter test"
   },
-  "author": "Martin Pépin <kerl@wkerl.me>",
-  "license": "LGPL-3.0-or-later",
+  "author": "Martin Pépin",
+  "license": "MIT",
   "dependencies": {
     "nan": "^2.12.1"
   },
