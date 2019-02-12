@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "build": "tree-sitter generate && node-gyp build",
-    "test": "tree-sitter test"
+    "test": "tree-sitter test && script/run_menhir_test_suite.sh"
   },
   "author": "Martin Pépin",
   "license": "MIT",
