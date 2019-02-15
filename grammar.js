@@ -47,7 +47,7 @@ module.exports = grammar({
 
     lid: $ => RegExp(lowercase + identchar + '*'),
     uid: $ => RegExp(uppercase + identchar + '*'),
-    qid: $ => /"[ -!\]-~]+"/,
+    qid: $ => /"[\x23-\x5b\x5d-\x7e\x20\x21]+"/,
     symbol: $ => choice($.lid, $.uid, $.qid),
 
     // Declarations
@@ -216,7 +216,7 @@ function clist(rule) {
 }
 
 function plist(rule) {
-  return optional(seq('(', separated_nonempty_list(', ', rule), ')'))
+  return optional(seq('(', separated_nonempty_list(',', rule), ')'))
 }
 
 function generic_actual($, rule_a, rule_b) {
