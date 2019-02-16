@@ -285,8 +285,24 @@ struct Scanner {
           break;
         case '"':
           advance(lexer);
-        case '\0':
           return;
+        case '\0':
+          // XXX. Super hackish trick:
+          // In order to decide whether this \0 is a \0 character in the
+          // source file or the end of the file, we look one step ahead. If
+          // the next character is a \0 again, it is likely that the lexer did
+          // not really advance and that we read the same character. We assume
+          // we reached the end of the file
+          //
+          // Is there a clean way to do this?
+          // https://github.com/tree-sitter/tree-sitter/issues/280
+          advance(lexer);
+          if (lexer->lookahead == 0) {
+            // \0 again, this is probably the end of the file
+            return;
+          }
+          // Surprise! There is something after \0
+          break;
         default:
           advance(lexer);
       }
@@ -351,7 +367,22 @@ struct Scanner {
       case '\'':
         break;
       case '\0':
-        return;
+        // XXX. Super hackish trick:
+        // In order to decide whether this \0 is a \0 character in the
+        // source file or the end of the file, we look one step ahead. If
+        // the next character is a \0 again, it is likely that the lexer did
+        // not really advance and that we read the same character. We assume
+        // we reached the end of the file
+        //
+        // Is there a clean way to do this?
+        // https://github.com/tree-sitter/tree-sitter/issues/280
+        advance(lexer);
+        if (lexer->lookahead == 0) {
+          // \0 again, this is probably the end of the file
+          return;
+        }
+        // Surprise! There is something after \0
+        break;
       default:
         advance(lexer);
     }
