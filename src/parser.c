@@ -10,7 +10,7 @@
 #define SYMBOL_COUNT 83
 #define ALIAS_COUNT 0
 #define TOKEN_COUNT 41
-#define EXTERNAL_TOKEN_COUNT 9
+#define EXTERNAL_TOKEN_COUNT 8
 #define MAX_ALIAS_SEQUENCE_LENGTH 12
 
 enum {
@@ -45,13 +45,13 @@ enum {
   anon_sym_COLON_EQ = 29,
   anon_sym__ = 30,
   anon_sym_TILDE = 31,
-  sym_header = 32,
-  sym_ocaml_type = 33,
-  sym_action = 34,
-  sym_attribute = 35,
-  sym_grammar_attribute = 36,
-  sym_postlude = 37,
-  sym_line_comment = 38,
+  sym_line_comment = 32,
+  sym_header = 33,
+  sym_ocaml_type = 34,
+  sym_action = 35,
+  sym_attribute = 36,
+  sym_grammar_attribute = 37,
+  sym_postlude = 38,
   sym_comment = 39,
   sym_ocaml_comment = 40,
   sym_source_file = 41,
@@ -131,13 +131,13 @@ static const char *ts_symbol_names[] = {
   [anon_sym_COLON_EQ] = ":=",
   [anon_sym__] = "_",
   [anon_sym_TILDE] = "~",
+  [sym_line_comment] = "line_comment",
   [sym_header] = "header",
   [sym_ocaml_type] = "ocaml_type",
   [sym_action] = "action",
   [sym_attribute] = "attribute",
   [sym_grammar_attribute] = "grammar_attribute",
   [sym_postlude] = "postlude",
-  [sym_line_comment] = "line_comment",
   [sym_comment] = "comment",
   [sym_ocaml_comment] = "ocaml_comment",
   [sym_source_file] = "source_file",
@@ -313,6 +313,10 @@ static const TSSymbolMetadata ts_symbol_metadata[] = {
     .visible = true,
     .named = false,
   },
+  [sym_line_comment] = {
+    .visible = true,
+    .named = true,
+  },
   [sym_header] = {
     .visible = true,
     .named = true,
@@ -334,10 +338,6 @@ static const TSSymbolMetadata ts_symbol_metadata[] = {
     .named = true,
   },
   [sym_postlude] = {
-    .visible = true,
-    .named = true,
-  },
-  [sym_line_comment] = {
     .visible = true,
     .named = true,
   },
@@ -539,22 +539,24 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
         ADVANCE(7);
       if (lookahead == ',')
         ADVANCE(8);
-      if (lookahead == ':')
+      if (lookahead == '/')
         ADVANCE(9);
-      if (lookahead == ';')
+      if (lookahead == ':')
         ADVANCE(10);
-      if (lookahead == '=')
+      if (lookahead == ';')
         ADVANCE(11);
-      if (lookahead == '?')
+      if (lookahead == '=')
         ADVANCE(12);
-      if (lookahead == '_')
+      if (lookahead == '?')
         ADVANCE(13);
-      if (lookahead == 'l')
+      if (lookahead == '_')
         ADVANCE(14);
-      if (lookahead == '|')
+      if (lookahead == 'l')
         ADVANCE(15);
-      if (lookahead == '~')
+      if (lookahead == '|')
         ADVANCE(16);
+      if (lookahead == '~')
+        ADVANCE(17);
       if (lookahead == '\t' ||
           lookahead == '\n' ||
           lookahead == '\r' ||
@@ -563,11 +565,11 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       if (('A' <= lookahead && lookahead <= 'Z') ||
           (192 <= lookahead && lookahead <= 214) ||
           (216 <= lookahead && lookahead <= 222))
-        ADVANCE(17);
+        ADVANCE(18);
       if (('a' <= lookahead && lookahead <= 'z') ||
           (223 <= lookahead && lookahead <= 246) ||
           (248 <= lookahead && lookahead <= 255))
-        ADVANCE(18);
+        ADVANCE(19);
       END_STATE();
     case 1:
       ACCEPT_TOKEN(ts_builtin_sym_end);
@@ -577,29 +579,29 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           lookahead == '!' ||
           ('#' <= lookahead && lookahead <= '[') ||
           (']' <= lookahead && lookahead <= '~'))
-        ADVANCE(19);
+        ADVANCE(20);
       END_STATE();
     case 3:
       if (lookahead == '%')
-        ADVANCE(20);
-      if (lookahead == 'a')
         ADVANCE(21);
-      if (lookahead == 'i')
+      if (lookahead == 'a')
         ADVANCE(22);
-      if (lookahead == 'l')
+      if (lookahead == 'i')
         ADVANCE(23);
-      if (lookahead == 'n')
+      if (lookahead == 'l')
         ADVANCE(24);
-      if (lookahead == 'o')
+      if (lookahead == 'n')
         ADVANCE(25);
-      if (lookahead == 'p')
+      if (lookahead == 'o')
         ADVANCE(26);
-      if (lookahead == 'r')
+      if (lookahead == 'p')
         ADVANCE(27);
-      if (lookahead == 's')
+      if (lookahead == 'r')
         ADVANCE(28);
-      if (lookahead == 't')
+      if (lookahead == 's')
         ADVANCE(29);
+      if (lookahead == 't')
+        ADVANCE(30);
       END_STATE();
     case 4:
       ACCEPT_TOKEN(anon_sym_LPAREN);
@@ -617,22 +619,26 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       ACCEPT_TOKEN(anon_sym_COMMA);
       END_STATE();
     case 9:
-      ACCEPT_TOKEN(anon_sym_COLON);
-      if (lookahead == '=')
-        ADVANCE(30);
-      END_STATE();
-    case 10:
-      ACCEPT_TOKEN(anon_sym_SEMI);
-      END_STATE();
-    case 11:
-      ACCEPT_TOKEN(anon_sym_EQ);
-      if (lookahead == '=')
+      if (lookahead == '/')
         ADVANCE(31);
       END_STATE();
+    case 10:
+      ACCEPT_TOKEN(anon_sym_COLON);
+      if (lookahead == '=')
+        ADVANCE(32);
+      END_STATE();
+    case 11:
+      ACCEPT_TOKEN(anon_sym_SEMI);
+      END_STATE();
     case 12:
-      ACCEPT_TOKEN(anon_sym_QMARK);
+      ACCEPT_TOKEN(anon_sym_EQ);
+      if (lookahead == '=')
+        ADVANCE(33);
       END_STATE();
     case 13:
+      ACCEPT_TOKEN(anon_sym_QMARK);
+      END_STATE();
+    case 14:
       ACCEPT_TOKEN(anon_sym__);
       if (('0' <= lookahead && lookahead <= '9') ||
           ('A' <= lookahead && lookahead <= 'Z') ||
@@ -641,29 +647,12 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           (192 <= lookahead && lookahead <= 214) ||
           (216 <= lookahead && lookahead <= 246) ||
           (248 <= lookahead && lookahead <= 255))
-        ADVANCE(18);
-      END_STATE();
-    case 14:
-      ACCEPT_TOKEN(sym_lid);
-      if (lookahead == 'e')
-        ADVANCE(32);
-      if (('0' <= lookahead && lookahead <= '9') ||
-          ('A' <= lookahead && lookahead <= 'Z') ||
-          lookahead == '_' ||
-          ('a' <= lookahead && lookahead <= 'z') ||
-          (192 <= lookahead && lookahead <= 214) ||
-          (216 <= lookahead && lookahead <= 246) ||
-          (248 <= lookahead && lookahead <= 255))
-        ADVANCE(18);
+        ADVANCE(19);
       END_STATE();
     case 15:
-      ACCEPT_TOKEN(anon_sym_PIPE);
-      END_STATE();
-    case 16:
-      ACCEPT_TOKEN(anon_sym_TILDE);
-      END_STATE();
-    case 17:
-      ACCEPT_TOKEN(sym_uid);
+      ACCEPT_TOKEN(sym_lid);
+      if (lookahead == 'e')
+        ADVANCE(34);
       if (('0' <= lookahead && lookahead <= '9') ||
           ('A' <= lookahead && lookahead <= 'Z') ||
           lookahead == '_' ||
@@ -671,10 +660,16 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           (192 <= lookahead && lookahead <= 214) ||
           (216 <= lookahead && lookahead <= 246) ||
           (248 <= lookahead && lookahead <= 255))
-        ADVANCE(17);
+        ADVANCE(19);
+      END_STATE();
+    case 16:
+      ACCEPT_TOKEN(anon_sym_PIPE);
+      END_STATE();
+    case 17:
+      ACCEPT_TOKEN(anon_sym_TILDE);
       END_STATE();
     case 18:
-      ACCEPT_TOKEN(sym_lid);
+      ACCEPT_TOKEN(sym_uid);
       if (('0' <= lookahead && lookahead <= '9') ||
           ('A' <= lookahead && lookahead <= 'Z') ||
           lookahead == '_' ||
@@ -685,67 +680,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
         ADVANCE(18);
       END_STATE();
     case 19:
-      if (lookahead == '"')
-        ADVANCE(33);
-      if ((' ' <= lookahead && lookahead <= '[') ||
-          (']' <= lookahead && lookahead <= '~'))
-        ADVANCE(19);
-      END_STATE();
-    case 20:
-      ACCEPT_TOKEN(anon_sym_PERCENT_PERCENT);
-      END_STATE();
-    case 21:
-      if (lookahead == 't')
-        ADVANCE(34);
-      END_STATE();
-    case 22:
-      if (lookahead == 'n')
-        ADVANCE(35);
-      END_STATE();
-    case 23:
-      if (lookahead == 'e')
-        ADVANCE(36);
-      END_STATE();
-    case 24:
-      if (lookahead == 'o')
-        ADVANCE(37);
-      END_STATE();
-    case 25:
-      if (lookahead == 'n')
-        ADVANCE(38);
-      END_STATE();
-    case 26:
-      if (lookahead == 'a')
-        ADVANCE(39);
-      if (lookahead == 'r')
-        ADVANCE(40);
-      if (lookahead == 'u')
-        ADVANCE(41);
-      END_STATE();
-    case 27:
-      if (lookahead == 'i')
-        ADVANCE(42);
-      END_STATE();
-    case 28:
-      if (lookahead == 't')
-        ADVANCE(43);
-      END_STATE();
-    case 29:
-      if (lookahead == 'o')
-        ADVANCE(44);
-      if (lookahead == 'y')
-        ADVANCE(45);
-      END_STATE();
-    case 30:
-      ACCEPT_TOKEN(anon_sym_COLON_EQ);
-      END_STATE();
-    case 31:
-      ACCEPT_TOKEN(anon_sym_EQ_EQ);
-      END_STATE();
-    case 32:
       ACCEPT_TOKEN(sym_lid);
-      if (lookahead == 't')
-        ADVANCE(46);
       if (('0' <= lookahead && lookahead <= '9') ||
           ('A' <= lookahead && lookahead <= 'Z') ||
           lookahead == '_' ||
@@ -753,60 +688,137 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           (192 <= lookahead && lookahead <= 214) ||
           (216 <= lookahead && lookahead <= 246) ||
           (248 <= lookahead && lookahead <= 255))
-        ADVANCE(18);
+        ADVANCE(19);
       END_STATE();
-    case 33:
-      ACCEPT_TOKEN(sym_qid);
+    case 20:
+      if (lookahead == '"')
+        ADVANCE(35);
+      if ((' ' <= lookahead && lookahead <= '[') ||
+          (']' <= lookahead && lookahead <= '~'))
+        ADVANCE(20);
       END_STATE();
-    case 34:
+    case 21:
+      ACCEPT_TOKEN(anon_sym_PERCENT_PERCENT);
+      END_STATE();
+    case 22:
       if (lookahead == 't')
+        ADVANCE(36);
+      END_STATE();
+    case 23:
+      if (lookahead == 'n')
+        ADVANCE(37);
+      END_STATE();
+    case 24:
+      if (lookahead == 'e')
+        ADVANCE(38);
+      END_STATE();
+    case 25:
+      if (lookahead == 'o')
+        ADVANCE(39);
+      END_STATE();
+    case 26:
+      if (lookahead == 'n')
+        ADVANCE(40);
+      END_STATE();
+    case 27:
+      if (lookahead == 'a')
+        ADVANCE(41);
+      if (lookahead == 'r')
+        ADVANCE(42);
+      if (lookahead == 'u')
+        ADVANCE(43);
+      END_STATE();
+    case 28:
+      if (lookahead == 'i')
+        ADVANCE(44);
+      END_STATE();
+    case 29:
+      if (lookahead == 't')
+        ADVANCE(45);
+      END_STATE();
+    case 30:
+      if (lookahead == 'o')
+        ADVANCE(46);
+      if (lookahead == 'y')
         ADVANCE(47);
       END_STATE();
-    case 35:
-      if (lookahead == 'l')
+    case 31:
+      ACCEPT_TOKEN(sym_line_comment);
+      if (lookahead != 0 &&
+          lookahead != '\n')
+        ADVANCE(31);
+      END_STATE();
+    case 32:
+      ACCEPT_TOKEN(anon_sym_COLON_EQ);
+      END_STATE();
+    case 33:
+      ACCEPT_TOKEN(anon_sym_EQ_EQ);
+      END_STATE();
+    case 34:
+      ACCEPT_TOKEN(sym_lid);
+      if (lookahead == 't')
         ADVANCE(48);
+      if (('0' <= lookahead && lookahead <= '9') ||
+          ('A' <= lookahead && lookahead <= 'Z') ||
+          lookahead == '_' ||
+          ('a' <= lookahead && lookahead <= 'z') ||
+          (192 <= lookahead && lookahead <= 214) ||
+          (216 <= lookahead && lookahead <= 246) ||
+          (248 <= lookahead && lookahead <= 255))
+        ADVANCE(19);
+      END_STATE();
+    case 35:
+      ACCEPT_TOKEN(sym_qid);
       END_STATE();
     case 36:
-      if (lookahead == 'f')
+      if (lookahead == 't')
         ADVANCE(49);
       END_STATE();
     case 37:
-      if (lookahead == 'n')
+      if (lookahead == 'l')
         ADVANCE(50);
       END_STATE();
     case 38:
-      if (lookahead == '_')
+      if (lookahead == 'f')
         ADVANCE(51);
       END_STATE();
     case 39:
-      if (lookahead == 'r')
+      if (lookahead == 'n')
         ADVANCE(52);
       END_STATE();
     case 40:
-      if (lookahead == 'e')
+      if (lookahead == '_')
         ADVANCE(53);
       END_STATE();
     case 41:
-      if (lookahead == 'b')
+      if (lookahead == 'r')
         ADVANCE(54);
       END_STATE();
     case 42:
-      if (lookahead == 'g')
+      if (lookahead == 'e')
         ADVANCE(55);
       END_STATE();
     case 43:
-      if (lookahead == 'a')
+      if (lookahead == 'b')
         ADVANCE(56);
       END_STATE();
     case 44:
-      if (lookahead == 'k')
+      if (lookahead == 'g')
         ADVANCE(57);
       END_STATE();
     case 45:
-      if (lookahead == 'p')
+      if (lookahead == 'a')
         ADVANCE(58);
       END_STATE();
     case 46:
+      if (lookahead == 'k')
+        ADVANCE(59);
+      END_STATE();
+    case 47:
+      if (lookahead == 'p')
+        ADVANCE(60);
+      END_STATE();
+    case 48:
       ACCEPT_TOKEN(anon_sym_let);
       if (('0' <= lookahead && lookahead <= '9') ||
           ('A' <= lookahead && lookahead <= 'Z') ||
@@ -815,26 +827,18 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           (192 <= lookahead && lookahead <= 214) ||
           (216 <= lookahead && lookahead <= 246) ||
           (248 <= lookahead && lookahead <= 255))
-        ADVANCE(18);
-      END_STATE();
-    case 47:
-      if (lookahead == 'r')
-        ADVANCE(59);
-      END_STATE();
-    case 48:
-      if (lookahead == 'i')
-        ADVANCE(60);
+        ADVANCE(19);
       END_STATE();
     case 49:
-      if (lookahead == 't')
+      if (lookahead == 'r')
         ADVANCE(61);
       END_STATE();
     case 50:
-      if (lookahead == 'a')
+      if (lookahead == 'i')
         ADVANCE(62);
       END_STATE();
     case 51:
-      if (lookahead == 'e')
+      if (lookahead == 't')
         ADVANCE(63);
       END_STATE();
     case 52:
@@ -842,198 +846,206 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
         ADVANCE(64);
       END_STATE();
     case 53:
-      if (lookahead == 'c')
+      if (lookahead == 'e')
         ADVANCE(65);
       END_STATE();
     case 54:
-      if (lookahead == 'l')
+      if (lookahead == 'a')
         ADVANCE(66);
       END_STATE();
     case 55:
-      if (lookahead == 'h')
+      if (lookahead == 'c')
         ADVANCE(67);
       END_STATE();
     case 56:
-      if (lookahead == 'r')
+      if (lookahead == 'l')
         ADVANCE(68);
       END_STATE();
     case 57:
-      if (lookahead == 'e')
+      if (lookahead == 'h')
         ADVANCE(69);
       END_STATE();
     case 58:
-      if (lookahead == 'e')
+      if (lookahead == 'r')
         ADVANCE(70);
       END_STATE();
     case 59:
-      if (lookahead == 'i')
+      if (lookahead == 'e')
         ADVANCE(71);
       END_STATE();
     case 60:
-      if (lookahead == 'n')
+      if (lookahead == 'e')
         ADVANCE(72);
       END_STATE();
     case 61:
-      ACCEPT_TOKEN(anon_sym_PERCENTleft);
-      END_STATE();
-    case 62:
-      if (lookahead == 's')
+      if (lookahead == 'i')
         ADVANCE(73);
       END_STATE();
-    case 63:
-      if (lookahead == 'r')
+    case 62:
+      if (lookahead == 'n')
         ADVANCE(74);
       END_STATE();
+    case 63:
+      ACCEPT_TOKEN(anon_sym_PERCENTleft);
+      END_STATE();
     case 64:
-      if (lookahead == 'm')
+      if (lookahead == 's')
         ADVANCE(75);
       END_STATE();
     case 65:
-      ACCEPT_TOKEN(anon_sym_PERCENTprec);
-      END_STATE();
-    case 66:
-      if (lookahead == 'i')
+      if (lookahead == 'r')
         ADVANCE(76);
       END_STATE();
-    case 67:
-      if (lookahead == 't')
+    case 66:
+      if (lookahead == 'm')
         ADVANCE(77);
       END_STATE();
+    case 67:
+      ACCEPT_TOKEN(anon_sym_PERCENTprec);
+      END_STATE();
     case 68:
-      if (lookahead == 't')
+      if (lookahead == 'i')
         ADVANCE(78);
       END_STATE();
     case 69:
-      if (lookahead == 'n')
+      if (lookahead == 't')
         ADVANCE(79);
       END_STATE();
     case 70:
-      ACCEPT_TOKEN(anon_sym_PERCENTtype);
-      END_STATE();
-    case 71:
-      if (lookahead == 'b')
+      if (lookahead == 't')
         ADVANCE(80);
       END_STATE();
-    case 72:
-      if (lookahead == 'e')
+    case 71:
+      if (lookahead == 'n')
         ADVANCE(81);
       END_STATE();
+    case 72:
+      ACCEPT_TOKEN(anon_sym_PERCENTtype);
+      END_STATE();
     case 73:
-      if (lookahead == 's')
+      if (lookahead == 'b')
         ADVANCE(82);
       END_STATE();
     case 74:
-      if (lookahead == 'r')
+      if (lookahead == 'e')
         ADVANCE(83);
       END_STATE();
     case 75:
-      if (lookahead == 'e')
+      if (lookahead == 's')
         ADVANCE(84);
       END_STATE();
     case 76:
-      if (lookahead == 'c')
+      if (lookahead == 'r')
         ADVANCE(85);
       END_STATE();
     case 77:
-      ACCEPT_TOKEN(anon_sym_PERCENTright);
-      END_STATE();
-    case 78:
-      ACCEPT_TOKEN(anon_sym_PERCENTstart);
-      END_STATE();
-    case 79:
-      ACCEPT_TOKEN(anon_sym_PERCENTtoken);
-      END_STATE();
-    case 80:
-      if (lookahead == 'u')
+      if (lookahead == 'e')
         ADVANCE(86);
       END_STATE();
-    case 81:
-      ACCEPT_TOKEN(anon_sym_PERCENTinline);
-      END_STATE();
-    case 82:
-      if (lookahead == 'o')
+    case 78:
+      if (lookahead == 'c')
         ADVANCE(87);
       END_STATE();
-    case 83:
-      if (lookahead == 'o')
+    case 79:
+      ACCEPT_TOKEN(anon_sym_PERCENTright);
+      END_STATE();
+    case 80:
+      ACCEPT_TOKEN(anon_sym_PERCENTstart);
+      END_STATE();
+    case 81:
+      ACCEPT_TOKEN(anon_sym_PERCENTtoken);
+      END_STATE();
+    case 82:
+      if (lookahead == 'u')
         ADVANCE(88);
       END_STATE();
+    case 83:
+      ACCEPT_TOKEN(anon_sym_PERCENTinline);
+      END_STATE();
     case 84:
-      if (lookahead == 't')
+      if (lookahead == 'o')
         ADVANCE(89);
       END_STATE();
     case 85:
-      ACCEPT_TOKEN(anon_sym_PERCENTpublic);
+      if (lookahead == 'o')
+        ADVANCE(90);
       END_STATE();
     case 86:
       if (lookahead == 't')
-        ADVANCE(90);
-      END_STATE();
-    case 87:
-      if (lookahead == 'c')
         ADVANCE(91);
       END_STATE();
+    case 87:
+      ACCEPT_TOKEN(anon_sym_PERCENTpublic);
+      END_STATE();
     case 88:
-      if (lookahead == 'r')
+      if (lookahead == 't')
         ADVANCE(92);
       END_STATE();
     case 89:
-      if (lookahead == 'e')
+      if (lookahead == 'c')
         ADVANCE(93);
       END_STATE();
     case 90:
-      if (lookahead == 'e')
+      if (lookahead == 'r')
         ADVANCE(94);
       END_STATE();
     case 91:
-      ACCEPT_TOKEN(anon_sym_PERCENTnonassoc);
-      END_STATE();
-    case 92:
-      if (lookahead == '_')
+      if (lookahead == 'e')
         ADVANCE(95);
       END_STATE();
-    case 93:
-      if (lookahead == 'r')
+    case 92:
+      if (lookahead == 'e')
         ADVANCE(96);
       END_STATE();
+    case 93:
+      ACCEPT_TOKEN(anon_sym_PERCENTnonassoc);
+      END_STATE();
     case 94:
-      ACCEPT_TOKEN(anon_sym_PERCENTattribute);
+      if (lookahead == '_')
+        ADVANCE(97);
       END_STATE();
     case 95:
       if (lookahead == 'r')
-        ADVANCE(97);
-      END_STATE();
-    case 96:
-      ACCEPT_TOKEN(anon_sym_PERCENTparameter);
-      END_STATE();
-    case 97:
-      if (lookahead == 'e')
         ADVANCE(98);
       END_STATE();
-    case 98:
-      if (lookahead == 'd')
+    case 96:
+      ACCEPT_TOKEN(anon_sym_PERCENTattribute);
+      END_STATE();
+    case 97:
+      if (lookahead == 'r')
         ADVANCE(99);
       END_STATE();
+    case 98:
+      ACCEPT_TOKEN(anon_sym_PERCENTparameter);
+      END_STATE();
     case 99:
-      if (lookahead == 'u')
+      if (lookahead == 'e')
         ADVANCE(100);
       END_STATE();
     case 100:
-      if (lookahead == 'c')
+      if (lookahead == 'd')
         ADVANCE(101);
       END_STATE();
     case 101:
-      if (lookahead == 'e')
+      if (lookahead == 'u')
         ADVANCE(102);
       END_STATE();
     case 102:
-      ACCEPT_TOKEN(anon_sym_PERCENTon_error_reduce);
+      if (lookahead == 'c')
+        ADVANCE(103);
       END_STATE();
     case 103:
+      if (lookahead == 'e')
+        ADVANCE(104);
+      END_STATE();
+    case 104:
+      ACCEPT_TOKEN(anon_sym_PERCENTon_error_reduce);
+      END_STATE();
+    case 105:
       if (lookahead == '"')
         ADVANCE(2);
       if (lookahead == '%')
-        ADVANCE(104);
+        ADVANCE(106);
       if (lookahead == '(')
         ADVANCE(4);
       if (lookahead == '*')
@@ -1042,103 +1054,107 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
         ADVANCE(7);
       if (lookahead == ',')
         ADVANCE(8);
+      if (lookahead == '/')
+        ADVANCE(9);
       if (lookahead == ';')
-        ADVANCE(10);
+        ADVANCE(11);
       if (lookahead == '?')
-        ADVANCE(12);
+        ADVANCE(13);
       if (lookahead == '\t' ||
           lookahead == '\n' ||
           lookahead == '\r' ||
           lookahead == ' ')
-        SKIP(103);
+        SKIP(105);
       if (('A' <= lookahead && lookahead <= 'Z') ||
           (192 <= lookahead && lookahead <= 214) ||
           (216 <= lookahead && lookahead <= 222))
-        ADVANCE(17);
+        ADVANCE(18);
       if (lookahead == '_' ||
           ('a' <= lookahead && lookahead <= 'z') ||
           (223 <= lookahead && lookahead <= 246) ||
           (248 <= lookahead && lookahead <= 255))
-        ADVANCE(18);
-      END_STATE();
-    case 104:
-      if (lookahead == '%')
-        ADVANCE(20);
-      if (lookahead == 'a')
-        ADVANCE(21);
-      if (lookahead == 'l')
-        ADVANCE(23);
-      if (lookahead == 'n')
-        ADVANCE(24);
-      if (lookahead == 'o')
-        ADVANCE(25);
-      if (lookahead == 'p')
-        ADVANCE(105);
-      if (lookahead == 'r')
-        ADVANCE(27);
-      if (lookahead == 's')
-        ADVANCE(28);
-      if (lookahead == 't')
-        ADVANCE(29);
-      END_STATE();
-    case 105:
-      if (lookahead == 'a')
-        ADVANCE(39);
+        ADVANCE(19);
       END_STATE();
     case 106:
+      if (lookahead == '%')
+        ADVANCE(21);
+      if (lookahead == 'a')
+        ADVANCE(22);
+      if (lookahead == 'l')
+        ADVANCE(24);
+      if (lookahead == 'n')
+        ADVANCE(25);
+      if (lookahead == 'o')
+        ADVANCE(26);
+      if (lookahead == 'p')
+        ADVANCE(107);
+      if (lookahead == 'r')
+        ADVANCE(28);
+      if (lookahead == 's')
+        ADVANCE(29);
+      if (lookahead == 't')
+        ADVANCE(30);
+      END_STATE();
+    case 107:
+      if (lookahead == 'a')
+        ADVANCE(41);
+      END_STATE();
+    case 108:
       if (lookahead == 0)
         ADVANCE(1);
       if (lookahead == '"')
         ADVANCE(2);
       if (lookahead == '%')
-        ADVANCE(107);
+        ADVANCE(109);
       if (lookahead == '(')
         ADVANCE(4);
       if (lookahead == '*')
         ADVANCE(6);
       if (lookahead == '+')
         ADVANCE(7);
+      if (lookahead == '/')
+        ADVANCE(9);
       if (lookahead == ';')
-        ADVANCE(10);
+        ADVANCE(11);
       if (lookahead == '=')
-        ADVANCE(108);
+        ADVANCE(110);
       if (lookahead == '?')
-        ADVANCE(12);
+        ADVANCE(13);
       if (lookahead == 'l')
-        ADVANCE(14);
-      if (lookahead == '|')
         ADVANCE(15);
+      if (lookahead == '|')
+        ADVANCE(16);
       if (lookahead == '\t' ||
           lookahead == '\n' ||
           lookahead == '\r' ||
           lookahead == ' ')
-        SKIP(106);
+        SKIP(108);
       if (('A' <= lookahead && lookahead <= 'Z') ||
           (192 <= lookahead && lookahead <= 214) ||
           (216 <= lookahead && lookahead <= 222))
-        ADVANCE(17);
+        ADVANCE(18);
       if (lookahead == '_' ||
           ('a' <= lookahead && lookahead <= 'z') ||
           (223 <= lookahead && lookahead <= 246) ||
           (248 <= lookahead && lookahead <= 255))
-        ADVANCE(18);
-      END_STATE();
-    case 107:
-      if (lookahead == 'i')
-        ADVANCE(22);
-      if (lookahead == 'p')
-        ADVANCE(109);
-      END_STATE();
-    case 108:
-      ACCEPT_TOKEN(anon_sym_EQ);
+        ADVANCE(19);
       END_STATE();
     case 109:
-      if (lookahead == 'r')
-        ADVANCE(40);
-      if (lookahead == 'u')
-        ADVANCE(41);
+      if (lookahead == 'i')
+        ADVANCE(23);
+      if (lookahead == 'p')
+        ADVANCE(111);
       END_STATE();
     case 110:
+      ACCEPT_TOKEN(anon_sym_EQ);
+      END_STATE();
+    case 111:
+      if (lookahead == 'r')
+        ADVANCE(42);
+      if (lookahead == 'u')
+        ADVANCE(43);
+      END_STATE();
+    case 112:
       if (lookahead == '"')
         ADVANCE(2);
       if (lookahead == '(')
@@ -1151,49 +1167,16 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
         ADVANCE(7);
       if (lookahead == ',')
         ADVANCE(8);
+      if (lookahead == '/')
+        ADVANCE(9);
       if (lookahead == ':')
-        ADVANCE(111);
-      if (lookahead == ';')
-        ADVANCE(10);
-      if (lookahead == '?')
-        ADVANCE(12);
-      if (lookahead == '|')
-        ADVANCE(15);
-      if (lookahead == '\t' ||
-          lookahead == '\n' ||
-          lookahead == '\r' ||
-          lookahead == ' ')
-        SKIP(110);
-      if (('A' <= lookahead && lookahead <= 'Z') ||
-          (192 <= lookahead && lookahead <= 214) ||
-          (216 <= lookahead && lookahead <= 222))
-        ADVANCE(17);
-      if (lookahead == '_' ||
-          ('a' <= lookahead && lookahead <= 'z') ||
-          (223 <= lookahead && lookahead <= 246) ||
-          (248 <= lookahead && lookahead <= 255))
-        ADVANCE(18);
-      END_STATE();
-    case 111:
-      ACCEPT_TOKEN(anon_sym_COLON);
-      END_STATE();
-    case 112:
-      if (lookahead == '"')
-        ADVANCE(2);
-      if (lookahead == '%')
         ADVANCE(113);
-      if (lookahead == '(')
-        ADVANCE(4);
-      if (lookahead == '*')
-        ADVANCE(6);
-      if (lookahead == '+')
-        ADVANCE(7);
       if (lookahead == ';')
-        ADVANCE(10);
+        ADVANCE(11);
       if (lookahead == '?')
-        ADVANCE(12);
+        ADVANCE(13);
       if (lookahead == '|')
-        ADVANCE(15);
+        ADVANCE(16);
       if (lookahead == '\t' ||
           lookahead == '\n' ||
           lookahead == '\r' ||
@@ -1202,54 +1185,95 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       if (('A' <= lookahead && lookahead <= 'Z') ||
           (192 <= lookahead && lookahead <= 214) ||
           (216 <= lookahead && lookahead <= 222))
-        ADVANCE(17);
+        ADVANCE(18);
       if (lookahead == '_' ||
           ('a' <= lookahead && lookahead <= 'z') ||
           (223 <= lookahead && lookahead <= 246) ||
           (248 <= lookahead && lookahead <= 255))
-        ADVANCE(18);
+        ADVANCE(19);
       END_STATE();
     case 113:
-      if (lookahead == 'p')
-        ADVANCE(109);
+      ACCEPT_TOKEN(anon_sym_COLON);
       END_STATE();
     case 114:
+      if (lookahead == '"')
+        ADVANCE(2);
+      if (lookahead == '%')
+        ADVANCE(115);
       if (lookahead == '(')
         ADVANCE(4);
-      if (lookahead == ':')
-        ADVANCE(111);
+      if (lookahead == '*')
+        ADVANCE(6);
+      if (lookahead == '+')
+        ADVANCE(7);
+      if (lookahead == '/')
+        ADVANCE(9);
+      if (lookahead == ';')
+        ADVANCE(11);
+      if (lookahead == '?')
+        ADVANCE(13);
+      if (lookahead == '|')
+        ADVANCE(16);
       if (lookahead == '\t' ||
           lookahead == '\n' ||
           lookahead == '\r' ||
           lookahead == ' ')
         SKIP(114);
+      if (('A' <= lookahead && lookahead <= 'Z') ||
+          (192 <= lookahead && lookahead <= 214) ||
+          (216 <= lookahead && lookahead <= 222))
+        ADVANCE(18);
+      if (lookahead == '_' ||
+          ('a' <= lookahead && lookahead <= 'z') ||
+          (223 <= lookahead && lookahead <= 246) ||
+          (248 <= lookahead && lookahead <= 255))
+        ADVANCE(19);
       END_STATE();
     case 115:
+      if (lookahead == 'p')
+        ADVANCE(111);
+      END_STATE();
+    case 116:
       if (lookahead == '(')
         ADVANCE(4);
+      if (lookahead == '/')
+        ADVANCE(9);
       if (lookahead == ':')
-        ADVANCE(116);
-      if (lookahead == '=')
-        ADVANCE(117);
+        ADVANCE(113);
       if (lookahead == '\t' ||
           lookahead == '\n' ||
           lookahead == '\r' ||
           lookahead == ' ')
-        SKIP(115);
-      END_STATE();
-    case 116:
-      if (lookahead == '=')
-        ADVANCE(30);
+        SKIP(116);
       END_STATE();
     case 117:
+      if (lookahead == '(')
+        ADVANCE(4);
+      if (lookahead == '/')
+        ADVANCE(9);
+      if (lookahead == ':')
+        ADVANCE(118);
       if (lookahead == '=')
-        ADVANCE(31);
+        ADVANCE(119);
+      if (lookahead == '\t' ||
+          lookahead == '\n' ||
+          lookahead == '\r' ||
+          lookahead == ' ')
+        SKIP(117);
       END_STATE();
     case 118:
+      if (lookahead == '=')
+        ADVANCE(32);
+      END_STATE();
+    case 119:
+      if (lookahead == '=')
+        ADVANCE(33);
+      END_STATE();
+    case 120:
       if (lookahead == '"')
         ADVANCE(2);
       if (lookahead == '%')
-        ADVANCE(119);
+        ADVANCE(121);
       if (lookahead == '(')
         ADVANCE(4);
       if (lookahead == ')')
@@ -1260,65 +1284,69 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
         ADVANCE(7);
       if (lookahead == ',')
         ADVANCE(8);
+      if (lookahead == '/')
+        ADVANCE(9);
       if (lookahead == ';')
-        ADVANCE(10);
+        ADVANCE(11);
       if (lookahead == '=')
-        ADVANCE(108);
+        ADVANCE(110);
       if (lookahead == '?')
-        ADVANCE(12);
-      if (lookahead == '|')
-        ADVANCE(15);
-      if (lookahead == '\t' ||
-          lookahead == '\n' ||
-          lookahead == '\r' ||
-          lookahead == ' ')
-        SKIP(118);
-      if (('A' <= lookahead && lookahead <= 'Z') ||
-          (192 <= lookahead && lookahead <= 214) ||
-          (216 <= lookahead && lookahead <= 222))
-        ADVANCE(17);
-      if (lookahead == '_' ||
-          ('a' <= lookahead && lookahead <= 'z') ||
-          (223 <= lookahead && lookahead <= 246) ||
-          (248 <= lookahead && lookahead <= 255))
-        ADVANCE(18);
-      END_STATE();
-    case 119:
-      if (lookahead == 'p')
-        ADVANCE(120);
-      END_STATE();
-    case 120:
-      if (lookahead == 'r')
-        ADVANCE(40);
-      END_STATE();
-    case 121:
-      if (lookahead == '"')
-        ADVANCE(2);
-      if (lookahead == '%')
-        ADVANCE(119);
-      if (lookahead == '(')
-        ADVANCE(4);
-      if (lookahead == ')')
-        ADVANCE(5);
-      if (lookahead == '_')
         ADVANCE(13);
       if (lookahead == '|')
-        ADVANCE(15);
-      if (lookahead == '~')
         ADVANCE(16);
       if (lookahead == '\t' ||
           lookahead == '\n' ||
           lookahead == '\r' ||
           lookahead == ' ')
-        SKIP(121);
+        SKIP(120);
       if (('A' <= lookahead && lookahead <= 'Z') ||
           (192 <= lookahead && lookahead <= 214) ||
           (216 <= lookahead && lookahead <= 222))
+        ADVANCE(18);
+      if (lookahead == '_' ||
+          ('a' <= lookahead && lookahead <= 'z') ||
+          (223 <= lookahead && lookahead <= 246) ||
+          (248 <= lookahead && lookahead <= 255))
+        ADVANCE(19);
+      END_STATE();
+    case 121:
+      if (lookahead == 'p')
+        ADVANCE(122);
+      END_STATE();
+    case 122:
+      if (lookahead == 'r')
+        ADVANCE(42);
+      END_STATE();
+    case 123:
+      if (lookahead == '"')
+        ADVANCE(2);
+      if (lookahead == '%')
+        ADVANCE(121);
+      if (lookahead == '(')
+        ADVANCE(4);
+      if (lookahead == ')')
+        ADVANCE(5);
+      if (lookahead == '/')
+        ADVANCE(9);
+      if (lookahead == '_')
+        ADVANCE(14);
+      if (lookahead == '|')
+        ADVANCE(16);
+      if (lookahead == '~')
         ADVANCE(17);
+      if (lookahead == '\t' ||
+          lookahead == '\n' ||
+          lookahead == '\r' ||
+          lookahead == ' ')
+        SKIP(123);
+      if (('A' <= lookahead && lookahead <= 'Z') ||
+          (192 <= lookahead && lookahead <= 214) ||
+          (216 <= lookahead && lookahead <= 222))
+        ADVANCE(18);
       if (('a' <= lookahead && lookahead <= 'z') ||
           (223 <= lookahead && lookahead <= 246) ||
           (248 <= lookahead && lookahead <= 255))
-        ADVANCE(18);
+        ADVANCE(19);
       END_STATE();
     default:
       return false;
@@ -1327,380 +1355,380 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
 
 static TSLexMode ts_lex_modes[STATE_COUNT] = {
   [0] = {.lex_state = 0, .external_lex_state = 1},
-  [1] = {.lex_state = 103, .external_lex_state = 2},
-  [2] = {.lex_state = 103, .external_lex_state = 2},
-  [3] = {.lex_state = 103, .external_lex_state = 3},
-  [4] = {.lex_state = 103, .external_lex_state = 4},
-  [5] = {.lex_state = 106, .external_lex_state = 5},
+  [1] = {.lex_state = 105, .external_lex_state = 2},
+  [2] = {.lex_state = 105, .external_lex_state = 2},
+  [3] = {.lex_state = 105, .external_lex_state = 3},
+  [4] = {.lex_state = 105, .external_lex_state = 4},
+  [5] = {.lex_state = 108, .external_lex_state = 5},
   [6] = {.lex_state = 0, .external_lex_state = 3},
-  [7] = {.lex_state = 103, .external_lex_state = 4},
-  [8] = {.lex_state = 103, .external_lex_state = 3},
-  [9] = {.lex_state = 103, .external_lex_state = 4},
+  [7] = {.lex_state = 105, .external_lex_state = 4},
+  [8] = {.lex_state = 105, .external_lex_state = 3},
+  [9] = {.lex_state = 105, .external_lex_state = 4},
   [10] = {.lex_state = 0, .external_lex_state = 3},
-  [11] = {.lex_state = 103, .external_lex_state = 4},
-  [12] = {.lex_state = 103, .external_lex_state = 2},
+  [11] = {.lex_state = 105, .external_lex_state = 4},
+  [12] = {.lex_state = 105, .external_lex_state = 2},
   [13] = {.lex_state = 0, .external_lex_state = 4},
-  [14] = {.lex_state = 103, .external_lex_state = 4},
-  [15] = {.lex_state = 103, .external_lex_state = 2},
-  [16] = {.lex_state = 103, .external_lex_state = 2},
-  [17] = {.lex_state = 110, .external_lex_state = 6},
-  [18] = {.lex_state = 112, .external_lex_state = 4},
+  [14] = {.lex_state = 105, .external_lex_state = 4},
+  [15] = {.lex_state = 105, .external_lex_state = 2},
+  [16] = {.lex_state = 105, .external_lex_state = 2},
+  [17] = {.lex_state = 112, .external_lex_state = 6},
+  [18] = {.lex_state = 114, .external_lex_state = 4},
   [19] = {.lex_state = 0, .external_lex_state = 4},
-  [20] = {.lex_state = 106, .external_lex_state = 4},
-  [21] = {.lex_state = 103, .external_lex_state = 4},
-  [22] = {.lex_state = 114, .external_lex_state = 6},
-  [23] = {.lex_state = 106, .external_lex_state = 5},
-  [24] = {.lex_state = 103, .external_lex_state = 4},
-  [25] = {.lex_state = 103, .external_lex_state = 2},
-  [26] = {.lex_state = 103, .external_lex_state = 6},
-  [27] = {.lex_state = 103, .external_lex_state = 6},
-  [28] = {.lex_state = 103, .external_lex_state = 4},
-  [29] = {.lex_state = 103, .external_lex_state = 7},
-  [30] = {.lex_state = 103, .external_lex_state = 2},
-  [31] = {.lex_state = 103, .external_lex_state = 2},
-  [32] = {.lex_state = 103, .external_lex_state = 2},
-  [33] = {.lex_state = 103, .external_lex_state = 2},
-  [34] = {.lex_state = 103, .external_lex_state = 4},
-  [35] = {.lex_state = 103, .external_lex_state = 2},
-  [36] = {.lex_state = 106, .external_lex_state = 5},
-  [37] = {.lex_state = 103, .external_lex_state = 2},
-  [38] = {.lex_state = 103, .external_lex_state = 2},
-  [39] = {.lex_state = 103, .external_lex_state = 4},
-  [40] = {.lex_state = 103, .external_lex_state = 2},
-  [41] = {.lex_state = 103, .external_lex_state = 4},
-  [42] = {.lex_state = 103, .external_lex_state = 4},
-  [43] = {.lex_state = 115, .external_lex_state = 6},
-  [44] = {.lex_state = 103, .external_lex_state = 4},
-  [45] = {.lex_state = 112, .external_lex_state = 8},
-  [46] = {.lex_state = 114, .external_lex_state = 6},
+  [20] = {.lex_state = 108, .external_lex_state = 4},
+  [21] = {.lex_state = 105, .external_lex_state = 4},
+  [22] = {.lex_state = 116, .external_lex_state = 6},
+  [23] = {.lex_state = 108, .external_lex_state = 5},
+  [24] = {.lex_state = 105, .external_lex_state = 4},
+  [25] = {.lex_state = 105, .external_lex_state = 2},
+  [26] = {.lex_state = 105, .external_lex_state = 6},
+  [27] = {.lex_state = 105, .external_lex_state = 6},
+  [28] = {.lex_state = 105, .external_lex_state = 4},
+  [29] = {.lex_state = 105, .external_lex_state = 7},
+  [30] = {.lex_state = 105, .external_lex_state = 2},
+  [31] = {.lex_state = 105, .external_lex_state = 2},
+  [32] = {.lex_state = 105, .external_lex_state = 2},
+  [33] = {.lex_state = 105, .external_lex_state = 2},
+  [34] = {.lex_state = 105, .external_lex_state = 4},
+  [35] = {.lex_state = 105, .external_lex_state = 2},
+  [36] = {.lex_state = 108, .external_lex_state = 5},
+  [37] = {.lex_state = 105, .external_lex_state = 2},
+  [38] = {.lex_state = 105, .external_lex_state = 2},
+  [39] = {.lex_state = 105, .external_lex_state = 4},
+  [40] = {.lex_state = 105, .external_lex_state = 2},
+  [41] = {.lex_state = 105, .external_lex_state = 4},
+  [42] = {.lex_state = 105, .external_lex_state = 4},
+  [43] = {.lex_state = 117, .external_lex_state = 6},
+  [44] = {.lex_state = 105, .external_lex_state = 4},
+  [45] = {.lex_state = 114, .external_lex_state = 8},
+  [46] = {.lex_state = 116, .external_lex_state = 6},
   [47] = {.lex_state = 0, .external_lex_state = 4},
-  [48] = {.lex_state = 106, .external_lex_state = 5},
-  [49] = {.lex_state = 114, .external_lex_state = 6},
-  [50] = {.lex_state = 118, .external_lex_state = 6},
-  [51] = {.lex_state = 103, .external_lex_state = 4},
-  [52] = {.lex_state = 103, .external_lex_state = 6},
-  [53] = {.lex_state = 103, .external_lex_state = 7},
-  [54] = {.lex_state = 103, .external_lex_state = 6},
-  [55] = {.lex_state = 103, .external_lex_state = 6},
-  [56] = {.lex_state = 103, .external_lex_state = 4},
-  [57] = {.lex_state = 103, .external_lex_state = 2},
-  [58] = {.lex_state = 103, .external_lex_state = 7},
-  [59] = {.lex_state = 103, .external_lex_state = 7},
-  [60] = {.lex_state = 103, .external_lex_state = 4},
-  [61] = {.lex_state = 103, .external_lex_state = 2},
-  [62] = {.lex_state = 103, .external_lex_state = 2},
-  [63] = {.lex_state = 103, .external_lex_state = 4},
-  [64] = {.lex_state = 103, .external_lex_state = 2},
-  [65] = {.lex_state = 103, .external_lex_state = 2},
-  [66] = {.lex_state = 103, .external_lex_state = 2},
-  [67] = {.lex_state = 103, .external_lex_state = 4},
-  [68] = {.lex_state = 103, .external_lex_state = 2},
-  [69] = {.lex_state = 103, .external_lex_state = 4},
-  [70] = {.lex_state = 103, .external_lex_state = 2},
-  [71] = {.lex_state = 106, .external_lex_state = 5},
-  [72] = {.lex_state = 103, .external_lex_state = 2},
-  [73] = {.lex_state = 103, .external_lex_state = 2},
-  [74] = {.lex_state = 103, .external_lex_state = 2},
-  [75] = {.lex_state = 115, .external_lex_state = 6},
-  [76] = {.lex_state = 121, .external_lex_state = 8},
-  [77] = {.lex_state = 103, .external_lex_state = 4},
-  [78] = {.lex_state = 121, .external_lex_state = 8},
-  [79] = {.lex_state = 115, .external_lex_state = 6},
-  [80] = {.lex_state = 118, .external_lex_state = 4},
-  [81] = {.lex_state = 118, .external_lex_state = 4},
-  [82] = {.lex_state = 118, .external_lex_state = 9},
-  [83] = {.lex_state = 106, .external_lex_state = 5},
-  [84] = {.lex_state = 118, .external_lex_state = 9},
-  [85] = {.lex_state = 103, .external_lex_state = 4},
-  [86] = {.lex_state = 112, .external_lex_state = 9},
-  [87] = {.lex_state = 112, .external_lex_state = 9},
-  [88] = {.lex_state = 112, .external_lex_state = 8},
-  [89] = {.lex_state = 106, .external_lex_state = 8},
-  [90] = {.lex_state = 106, .external_lex_state = 5},
-  [91] = {.lex_state = 106, .external_lex_state = 8},
-  [92] = {.lex_state = 112, .external_lex_state = 8},
-  [93] = {.lex_state = 112, .external_lex_state = 8},
-  [94] = {.lex_state = 103, .external_lex_state = 4},
-  [95] = {.lex_state = 112, .external_lex_state = 8},
-  [96] = {.lex_state = 114, .external_lex_state = 6},
-  [97] = {.lex_state = 114, .external_lex_state = 6},
-  [98] = {.lex_state = 103, .external_lex_state = 6},
-  [99] = {.lex_state = 103, .external_lex_state = 7},
-  [100] = {.lex_state = 103, .external_lex_state = 7},
-  [101] = {.lex_state = 103, .external_lex_state = 6},
-  [102] = {.lex_state = 118, .external_lex_state = 4},
-  [103] = {.lex_state = 118, .external_lex_state = 4},
-  [104] = {.lex_state = 103, .external_lex_state = 2},
-  [105] = {.lex_state = 103, .external_lex_state = 7},
-  [106] = {.lex_state = 103, .external_lex_state = 7},
-  [107] = {.lex_state = 103, .external_lex_state = 2},
-  [108] = {.lex_state = 103, .external_lex_state = 2},
-  [109] = {.lex_state = 103, .external_lex_state = 2},
-  [110] = {.lex_state = 103, .external_lex_state = 2},
-  [111] = {.lex_state = 118, .external_lex_state = 4},
-  [112] = {.lex_state = 103, .external_lex_state = 2},
-  [113] = {.lex_state = 103, .external_lex_state = 2},
-  [114] = {.lex_state = 103, .external_lex_state = 2},
+  [48] = {.lex_state = 108, .external_lex_state = 5},
+  [49] = {.lex_state = 116, .external_lex_state = 6},
+  [50] = {.lex_state = 120, .external_lex_state = 6},
+  [51] = {.lex_state = 105, .external_lex_state = 4},
+  [52] = {.lex_state = 105, .external_lex_state = 6},
+  [53] = {.lex_state = 105, .external_lex_state = 7},
+  [54] = {.lex_state = 105, .external_lex_state = 6},
+  [55] = {.lex_state = 105, .external_lex_state = 6},
+  [56] = {.lex_state = 105, .external_lex_state = 4},
+  [57] = {.lex_state = 105, .external_lex_state = 2},
+  [58] = {.lex_state = 105, .external_lex_state = 7},
+  [59] = {.lex_state = 105, .external_lex_state = 7},
+  [60] = {.lex_state = 105, .external_lex_state = 4},
+  [61] = {.lex_state = 105, .external_lex_state = 2},
+  [62] = {.lex_state = 105, .external_lex_state = 2},
+  [63] = {.lex_state = 105, .external_lex_state = 4},
+  [64] = {.lex_state = 105, .external_lex_state = 2},
+  [65] = {.lex_state = 105, .external_lex_state = 2},
+  [66] = {.lex_state = 105, .external_lex_state = 2},
+  [67] = {.lex_state = 105, .external_lex_state = 4},
+  [68] = {.lex_state = 105, .external_lex_state = 2},
+  [69] = {.lex_state = 105, .external_lex_state = 4},
+  [70] = {.lex_state = 105, .external_lex_state = 2},
+  [71] = {.lex_state = 108, .external_lex_state = 5},
+  [72] = {.lex_state = 105, .external_lex_state = 2},
+  [73] = {.lex_state = 105, .external_lex_state = 2},
+  [74] = {.lex_state = 105, .external_lex_state = 2},
+  [75] = {.lex_state = 117, .external_lex_state = 6},
+  [76] = {.lex_state = 123, .external_lex_state = 8},
+  [77] = {.lex_state = 105, .external_lex_state = 4},
+  [78] = {.lex_state = 123, .external_lex_state = 8},
+  [79] = {.lex_state = 117, .external_lex_state = 6},
+  [80] = {.lex_state = 120, .external_lex_state = 4},
+  [81] = {.lex_state = 120, .external_lex_state = 4},
+  [82] = {.lex_state = 120, .external_lex_state = 9},
+  [83] = {.lex_state = 108, .external_lex_state = 5},
+  [84] = {.lex_state = 120, .external_lex_state = 9},
+  [85] = {.lex_state = 105, .external_lex_state = 4},
+  [86] = {.lex_state = 114, .external_lex_state = 9},
+  [87] = {.lex_state = 114, .external_lex_state = 9},
+  [88] = {.lex_state = 114, .external_lex_state = 8},
+  [89] = {.lex_state = 108, .external_lex_state = 8},
+  [90] = {.lex_state = 108, .external_lex_state = 5},
+  [91] = {.lex_state = 108, .external_lex_state = 8},
+  [92] = {.lex_state = 114, .external_lex_state = 8},
+  [93] = {.lex_state = 114, .external_lex_state = 8},
+  [94] = {.lex_state = 105, .external_lex_state = 4},
+  [95] = {.lex_state = 114, .external_lex_state = 8},
+  [96] = {.lex_state = 116, .external_lex_state = 6},
+  [97] = {.lex_state = 116, .external_lex_state = 6},
+  [98] = {.lex_state = 105, .external_lex_state = 6},
+  [99] = {.lex_state = 105, .external_lex_state = 7},
+  [100] = {.lex_state = 105, .external_lex_state = 7},
+  [101] = {.lex_state = 105, .external_lex_state = 6},
+  [102] = {.lex_state = 120, .external_lex_state = 4},
+  [103] = {.lex_state = 120, .external_lex_state = 4},
+  [104] = {.lex_state = 105, .external_lex_state = 2},
+  [105] = {.lex_state = 105, .external_lex_state = 7},
+  [106] = {.lex_state = 105, .external_lex_state = 7},
+  [107] = {.lex_state = 105, .external_lex_state = 2},
+  [108] = {.lex_state = 105, .external_lex_state = 2},
+  [109] = {.lex_state = 105, .external_lex_state = 2},
+  [110] = {.lex_state = 105, .external_lex_state = 2},
+  [111] = {.lex_state = 120, .external_lex_state = 4},
+  [112] = {.lex_state = 105, .external_lex_state = 2},
+  [113] = {.lex_state = 105, .external_lex_state = 2},
+  [114] = {.lex_state = 105, .external_lex_state = 2},
   [115] = {.lex_state = 0, .external_lex_state = 4},
-  [116] = {.lex_state = 103, .external_lex_state = 4},
-  [117] = {.lex_state = 121, .external_lex_state = 8},
-  [118] = {.lex_state = 115, .external_lex_state = 6},
-  [119] = {.lex_state = 118, .external_lex_state = 4},
-  [120] = {.lex_state = 106, .external_lex_state = 10},
-  [121] = {.lex_state = 118, .external_lex_state = 4},
-  [122] = {.lex_state = 121, .external_lex_state = 4},
-  [123] = {.lex_state = 106, .external_lex_state = 5},
-  [124] = {.lex_state = 121, .external_lex_state = 8},
-  [125] = {.lex_state = 106, .external_lex_state = 10},
-  [126] = {.lex_state = 106, .external_lex_state = 10},
-  [127] = {.lex_state = 106, .external_lex_state = 5},
-  [128] = {.lex_state = 106, .external_lex_state = 5},
-  [129] = {.lex_state = 106, .external_lex_state = 4},
-  [130] = {.lex_state = 106, .external_lex_state = 5},
+  [116] = {.lex_state = 105, .external_lex_state = 4},
+  [117] = {.lex_state = 123, .external_lex_state = 8},
+  [118] = {.lex_state = 117, .external_lex_state = 6},
+  [119] = {.lex_state = 120, .external_lex_state = 4},
+  [120] = {.lex_state = 108, .external_lex_state = 10},
+  [121] = {.lex_state = 120, .external_lex_state = 4},
+  [122] = {.lex_state = 123, .external_lex_state = 4},
+  [123] = {.lex_state = 108, .external_lex_state = 5},
+  [124] = {.lex_state = 123, .external_lex_state = 8},
+  [125] = {.lex_state = 108, .external_lex_state = 10},
+  [126] = {.lex_state = 108, .external_lex_state = 10},
+  [127] = {.lex_state = 108, .external_lex_state = 5},
+  [128] = {.lex_state = 108, .external_lex_state = 5},
+  [129] = {.lex_state = 108, .external_lex_state = 4},
+  [130] = {.lex_state = 108, .external_lex_state = 5},
   [131] = {.lex_state = 0, .external_lex_state = 8},
-  [132] = {.lex_state = 106, .external_lex_state = 5},
-  [133] = {.lex_state = 106, .external_lex_state = 5},
-  [134] = {.lex_state = 115, .external_lex_state = 6},
-  [135] = {.lex_state = 114, .external_lex_state = 4},
-  [136] = {.lex_state = 103, .external_lex_state = 4},
-  [137] = {.lex_state = 118, .external_lex_state = 4},
-  [138] = {.lex_state = 103, .external_lex_state = 4},
-  [139] = {.lex_state = 106, .external_lex_state = 5},
-  [140] = {.lex_state = 103, .external_lex_state = 4},
-  [141] = {.lex_state = 106, .external_lex_state = 8},
-  [142] = {.lex_state = 106, .external_lex_state = 8},
-  [143] = {.lex_state = 112, .external_lex_state = 8},
-  [144] = {.lex_state = 118, .external_lex_state = 9},
-  [145] = {.lex_state = 112, .external_lex_state = 9},
-  [146] = {.lex_state = 112, .external_lex_state = 8},
-  [147] = {.lex_state = 112, .external_lex_state = 9},
-  [148] = {.lex_state = 106, .external_lex_state = 5},
-  [149] = {.lex_state = 112, .external_lex_state = 8},
-  [150] = {.lex_state = 106, .external_lex_state = 8},
-  [151] = {.lex_state = 106, .external_lex_state = 8},
-  [152] = {.lex_state = 106, .external_lex_state = 8},
-  [153] = {.lex_state = 106, .external_lex_state = 5},
-  [154] = {.lex_state = 106, .external_lex_state = 5},
-  [155] = {.lex_state = 112, .external_lex_state = 8},
-  [156] = {.lex_state = 112, .external_lex_state = 8},
-  [157] = {.lex_state = 106, .external_lex_state = 8},
-  [158] = {.lex_state = 106, .external_lex_state = 5},
-  [159] = {.lex_state = 118, .external_lex_state = 4},
-  [160] = {.lex_state = 112, .external_lex_state = 8},
-  [161] = {.lex_state = 103, .external_lex_state = 4},
-  [162] = {.lex_state = 112, .external_lex_state = 8},
-  [163] = {.lex_state = 103, .external_lex_state = 4},
-  [164] = {.lex_state = 118, .external_lex_state = 4},
-  [165] = {.lex_state = 103, .external_lex_state = 6},
-  [166] = {.lex_state = 118, .external_lex_state = 4},
-  [167] = {.lex_state = 118, .external_lex_state = 4},
-  [168] = {.lex_state = 103, .external_lex_state = 4},
-  [169] = {.lex_state = 103, .external_lex_state = 2},
-  [170] = {.lex_state = 118, .external_lex_state = 4},
-  [171] = {.lex_state = 118, .external_lex_state = 4},
-  [172] = {.lex_state = 106, .external_lex_state = 5},
-  [173] = {.lex_state = 103, .external_lex_state = 4},
-  [174] = {.lex_state = 121, .external_lex_state = 8},
-  [175] = {.lex_state = 115, .external_lex_state = 4},
-  [176] = {.lex_state = 118, .external_lex_state = 4},
-  [177] = {.lex_state = 118, .external_lex_state = 4},
-  [178] = {.lex_state = 118, .external_lex_state = 4},
-  [179] = {.lex_state = 106, .external_lex_state = 5},
-  [180] = {.lex_state = 121, .external_lex_state = 8},
-  [181] = {.lex_state = 106, .external_lex_state = 10},
-  [182] = {.lex_state = 106, .external_lex_state = 5},
-  [183] = {.lex_state = 103, .external_lex_state = 4},
-  [184] = {.lex_state = 121, .external_lex_state = 8},
-  [185] = {.lex_state = 106, .external_lex_state = 5},
-  [186] = {.lex_state = 121, .external_lex_state = 8},
-  [187] = {.lex_state = 106, .external_lex_state = 10},
-  [188] = {.lex_state = 106, .external_lex_state = 10},
-  [189] = {.lex_state = 112, .external_lex_state = 8},
-  [190] = {.lex_state = 118, .external_lex_state = 4},
-  [191] = {.lex_state = 114, .external_lex_state = 4},
-  [192] = {.lex_state = 118, .external_lex_state = 4},
-  [193] = {.lex_state = 106, .external_lex_state = 5},
-  [194] = {.lex_state = 106, .external_lex_state = 5},
-  [195] = {.lex_state = 112, .external_lex_state = 9},
-  [196] = {.lex_state = 118, .external_lex_state = 4},
-  [197] = {.lex_state = 118, .external_lex_state = 9},
-  [198] = {.lex_state = 112, .external_lex_state = 9},
-  [199] = {.lex_state = 118, .external_lex_state = 4},
-  [200] = {.lex_state = 112, .external_lex_state = 8},
-  [201] = {.lex_state = 106, .external_lex_state = 8},
-  [202] = {.lex_state = 118, .external_lex_state = 4},
-  [203] = {.lex_state = 106, .external_lex_state = 8},
-  [204] = {.lex_state = 112, .external_lex_state = 8},
-  [205] = {.lex_state = 112, .external_lex_state = 8},
-  [206] = {.lex_state = 112, .external_lex_state = 9},
-  [207] = {.lex_state = 106, .external_lex_state = 5},
-  [208] = {.lex_state = 106, .external_lex_state = 5},
-  [209] = {.lex_state = 106, .external_lex_state = 8},
-  [210] = {.lex_state = 106, .external_lex_state = 5},
-  [211] = {.lex_state = 106, .external_lex_state = 5},
-  [212] = {.lex_state = 106, .external_lex_state = 5},
-  [213] = {.lex_state = 106, .external_lex_state = 5},
-  [214] = {.lex_state = 106, .external_lex_state = 8},
-  [215] = {.lex_state = 106, .external_lex_state = 5},
-  [216] = {.lex_state = 118, .external_lex_state = 4},
-  [217] = {.lex_state = 106, .external_lex_state = 5},
-  [218] = {.lex_state = 118, .external_lex_state = 4},
-  [219] = {.lex_state = 112, .external_lex_state = 8},
-  [220] = {.lex_state = 118, .external_lex_state = 4},
-  [221] = {.lex_state = 103, .external_lex_state = 6},
-  [222] = {.lex_state = 118, .external_lex_state = 4},
-  [223] = {.lex_state = 118, .external_lex_state = 4},
-  [224] = {.lex_state = 103, .external_lex_state = 2},
-  [225] = {.lex_state = 115, .external_lex_state = 4},
-  [226] = {.lex_state = 118, .external_lex_state = 4},
-  [227] = {.lex_state = 118, .external_lex_state = 4},
-  [228] = {.lex_state = 106, .external_lex_state = 5},
-  [229] = {.lex_state = 121, .external_lex_state = 8},
-  [230] = {.lex_state = 118, .external_lex_state = 4},
-  [231] = {.lex_state = 121, .external_lex_state = 4},
-  [232] = {.lex_state = 118, .external_lex_state = 4},
-  [233] = {.lex_state = 106, .external_lex_state = 5},
-  [234] = {.lex_state = 118, .external_lex_state = 4},
-  [235] = {.lex_state = 121, .external_lex_state = 8},
-  [236] = {.lex_state = 118, .external_lex_state = 6},
-  [237] = {.lex_state = 118, .external_lex_state = 6},
-  [238] = {.lex_state = 118, .external_lex_state = 4},
-  [239] = {.lex_state = 118, .external_lex_state = 4},
-  [240] = {.lex_state = 106, .external_lex_state = 4},
-  [241] = {.lex_state = 118, .external_lex_state = 4},
+  [132] = {.lex_state = 108, .external_lex_state = 5},
+  [133] = {.lex_state = 108, .external_lex_state = 5},
+  [134] = {.lex_state = 117, .external_lex_state = 6},
+  [135] = {.lex_state = 116, .external_lex_state = 4},
+  [136] = {.lex_state = 105, .external_lex_state = 4},
+  [137] = {.lex_state = 120, .external_lex_state = 4},
+  [138] = {.lex_state = 105, .external_lex_state = 4},
+  [139] = {.lex_state = 108, .external_lex_state = 5},
+  [140] = {.lex_state = 105, .external_lex_state = 4},
+  [141] = {.lex_state = 108, .external_lex_state = 8},
+  [142] = {.lex_state = 108, .external_lex_state = 8},
+  [143] = {.lex_state = 114, .external_lex_state = 8},
+  [144] = {.lex_state = 120, .external_lex_state = 9},
+  [145] = {.lex_state = 114, .external_lex_state = 9},
+  [146] = {.lex_state = 114, .external_lex_state = 8},
+  [147] = {.lex_state = 114, .external_lex_state = 9},
+  [148] = {.lex_state = 108, .external_lex_state = 5},
+  [149] = {.lex_state = 114, .external_lex_state = 8},
+  [150] = {.lex_state = 108, .external_lex_state = 8},
+  [151] = {.lex_state = 108, .external_lex_state = 8},
+  [152] = {.lex_state = 108, .external_lex_state = 8},
+  [153] = {.lex_state = 108, .external_lex_state = 5},
+  [154] = {.lex_state = 108, .external_lex_state = 5},
+  [155] = {.lex_state = 114, .external_lex_state = 8},
+  [156] = {.lex_state = 114, .external_lex_state = 8},
+  [157] = {.lex_state = 108, .external_lex_state = 8},
+  [158] = {.lex_state = 108, .external_lex_state = 5},
+  [159] = {.lex_state = 120, .external_lex_state = 4},
+  [160] = {.lex_state = 114, .external_lex_state = 8},
+  [161] = {.lex_state = 105, .external_lex_state = 4},
+  [162] = {.lex_state = 114, .external_lex_state = 8},
+  [163] = {.lex_state = 105, .external_lex_state = 4},
+  [164] = {.lex_state = 120, .external_lex_state = 4},
+  [165] = {.lex_state = 105, .external_lex_state = 6},
+  [166] = {.lex_state = 120, .external_lex_state = 4},
+  [167] = {.lex_state = 120, .external_lex_state = 4},
+  [168] = {.lex_state = 105, .external_lex_state = 4},
+  [169] = {.lex_state = 105, .external_lex_state = 2},
+  [170] = {.lex_state = 120, .external_lex_state = 4},
+  [171] = {.lex_state = 120, .external_lex_state = 4},
+  [172] = {.lex_state = 108, .external_lex_state = 5},
+  [173] = {.lex_state = 105, .external_lex_state = 4},
+  [174] = {.lex_state = 123, .external_lex_state = 8},
+  [175] = {.lex_state = 117, .external_lex_state = 4},
+  [176] = {.lex_state = 120, .external_lex_state = 4},
+  [177] = {.lex_state = 120, .external_lex_state = 4},
+  [178] = {.lex_state = 120, .external_lex_state = 4},
+  [179] = {.lex_state = 108, .external_lex_state = 5},
+  [180] = {.lex_state = 123, .external_lex_state = 8},
+  [181] = {.lex_state = 108, .external_lex_state = 10},
+  [182] = {.lex_state = 108, .external_lex_state = 5},
+  [183] = {.lex_state = 105, .external_lex_state = 4},
+  [184] = {.lex_state = 123, .external_lex_state = 8},
+  [185] = {.lex_state = 108, .external_lex_state = 5},
+  [186] = {.lex_state = 123, .external_lex_state = 8},
+  [187] = {.lex_state = 108, .external_lex_state = 10},
+  [188] = {.lex_state = 108, .external_lex_state = 10},
+  [189] = {.lex_state = 114, .external_lex_state = 8},
+  [190] = {.lex_state = 120, .external_lex_state = 4},
+  [191] = {.lex_state = 116, .external_lex_state = 4},
+  [192] = {.lex_state = 120, .external_lex_state = 4},
+  [193] = {.lex_state = 108, .external_lex_state = 5},
+  [194] = {.lex_state = 108, .external_lex_state = 5},
+  [195] = {.lex_state = 114, .external_lex_state = 9},
+  [196] = {.lex_state = 120, .external_lex_state = 4},
+  [197] = {.lex_state = 120, .external_lex_state = 9},
+  [198] = {.lex_state = 114, .external_lex_state = 9},
+  [199] = {.lex_state = 120, .external_lex_state = 4},
+  [200] = {.lex_state = 114, .external_lex_state = 8},
+  [201] = {.lex_state = 108, .external_lex_state = 8},
+  [202] = {.lex_state = 120, .external_lex_state = 4},
+  [203] = {.lex_state = 108, .external_lex_state = 8},
+  [204] = {.lex_state = 114, .external_lex_state = 8},
+  [205] = {.lex_state = 114, .external_lex_state = 8},
+  [206] = {.lex_state = 114, .external_lex_state = 9},
+  [207] = {.lex_state = 108, .external_lex_state = 5},
+  [208] = {.lex_state = 108, .external_lex_state = 5},
+  [209] = {.lex_state = 108, .external_lex_state = 8},
+  [210] = {.lex_state = 108, .external_lex_state = 5},
+  [211] = {.lex_state = 108, .external_lex_state = 5},
+  [212] = {.lex_state = 108, .external_lex_state = 5},
+  [213] = {.lex_state = 108, .external_lex_state = 5},
+  [214] = {.lex_state = 108, .external_lex_state = 8},
+  [215] = {.lex_state = 108, .external_lex_state = 5},
+  [216] = {.lex_state = 120, .external_lex_state = 4},
+  [217] = {.lex_state = 108, .external_lex_state = 5},
+  [218] = {.lex_state = 120, .external_lex_state = 4},
+  [219] = {.lex_state = 114, .external_lex_state = 8},
+  [220] = {.lex_state = 120, .external_lex_state = 4},
+  [221] = {.lex_state = 105, .external_lex_state = 6},
+  [222] = {.lex_state = 120, .external_lex_state = 4},
+  [223] = {.lex_state = 120, .external_lex_state = 4},
+  [224] = {.lex_state = 105, .external_lex_state = 2},
+  [225] = {.lex_state = 117, .external_lex_state = 4},
+  [226] = {.lex_state = 120, .external_lex_state = 4},
+  [227] = {.lex_state = 120, .external_lex_state = 4},
+  [228] = {.lex_state = 108, .external_lex_state = 5},
+  [229] = {.lex_state = 123, .external_lex_state = 8},
+  [230] = {.lex_state = 120, .external_lex_state = 4},
+  [231] = {.lex_state = 123, .external_lex_state = 4},
+  [232] = {.lex_state = 120, .external_lex_state = 4},
+  [233] = {.lex_state = 108, .external_lex_state = 5},
+  [234] = {.lex_state = 120, .external_lex_state = 4},
+  [235] = {.lex_state = 123, .external_lex_state = 8},
+  [236] = {.lex_state = 120, .external_lex_state = 6},
+  [237] = {.lex_state = 120, .external_lex_state = 6},
+  [238] = {.lex_state = 120, .external_lex_state = 4},
+  [239] = {.lex_state = 120, .external_lex_state = 4},
+  [240] = {.lex_state = 108, .external_lex_state = 4},
+  [241] = {.lex_state = 120, .external_lex_state = 4},
   [242] = {.lex_state = 0, .external_lex_state = 8},
-  [243] = {.lex_state = 118, .external_lex_state = 4},
-  [244] = {.lex_state = 118, .external_lex_state = 4},
-  [245] = {.lex_state = 106, .external_lex_state = 10},
-  [246] = {.lex_state = 103, .external_lex_state = 6},
-  [247] = {.lex_state = 103, .external_lex_state = 4},
-  [248] = {.lex_state = 106, .external_lex_state = 5},
-  [249] = {.lex_state = 106, .external_lex_state = 5},
-  [250] = {.lex_state = 106, .external_lex_state = 5},
-  [251] = {.lex_state = 106, .external_lex_state = 10},
-  [252] = {.lex_state = 106, .external_lex_state = 5},
-  [253] = {.lex_state = 112, .external_lex_state = 8},
-  [254] = {.lex_state = 112, .external_lex_state = 8},
-  [255] = {.lex_state = 112, .external_lex_state = 8},
-  [256] = {.lex_state = 112, .external_lex_state = 9},
-  [257] = {.lex_state = 103, .external_lex_state = 4},
-  [258] = {.lex_state = 118, .external_lex_state = 4},
-  [259] = {.lex_state = 112, .external_lex_state = 8},
-  [260] = {.lex_state = 118, .external_lex_state = 9},
-  [261] = {.lex_state = 112, .external_lex_state = 9},
-  [262] = {.lex_state = 112, .external_lex_state = 8},
-  [263] = {.lex_state = 118, .external_lex_state = 4},
-  [264] = {.lex_state = 118, .external_lex_state = 4},
-  [265] = {.lex_state = 106, .external_lex_state = 8},
-  [266] = {.lex_state = 106, .external_lex_state = 8},
-  [267] = {.lex_state = 118, .external_lex_state = 4},
-  [268] = {.lex_state = 112, .external_lex_state = 8},
-  [269] = {.lex_state = 106, .external_lex_state = 5},
-  [270] = {.lex_state = 106, .external_lex_state = 5},
-  [271] = {.lex_state = 106, .external_lex_state = 5},
-  [272] = {.lex_state = 114, .external_lex_state = 4},
-  [273] = {.lex_state = 106, .external_lex_state = 5},
-  [274] = {.lex_state = 118, .external_lex_state = 4},
-  [275] = {.lex_state = 118, .external_lex_state = 4},
-  [276] = {.lex_state = 118, .external_lex_state = 4},
-  [277] = {.lex_state = 121, .external_lex_state = 8},
-  [278] = {.lex_state = 115, .external_lex_state = 4},
-  [279] = {.lex_state = 118, .external_lex_state = 4},
-  [280] = {.lex_state = 106, .external_lex_state = 5},
-  [281] = {.lex_state = 118, .external_lex_state = 4},
-  [282] = {.lex_state = 118, .external_lex_state = 4},
-  [283] = {.lex_state = 118, .external_lex_state = 4},
-  [284] = {.lex_state = 118, .external_lex_state = 4},
-  [285] = {.lex_state = 121, .external_lex_state = 8},
-  [286] = {.lex_state = 118, .external_lex_state = 6},
-  [287] = {.lex_state = 106, .external_lex_state = 10},
-  [288] = {.lex_state = 121, .external_lex_state = 8},
-  [289] = {.lex_state = 118, .external_lex_state = 4},
-  [290] = {.lex_state = 118, .external_lex_state = 4},
-  [291] = {.lex_state = 103, .external_lex_state = 4},
-  [292] = {.lex_state = 121, .external_lex_state = 8},
-  [293] = {.lex_state = 118, .external_lex_state = 4},
-  [294] = {.lex_state = 121, .external_lex_state = 8},
-  [295] = {.lex_state = 118, .external_lex_state = 6},
-  [296] = {.lex_state = 121, .external_lex_state = 8},
-  [297] = {.lex_state = 103, .external_lex_state = 6},
-  [298] = {.lex_state = 121, .external_lex_state = 8},
-  [299] = {.lex_state = 103, .external_lex_state = 6},
-  [300] = {.lex_state = 106, .external_lex_state = 5},
-  [301] = {.lex_state = 106, .external_lex_state = 5},
-  [302] = {.lex_state = 106, .external_lex_state = 5},
-  [303] = {.lex_state = 112, .external_lex_state = 8},
-  [304] = {.lex_state = 112, .external_lex_state = 8},
-  [305] = {.lex_state = 118, .external_lex_state = 4},
-  [306] = {.lex_state = 118, .external_lex_state = 4},
-  [307] = {.lex_state = 118, .external_lex_state = 4},
-  [308] = {.lex_state = 112, .external_lex_state = 9},
-  [309] = {.lex_state = 118, .external_lex_state = 4},
-  [310] = {.lex_state = 118, .external_lex_state = 4},
-  [311] = {.lex_state = 118, .external_lex_state = 4},
-  [312] = {.lex_state = 106, .external_lex_state = 8},
-  [313] = {.lex_state = 118, .external_lex_state = 4},
-  [314] = {.lex_state = 118, .external_lex_state = 4},
-  [315] = {.lex_state = 106, .external_lex_state = 5},
-  [316] = {.lex_state = 112, .external_lex_state = 8},
-  [317] = {.lex_state = 114, .external_lex_state = 4},
-  [318] = {.lex_state = 118, .external_lex_state = 4},
-  [319] = {.lex_state = 106, .external_lex_state = 5},
-  [320] = {.lex_state = 121, .external_lex_state = 8},
-  [321] = {.lex_state = 115, .external_lex_state = 4},
-  [322] = {.lex_state = 118, .external_lex_state = 4},
-  [323] = {.lex_state = 118, .external_lex_state = 4},
-  [324] = {.lex_state = 118, .external_lex_state = 6},
-  [325] = {.lex_state = 106, .external_lex_state = 10},
-  [326] = {.lex_state = 118, .external_lex_state = 4},
-  [327] = {.lex_state = 106, .external_lex_state = 10},
-  [328] = {.lex_state = 118, .external_lex_state = 4},
-  [329] = {.lex_state = 103, .external_lex_state = 4},
-  [330] = {.lex_state = 118, .external_lex_state = 4},
-  [331] = {.lex_state = 118, .external_lex_state = 4},
-  [332] = {.lex_state = 118, .external_lex_state = 4},
-  [333] = {.lex_state = 118, .external_lex_state = 6},
-  [334] = {.lex_state = 118, .external_lex_state = 4},
-  [335] = {.lex_state = 103, .external_lex_state = 6},
-  [336] = {.lex_state = 106, .external_lex_state = 5},
-  [337] = {.lex_state = 103, .external_lex_state = 6},
-  [338] = {.lex_state = 106, .external_lex_state = 5},
-  [339] = {.lex_state = 106, .external_lex_state = 5},
-  [340] = {.lex_state = 106, .external_lex_state = 5},
-  [341] = {.lex_state = 118, .external_lex_state = 9},
-  [342] = {.lex_state = 118, .external_lex_state = 4},
-  [343] = {.lex_state = 118, .external_lex_state = 4},
-  [344] = {.lex_state = 118, .external_lex_state = 4},
-  [345] = {.lex_state = 112, .external_lex_state = 8},
-  [346] = {.lex_state = 112, .external_lex_state = 8},
-  [347] = {.lex_state = 106, .external_lex_state = 5},
-  [348] = {.lex_state = 121, .external_lex_state = 8},
-  [349] = {.lex_state = 118, .external_lex_state = 6},
-  [350] = {.lex_state = 118, .external_lex_state = 4},
-  [351] = {.lex_state = 106, .external_lex_state = 10},
-  [352] = {.lex_state = 121, .external_lex_state = 8},
-  [353] = {.lex_state = 103, .external_lex_state = 6},
-  [354] = {.lex_state = 118, .external_lex_state = 4},
-  [355] = {.lex_state = 106, .external_lex_state = 5},
-  [356] = {.lex_state = 106, .external_lex_state = 5},
-  [357] = {.lex_state = 118, .external_lex_state = 9},
-  [358] = {.lex_state = 118, .external_lex_state = 4},
-  [359] = {.lex_state = 106, .external_lex_state = 5},
-  [360] = {.lex_state = 112, .external_lex_state = 8},
-  [361] = {.lex_state = 106, .external_lex_state = 5},
-  [362] = {.lex_state = 118, .external_lex_state = 6},
-  [363] = {.lex_state = 118, .external_lex_state = 6},
-  [364] = {.lex_state = 118, .external_lex_state = 4},
-  [365] = {.lex_state = 103, .external_lex_state = 6},
-  [366] = {.lex_state = 103, .external_lex_state = 6},
-  [367] = {.lex_state = 106, .external_lex_state = 5},
-  [368] = {.lex_state = 106, .external_lex_state = 5},
-  [369] = {.lex_state = 106, .external_lex_state = 5},
-  [370] = {.lex_state = 118, .external_lex_state = 6},
-  [371] = {.lex_state = 103, .external_lex_state = 6},
-  [372] = {.lex_state = 106, .external_lex_state = 5},
-  [373] = {.lex_state = 106, .external_lex_state = 5},
-  [374] = {.lex_state = 106, .external_lex_state = 5},
+  [243] = {.lex_state = 120, .external_lex_state = 4},
+  [244] = {.lex_state = 120, .external_lex_state = 4},
+  [245] = {.lex_state = 108, .external_lex_state = 10},
+  [246] = {.lex_state = 105, .external_lex_state = 6},
+  [247] = {.lex_state = 105, .external_lex_state = 4},
+  [248] = {.lex_state = 108, .external_lex_state = 5},
+  [249] = {.lex_state = 108, .external_lex_state = 5},
+  [250] = {.lex_state = 108, .external_lex_state = 5},
+  [251] = {.lex_state = 108, .external_lex_state = 10},
+  [252] = {.lex_state = 108, .external_lex_state = 5},
+  [253] = {.lex_state = 114, .external_lex_state = 8},
+  [254] = {.lex_state = 114, .external_lex_state = 8},
+  [255] = {.lex_state = 114, .external_lex_state = 8},
+  [256] = {.lex_state = 114, .external_lex_state = 9},
+  [257] = {.lex_state = 105, .external_lex_state = 4},
+  [258] = {.lex_state = 120, .external_lex_state = 4},
+  [259] = {.lex_state = 114, .external_lex_state = 8},
+  [260] = {.lex_state = 120, .external_lex_state = 9},
+  [261] = {.lex_state = 114, .external_lex_state = 9},
+  [262] = {.lex_state = 114, .external_lex_state = 8},
+  [263] = {.lex_state = 120, .external_lex_state = 4},
+  [264] = {.lex_state = 120, .external_lex_state = 4},
+  [265] = {.lex_state = 108, .external_lex_state = 8},
+  [266] = {.lex_state = 108, .external_lex_state = 8},
+  [267] = {.lex_state = 120, .external_lex_state = 4},
+  [268] = {.lex_state = 114, .external_lex_state = 8},
+  [269] = {.lex_state = 108, .external_lex_state = 5},
+  [270] = {.lex_state = 108, .external_lex_state = 5},
+  [271] = {.lex_state = 108, .external_lex_state = 5},
+  [272] = {.lex_state = 116, .external_lex_state = 4},
+  [273] = {.lex_state = 108, .external_lex_state = 5},
+  [274] = {.lex_state = 120, .external_lex_state = 4},
+  [275] = {.lex_state = 120, .external_lex_state = 4},
+  [276] = {.lex_state = 120, .external_lex_state = 4},
+  [277] = {.lex_state = 123, .external_lex_state = 8},
+  [278] = {.lex_state = 117, .external_lex_state = 4},
+  [279] = {.lex_state = 120, .external_lex_state = 4},
+  [280] = {.lex_state = 108, .external_lex_state = 5},
+  [281] = {.lex_state = 120, .external_lex_state = 4},
+  [282] = {.lex_state = 120, .external_lex_state = 4},
+  [283] = {.lex_state = 120, .external_lex_state = 4},
+  [284] = {.lex_state = 120, .external_lex_state = 4},
+  [285] = {.lex_state = 123, .external_lex_state = 8},
+  [286] = {.lex_state = 120, .external_lex_state = 6},
+  [287] = {.lex_state = 108, .external_lex_state = 10},
+  [288] = {.lex_state = 123, .external_lex_state = 8},
+  [289] = {.lex_state = 120, .external_lex_state = 4},
+  [290] = {.lex_state = 120, .external_lex_state = 4},
+  [291] = {.lex_state = 105, .external_lex_state = 4},
+  [292] = {.lex_state = 123, .external_lex_state = 8},
+  [293] = {.lex_state = 120, .external_lex_state = 4},
+  [294] = {.lex_state = 123, .external_lex_state = 8},
+  [295] = {.lex_state = 120, .external_lex_state = 6},
+  [296] = {.lex_state = 123, .external_lex_state = 8},
+  [297] = {.lex_state = 105, .external_lex_state = 6},
+  [298] = {.lex_state = 123, .external_lex_state = 8},
+  [299] = {.lex_state = 105, .external_lex_state = 6},
+  [300] = {.lex_state = 108, .external_lex_state = 5},
+  [301] = {.lex_state = 108, .external_lex_state = 5},
+  [302] = {.lex_state = 108, .external_lex_state = 5},
+  [303] = {.lex_state = 114, .external_lex_state = 8},
+  [304] = {.lex_state = 114, .external_lex_state = 8},
+  [305] = {.lex_state = 120, .external_lex_state = 4},
+  [306] = {.lex_state = 120, .external_lex_state = 4},
+  [307] = {.lex_state = 120, .external_lex_state = 4},
+  [308] = {.lex_state = 114, .external_lex_state = 9},
+  [309] = {.lex_state = 120, .external_lex_state = 4},
+  [310] = {.lex_state = 120, .external_lex_state = 4},
+  [311] = {.lex_state = 120, .external_lex_state = 4},
+  [312] = {.lex_state = 108, .external_lex_state = 8},
+  [313] = {.lex_state = 120, .external_lex_state = 4},
+  [314] = {.lex_state = 120, .external_lex_state = 4},
+  [315] = {.lex_state = 108, .external_lex_state = 5},
+  [316] = {.lex_state = 114, .external_lex_state = 8},
+  [317] = {.lex_state = 116, .external_lex_state = 4},
+  [318] = {.lex_state = 120, .external_lex_state = 4},
+  [319] = {.lex_state = 108, .external_lex_state = 5},
+  [320] = {.lex_state = 123, .external_lex_state = 8},
+  [321] = {.lex_state = 117, .external_lex_state = 4},
+  [322] = {.lex_state = 120, .external_lex_state = 4},
+  [323] = {.lex_state = 120, .external_lex_state = 4},
+  [324] = {.lex_state = 120, .external_lex_state = 6},
+  [325] = {.lex_state = 108, .external_lex_state = 10},
+  [326] = {.lex_state = 120, .external_lex_state = 4},
+  [327] = {.lex_state = 108, .external_lex_state = 10},
+  [328] = {.lex_state = 120, .external_lex_state = 4},
+  [329] = {.lex_state = 105, .external_lex_state = 4},
+  [330] = {.lex_state = 120, .external_lex_state = 4},
+  [331] = {.lex_state = 120, .external_lex_state = 4},
+  [332] = {.lex_state = 120, .external_lex_state = 4},
+  [333] = {.lex_state = 120, .external_lex_state = 6},
+  [334] = {.lex_state = 120, .external_lex_state = 4},
+  [335] = {.lex_state = 105, .external_lex_state = 6},
+  [336] = {.lex_state = 108, .external_lex_state = 5},
+  [337] = {.lex_state = 105, .external_lex_state = 6},
+  [338] = {.lex_state = 108, .external_lex_state = 5},
+  [339] = {.lex_state = 108, .external_lex_state = 5},
+  [340] = {.lex_state = 108, .external_lex_state = 5},
+  [341] = {.lex_state = 120, .external_lex_state = 9},
+  [342] = {.lex_state = 120, .external_lex_state = 4},
+  [343] = {.lex_state = 120, .external_lex_state = 4},
+  [344] = {.lex_state = 120, .external_lex_state = 4},
+  [345] = {.lex_state = 114, .external_lex_state = 8},
+  [346] = {.lex_state = 114, .external_lex_state = 8},
+  [347] = {.lex_state = 108, .external_lex_state = 5},
+  [348] = {.lex_state = 123, .external_lex_state = 8},
+  [349] = {.lex_state = 120, .external_lex_state = 6},
+  [350] = {.lex_state = 120, .external_lex_state = 4},
+  [351] = {.lex_state = 108, .external_lex_state = 10},
+  [352] = {.lex_state = 123, .external_lex_state = 8},
+  [353] = {.lex_state = 105, .external_lex_state = 6},
+  [354] = {.lex_state = 120, .external_lex_state = 4},
+  [355] = {.lex_state = 108, .external_lex_state = 5},
+  [356] = {.lex_state = 108, .external_lex_state = 5},
+  [357] = {.lex_state = 120, .external_lex_state = 9},
+  [358] = {.lex_state = 120, .external_lex_state = 4},
+  [359] = {.lex_state = 108, .external_lex_state = 5},
+  [360] = {.lex_state = 114, .external_lex_state = 8},
+  [361] = {.lex_state = 108, .external_lex_state = 5},
+  [362] = {.lex_state = 120, .external_lex_state = 6},
+  [363] = {.lex_state = 120, .external_lex_state = 6},
+  [364] = {.lex_state = 120, .external_lex_state = 4},
+  [365] = {.lex_state = 105, .external_lex_state = 6},
+  [366] = {.lex_state = 105, .external_lex_state = 6},
+  [367] = {.lex_state = 108, .external_lex_state = 5},
+  [368] = {.lex_state = 108, .external_lex_state = 5},
+  [369] = {.lex_state = 108, .external_lex_state = 5},
+  [370] = {.lex_state = 120, .external_lex_state = 6},
+  [371] = {.lex_state = 105, .external_lex_state = 6},
+  [372] = {.lex_state = 108, .external_lex_state = 5},
+  [373] = {.lex_state = 108, .external_lex_state = 5},
+  [374] = {.lex_state = 108, .external_lex_state = 5},
 };
 
 enum {
@@ -1710,9 +1738,8 @@ enum {
   ts_external_token_attribute = 3,
   ts_external_token_grammar_attribute = 4,
   ts_external_token_postlude = 5,
-  ts_external_token_line_comment = 6,
-  ts_external_token_comment = 7,
-  ts_external_token_ocaml_comment = 8,
+  ts_external_token_comment = 6,
+  ts_external_token_ocaml_comment = 7,
 };
 
 static TSSymbol ts_external_scanner_symbol_map[EXTERNAL_TOKEN_COUNT] = {
@@ -1722,7 +1749,6 @@ static TSSymbol ts_external_scanner_symbol_map[EXTERNAL_TOKEN_COUNT] = {
   [ts_external_token_attribute] = sym_attribute,
   [ts_external_token_grammar_attribute] = sym_grammar_attribute,
   [ts_external_token_postlude] = sym_postlude,
-  [ts_external_token_line_comment] = sym_line_comment,
   [ts_external_token_comment] = sym_comment,
   [ts_external_token_ocaml_comment] = sym_ocaml_comment,
 };
@@ -1730,73 +1756,63 @@ static TSSymbol ts_external_scanner_symbol_map[EXTERNAL_TOKEN_COUNT] = {
 static bool ts_external_scanner_states[11][EXTERNAL_TOKEN_COUNT] = {
   [1] = {
     [ts_external_token_header] = true,
-    [ts_external_token_comment] = true,
+    [ts_external_token_ocaml_comment] = true,
     [ts_external_token_grammar_attribute] = true,
     [ts_external_token_ocaml_type] = true,
-    [ts_external_token_ocaml_comment] = true,
     [ts_external_token_postlude] = true,
     [ts_external_token_action] = true,
-    [ts_external_token_line_comment] = true,
+    [ts_external_token_comment] = true,
     [ts_external_token_attribute] = true,
   },
   [2] = {
     [ts_external_token_header] = true,
     [ts_external_token_ocaml_comment] = true,
-    [ts_external_token_comment] = true,
     [ts_external_token_grammar_attribute] = true,
-    [ts_external_token_line_comment] = true,
+    [ts_external_token_comment] = true,
   },
   [3] = {
-    [ts_external_token_ocaml_comment] = true,
-    [ts_external_token_comment] = true,
     [ts_external_token_ocaml_type] = true,
-    [ts_external_token_line_comment] = true,
+    [ts_external_token_comment] = true,
+    [ts_external_token_ocaml_comment] = true,
   },
   [4] = {
-    [ts_external_token_ocaml_comment] = true,
-    [ts_external_token_line_comment] = true,
     [ts_external_token_comment] = true,
+    [ts_external_token_ocaml_comment] = true,
   },
   [5] = {
-    [ts_external_token_ocaml_comment] = true,
     [ts_external_token_postlude] = true,
     [ts_external_token_comment] = true,
-    [ts_external_token_line_comment] = true,
+    [ts_external_token_ocaml_comment] = true,
   },
   [6] = {
-    [ts_external_token_ocaml_comment] = true,
-    [ts_external_token_comment] = true,
-    [ts_external_token_line_comment] = true,
     [ts_external_token_attribute] = true,
+    [ts_external_token_comment] = true,
+    [ts_external_token_ocaml_comment] = true,
   },
   [7] = {
     [ts_external_token_header] = true,
     [ts_external_token_ocaml_comment] = true,
-    [ts_external_token_comment] = true,
     [ts_external_token_grammar_attribute] = true,
-    [ts_external_token_line_comment] = true,
+    [ts_external_token_comment] = true,
     [ts_external_token_attribute] = true,
   },
   [8] = {
-    [ts_external_token_ocaml_comment] = true,
     [ts_external_token_action] = true,
-    [ts_external_token_comment] = true,
+    [ts_external_token_ocaml_comment] = true,
     [ts_external_token_ocaml_type] = true,
-    [ts_external_token_line_comment] = true,
+    [ts_external_token_comment] = true,
   },
   [9] = {
-    [ts_external_token_ocaml_comment] = true,
     [ts_external_token_action] = true,
-    [ts_external_token_comment] = true,
+    [ts_external_token_ocaml_comment] = true,
     [ts_external_token_ocaml_type] = true,
-    [ts_external_token_line_comment] = true,
+    [ts_external_token_comment] = true,
     [ts_external_token_attribute] = true,
   },
   [10] = {
-    [ts_external_token_ocaml_comment] = true,
     [ts_external_token_postlude] = true,
+    [ts_external_token_ocaml_comment] = true,
     [ts_external_token_comment] = true,
-    [ts_external_token_line_comment] = true,
     [ts_external_token_attribute] = true,
   },
 };
@@ -1815,7 +1831,7 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_qid] = ACTIONS(1),
     [anon_sym_PLUS] = ACTIONS(1),
     [anon_sym_TILDE] = ACTIONS(1),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_LPAREN] = ACTIONS(1),
     [anon_sym_PERCENTpublic] = ACTIONS(1),
     [anon_sym_PERCENTprec] = ACTIONS(1),
@@ -1827,10 +1843,10 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENT_PERCENT] = ACTIONS(1),
     [anon_sym_PERCENTparameter] = ACTIONS(1),
     [anon_sym_let] = ACTIONS(1),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
+    [anon_sym_COLON_EQ] = ACTIONS(1),
     [anon_sym_RPAREN] = ACTIONS(1),
     [anon_sym_EQ] = ACTIONS(1),
-    [anon_sym_COLON_EQ] = ACTIONS(1),
     [sym_action] = ACTIONS(1),
     [sym_postlude] = ACTIONS(1),
     [ts_builtin_sym_end] = ACTIONS(1),
@@ -1842,7 +1858,7 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_EQ_EQ] = ACTIONS(1),
     [anon_sym_STAR] = ACTIONS(1),
     [anon_sym__] = ACTIONS(1),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(1),
   },
   [1] = {
@@ -1855,17 +1871,17 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTright] = ACTIONS(9),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(11),
     [anon_sym_PERCENTparameter] = ACTIONS(13),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(15),
     [anon_sym_PERCENTtype] = ACTIONS(17),
     [anon_sym_PERCENTleft] = ACTIONS(9),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(5),
     [anon_sym_PERCENTattribute] = ACTIONS(19),
     [anon_sym_PERCENTnonassoc] = ACTIONS(9),
     [anon_sym_SEMI] = ACTIONS(5),
     [anon_sym_PERCENTtoken] = ACTIONS(21),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [2] = {
     [sym_header] = ACTIONS(23),
@@ -1873,31 +1889,31 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTright] = ACTIONS(23),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(23),
     [anon_sym_PERCENTparameter] = ACTIONS(23),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(23),
     [anon_sym_PERCENTtype] = ACTIONS(23),
     [anon_sym_PERCENTleft] = ACTIONS(23),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(23),
     [anon_sym_PERCENTattribute] = ACTIONS(23),
     [anon_sym_PERCENTnonassoc] = ACTIONS(23),
     [anon_sym_SEMI] = ACTIONS(23),
     [anon_sym_PERCENTtoken] = ACTIONS(23),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [3] = {
     [sym_non_terminal] = STATE(16),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(25),
     [sym_lid] = ACTIONS(27),
     [sym_line_comment] = ACTIONS(3),
   },
   [4] = {
     [sym_qid] = ACTIONS(29),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(29),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(29),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(29),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -1912,59 +1928,59 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(35),
     [sym_uid] = ACTIONS(31),
     [anon_sym_PERCENTpublic] = ACTIONS(37),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(39),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(39),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(41),
     [sym_lid] = ACTIONS(43),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [6] = {
     [sym_ocaml_comment] = ACTIONS(3),
-    [sym_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(45),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [7] = {
     [sym_strict_actual] = STATE(26),
     [sym_symbol] = STATE(27),
     [sym_qid] = ACTIONS(31),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(31),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(31),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(31),
     [sym_line_comment] = ACTIONS(3),
   },
   [8] = {
     [sym_terminal_alias_attrs] = STATE(30),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_uid] = ACTIONS(47),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(49),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [9] = {
     [sym_strict_actual] = STATE(32),
     [sym_symbol] = STATE(33),
     [sym_qid] = ACTIONS(51),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(51),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(51),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(51),
     [sym_line_comment] = ACTIONS(3),
   },
   [10] = {
     [sym_ocaml_comment] = ACTIONS(3),
-    [sym_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(53),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [11] = {
     [sym_symbol] = STATE(35),
     [sym_qid] = ACTIONS(51),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(51),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(51),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(51),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -1977,30 +1993,30 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTright] = ACTIONS(9),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(55),
     [anon_sym_PERCENTparameter] = ACTIONS(13),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(15),
     [anon_sym_PERCENTtype] = ACTIONS(17),
     [anon_sym_PERCENTleft] = ACTIONS(9),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(5),
     [anon_sym_PERCENTattribute] = ACTIONS(19),
     [anon_sym_PERCENTnonassoc] = ACTIONS(9),
     [anon_sym_SEMI] = ACTIONS(5),
     [anon_sym_PERCENTtoken] = ACTIONS(21),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [13] = {
-    [sym_ocaml_comment] = ACTIONS(3),
     [ts_builtin_sym_end] = ACTIONS(57),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [14] = {
     [sym_non_terminal] = STATE(38),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(27),
-    [sym_line_comment] = ACTIONS(3),
   },
   [15] = {
     [sym_header] = ACTIONS(59),
@@ -2008,19 +2024,19 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTright] = ACTIONS(59),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(59),
     [anon_sym_PERCENTparameter] = ACTIONS(59),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(59),
     [anon_sym_PERCENTtype] = ACTIONS(59),
     [anon_sym_PERCENTleft] = ACTIONS(59),
     [sym_lid] = ACTIONS(59),
     [anon_sym_COMMA] = ACTIONS(59),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(59),
     [anon_sym_PERCENTattribute] = ACTIONS(59),
     [anon_sym_PERCENTnonassoc] = ACTIONS(59),
     [anon_sym_SEMI] = ACTIONS(59),
     [anon_sym_PERCENTtoken] = ACTIONS(59),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [16] = {
     [sym_non_terminal] = STATE(40),
@@ -2030,50 +2046,50 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTright] = ACTIONS(61),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(61),
     [anon_sym_PERCENTparameter] = ACTIONS(61),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(61),
     [anon_sym_PERCENTtype] = ACTIONS(61),
     [anon_sym_PERCENTleft] = ACTIONS(61),
     [sym_lid] = ACTIONS(27),
     [anon_sym_COMMA] = ACTIONS(63),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(61),
     [anon_sym_PERCENTattribute] = ACTIONS(61),
     [anon_sym_PERCENTnonassoc] = ACTIONS(61),
     [anon_sym_SEMI] = ACTIONS(61),
     [anon_sym_PERCENTtoken] = ACTIONS(61),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [17] = {
     [anon_sym_QMARK] = ACTIONS(65),
     [anon_sym_COLON] = ACTIONS(65),
     [sym_uid] = ACTIONS(65),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(65),
     [sym_lid] = ACTIONS(65),
     [anon_sym_COMMA] = ACTIONS(65),
     [sym_qid] = ACTIONS(65),
     [anon_sym_PLUS] = ACTIONS(65),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_LPAREN] = ACTIONS(65),
     [anon_sym_SEMI] = ACTIONS(65),
     [anon_sym_PIPE] = ACTIONS(65),
     [anon_sym_STAR] = ACTIONS(65),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(65),
   },
   [18] = {
     [sym_qid] = ACTIONS(67),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_uid] = ACTIONS(67),
     [anon_sym_PERCENTpublic] = ACTIONS(69),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(67),
     [sym_line_comment] = ACTIONS(3),
   },
   [19] = {
-    [sym_ocaml_comment] = ACTIONS(3),
     [ts_builtin_sym_end] = ACTIONS(71),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -2081,23 +2097,23 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_qid] = ACTIONS(67),
     [anon_sym_PERCENTinline] = ACTIONS(69),
     [sym_uid] = ACTIONS(67),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(73),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(73),
     [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(75),
   },
   [21] = {
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(77),
-    [sym_line_comment] = ACTIONS(3),
   },
   [22] = {
     [aux_sym_declaration_repeat5] = STATE(46),
     [sym_line_comment] = ACTIONS(3),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_LPAREN] = ACTIONS(79),
     [anon_sym_COLON] = ACTIONS(81),
     [sym_attribute] = ACTIONS(83),
@@ -2113,19 +2129,19 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(71),
     [sym_uid] = ACTIONS(31),
     [anon_sym_PERCENTpublic] = ACTIONS(37),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(39),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(39),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(85),
     [sym_lid] = ACTIONS(43),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [24] = {
     [sym_symbol] = STATE(49),
     [sym_qid] = ACTIONS(31),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(31),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(31),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(31),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -2135,17 +2151,17 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTright] = ACTIONS(61),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(61),
     [anon_sym_PERCENTparameter] = ACTIONS(61),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(61),
     [anon_sym_PERCENTtype] = ACTIONS(61),
     [anon_sym_PERCENTleft] = ACTIONS(61),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(61),
     [anon_sym_PERCENTattribute] = ACTIONS(61),
     [anon_sym_PERCENTnonassoc] = ACTIONS(61),
     [anon_sym_SEMI] = ACTIONS(61),
     [anon_sym_PERCENTtoken] = ACTIONS(61),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [26] = {
     [sym_strict_actual] = STATE(52),
@@ -2158,9 +2174,9 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_QMARK] = ACTIONS(87),
     [sym_uid] = ACTIONS(31),
     [anon_sym_COMMA] = ACTIONS(89),
-    [sym_line_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_STAR] = ACTIONS(87),
     [sym_lid] = ACTIONS(31),
     [sym_attribute] = ACTIONS(91),
@@ -2172,8 +2188,8 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(93),
     [sym_attribute] = ACTIONS(93),
     [anon_sym_LPAREN] = ACTIONS(95),
-    [sym_line_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_STAR] = ACTIONS(93),
     [sym_lid] = ACTIONS(93),
@@ -2181,9 +2197,9 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
   },
   [28] = {
     [sym_terminal_alias_attrs] = STATE(57),
+    [sym_uid] = ACTIONS(47),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(47),
     [sym_line_comment] = ACTIONS(3),
   },
   [29] = {
@@ -2194,19 +2210,19 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(97),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(97),
     [anon_sym_PERCENTparameter] = ACTIONS(97),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(97),
     [anon_sym_PERCENTtype] = ACTIONS(97),
     [anon_sym_PERCENTleft] = ACTIONS(97),
     [anon_sym_COMMA] = ACTIONS(97),
     [sym_qid] = ACTIONS(99),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(97),
     [anon_sym_PERCENTattribute] = ACTIONS(97),
     [anon_sym_PERCENTnonassoc] = ACTIONS(97),
     [anon_sym_SEMI] = ACTIONS(97),
     [anon_sym_PERCENTtoken] = ACTIONS(97),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(101),
   },
   [30] = {
@@ -2218,18 +2234,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(47),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(61),
     [anon_sym_PERCENTparameter] = ACTIONS(61),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(61),
     [anon_sym_PERCENTtype] = ACTIONS(61),
     [anon_sym_PERCENTleft] = ACTIONS(61),
     [anon_sym_COMMA] = ACTIONS(103),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(61),
     [anon_sym_PERCENTattribute] = ACTIONS(61),
     [anon_sym_PERCENTnonassoc] = ACTIONS(61),
     [anon_sym_SEMI] = ACTIONS(61),
     [anon_sym_PERCENTtoken] = ACTIONS(61),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [31] = {
     [sym_header] = ACTIONS(65),
@@ -2238,7 +2254,7 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(65),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(65),
     [anon_sym_PERCENTparameter] = ACTIONS(65),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(65),
     [anon_sym_PERCENTtype] = ACTIONS(65),
     [anon_sym_PERCENTleft] = ACTIONS(65),
@@ -2246,7 +2262,7 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(65),
     [sym_qid] = ACTIONS(65),
     [anon_sym_PLUS] = ACTIONS(65),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_LPAREN] = ACTIONS(65),
     [sym_grammar_attribute] = ACTIONS(65),
     [anon_sym_PERCENTattribute] = ACTIONS(65),
@@ -2254,7 +2270,7 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_SEMI] = ACTIONS(65),
     [anon_sym_PERCENTtoken] = ACTIONS(65),
     [anon_sym_STAR] = ACTIONS(65),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(65),
   },
   [32] = {
@@ -2268,7 +2284,7 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(51),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(61),
     [anon_sym_PERCENTparameter] = ACTIONS(61),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(61),
     [anon_sym_PERCENTtype] = ACTIONS(61),
     [anon_sym_PERCENTleft] = ACTIONS(61),
@@ -2276,14 +2292,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(105),
     [sym_qid] = ACTIONS(51),
     [anon_sym_PLUS] = ACTIONS(107),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(61),
     [anon_sym_PERCENTattribute] = ACTIONS(61),
     [anon_sym_PERCENTnonassoc] = ACTIONS(61),
     [anon_sym_SEMI] = ACTIONS(61),
     [anon_sym_PERCENTtoken] = ACTIONS(61),
     [anon_sym_STAR] = ACTIONS(107),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(107),
   },
   [33] = {
@@ -2293,7 +2309,7 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(93),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(93),
     [anon_sym_PERCENTparameter] = ACTIONS(93),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(93),
     [anon_sym_PERCENTtype] = ACTIONS(93),
     [anon_sym_PERCENTleft] = ACTIONS(93),
@@ -2301,7 +2317,7 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(93),
     [sym_qid] = ACTIONS(93),
     [anon_sym_PLUS] = ACTIONS(93),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(93),
     [anon_sym_LPAREN] = ACTIONS(109),
     [anon_sym_PERCENTattribute] = ACTIONS(93),
@@ -2309,16 +2325,16 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_SEMI] = ACTIONS(93),
     [anon_sym_PERCENTtoken] = ACTIONS(93),
     [anon_sym_STAR] = ACTIONS(93),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(93),
   },
   [34] = {
     [sym_strict_actual] = STATE(68),
     [sym_symbol] = STATE(33),
     [sym_qid] = ACTIONS(51),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(51),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(51),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(51),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -2331,20 +2347,20 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(51),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(61),
     [anon_sym_PERCENTparameter] = ACTIONS(61),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(61),
     [anon_sym_PERCENTtype] = ACTIONS(61),
     [anon_sym_PERCENTleft] = ACTIONS(61),
     [sym_lid] = ACTIONS(51),
     [anon_sym_COMMA] = ACTIONS(111),
     [sym_qid] = ACTIONS(51),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(61),
     [anon_sym_PERCENTattribute] = ACTIONS(61),
     [anon_sym_PERCENTnonassoc] = ACTIONS(61),
     [anon_sym_SEMI] = ACTIONS(61),
     [anon_sym_PERCENTtoken] = ACTIONS(61),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [36] = {
     [sym_symbol] = STATE(22),
@@ -2357,12 +2373,12 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(71),
     [sym_uid] = ACTIONS(31),
     [anon_sym_PERCENTpublic] = ACTIONS(37),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(39),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(39),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(85),
     [sym_lid] = ACTIONS(43),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [37] = {
     [sym_priority_keyword] = STATE(11),
@@ -2373,17 +2389,17 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTright] = ACTIONS(119),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(122),
     [anon_sym_PERCENTparameter] = ACTIONS(124),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(127),
     [anon_sym_PERCENTtype] = ACTIONS(130),
     [anon_sym_PERCENTleft] = ACTIONS(119),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(113),
     [anon_sym_PERCENTattribute] = ACTIONS(133),
     [anon_sym_PERCENTnonassoc] = ACTIONS(119),
     [anon_sym_SEMI] = ACTIONS(113),
     [anon_sym_PERCENTtoken] = ACTIONS(136),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [38] = {
     [sym_non_terminal] = STATE(72),
@@ -2393,26 +2409,26 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTright] = ACTIONS(139),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(139),
     [anon_sym_PERCENTparameter] = ACTIONS(139),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(139),
     [anon_sym_PERCENTtype] = ACTIONS(139),
     [anon_sym_PERCENTleft] = ACTIONS(139),
     [sym_lid] = ACTIONS(27),
     [anon_sym_COMMA] = ACTIONS(63),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(139),
     [anon_sym_PERCENTattribute] = ACTIONS(139),
     [anon_sym_PERCENTnonassoc] = ACTIONS(139),
     [anon_sym_SEMI] = ACTIONS(139),
     [anon_sym_PERCENTtoken] = ACTIONS(139),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [39] = {
     [sym_non_terminal] = STATE(73),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(27),
-    [sym_line_comment] = ACTIONS(3),
   },
   [40] = {
     [sym_non_terminal] = STATE(74),
@@ -2422,51 +2438,51 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTright] = ACTIONS(139),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(139),
     [anon_sym_PERCENTparameter] = ACTIONS(139),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(139),
     [anon_sym_PERCENTtype] = ACTIONS(139),
     [anon_sym_PERCENTleft] = ACTIONS(139),
     [sym_lid] = ACTIONS(27),
     [anon_sym_COMMA] = ACTIONS(63),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(139),
     [anon_sym_PERCENTattribute] = ACTIONS(139),
     [anon_sym_PERCENTnonassoc] = ACTIONS(139),
     [anon_sym_SEMI] = ACTIONS(139),
     [anon_sym_PERCENTtoken] = ACTIONS(139),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [41] = {
     [sym_qid] = ACTIONS(141),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(141),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(141),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(141),
     [sym_line_comment] = ACTIONS(3),
   },
   [42] = {
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(143),
-    [sym_line_comment] = ACTIONS(3),
   },
   [43] = {
     [sym_equality_symbol] = STATE(78),
     [aux_sym_declaration_repeat5] = STATE(79),
     [anon_sym_COLON_EQ] = ACTIONS(145),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_EQ_EQ] = ACTIONS(145),
     [anon_sym_LPAREN] = ACTIONS(147),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(149),
   },
   [44] = {
     [sym_symbol] = STATE(81),
     [sym_qid] = ACTIONS(151),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(151),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(151),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(151),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -2482,27 +2498,27 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(88),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(155),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(155),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [46] = {
     [aux_sym_declaration_repeat5] = STATE(96),
     [sym_line_comment] = ACTIONS(3),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_LPAREN] = ACTIONS(163),
     [anon_sym_COLON] = ACTIONS(165),
     [sym_attribute] = ACTIONS(167),
   },
   [47] = {
-    [sym_ocaml_comment] = ACTIONS(3),
     [ts_builtin_sym_end] = ACTIONS(169),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -2517,18 +2533,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(177),
     [sym_uid] = ACTIONS(171),
     [anon_sym_PERCENTpublic] = ACTIONS(179),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(182),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(182),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(177),
     [sym_lid] = ACTIONS(185),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [49] = {
     [aux_sym_declaration_repeat5] = STATE(97),
     [sym_line_comment] = ACTIONS(3),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_LPAREN] = ACTIONS(163),
     [anon_sym_COLON] = ACTIONS(165),
     [sym_attribute] = ACTIONS(188),
@@ -2539,9 +2555,9 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(190),
     [sym_uid] = ACTIONS(190),
     [sym_attribute] = ACTIONS(190),
-    [sym_line_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(190),
     [anon_sym_PIPE] = ACTIONS(190),
     [anon_sym_RPAREN] = ACTIONS(190),
@@ -2553,9 +2569,9 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_strict_actual] = STATE(98),
     [sym_symbol] = STATE(27),
     [sym_qid] = ACTIONS(31),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(31),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(31),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(31),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -2566,9 +2582,9 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(192),
     [sym_uid] = ACTIONS(192),
     [anon_sym_QMARK] = ACTIONS(87),
-    [sym_line_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_STAR] = ACTIONS(87),
     [sym_lid] = ACTIONS(192),
     [sym_attribute] = ACTIONS(192),
@@ -2580,17 +2596,17 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTright] = ACTIONS(139),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(139),
     [anon_sym_PERCENTparameter] = ACTIONS(139),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(139),
     [anon_sym_PERCENTtype] = ACTIONS(139),
     [anon_sym_PERCENTleft] = ACTIONS(139),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(139),
     [anon_sym_PERCENTattribute] = ACTIONS(139),
     [anon_sym_PERCENTnonassoc] = ACTIONS(139),
     [anon_sym_SEMI] = ACTIONS(139),
     [anon_sym_PERCENTtoken] = ACTIONS(139),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(194),
   },
   [54] = {
@@ -2599,9 +2615,9 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(196),
     [sym_uid] = ACTIONS(196),
     [sym_attribute] = ACTIONS(196),
-    [sym_line_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_STAR] = ACTIONS(196),
     [sym_lid] = ACTIONS(196),
     [anon_sym_QMARK] = ACTIONS(196),
@@ -2615,18 +2631,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_lid] = ACTIONS(31),
     [sym_attribute] = ACTIONS(198),
     [sym_uid] = ACTIONS(31),
-    [sym_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(89),
   },
   [56] = {
     [sym_strict_actual] = STATE(102),
     [sym_symbol] = STATE(103),
     [sym_qid] = ACTIONS(151),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(151),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(151),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(151),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -2639,18 +2655,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(47),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(139),
     [anon_sym_PERCENTparameter] = ACTIONS(139),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(139),
     [anon_sym_PERCENTtype] = ACTIONS(139),
     [anon_sym_PERCENTleft] = ACTIONS(139),
     [anon_sym_COMMA] = ACTIONS(103),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(139),
     [anon_sym_PERCENTattribute] = ACTIONS(139),
     [anon_sym_PERCENTnonassoc] = ACTIONS(139),
     [anon_sym_SEMI] = ACTIONS(139),
     [anon_sym_PERCENTtoken] = ACTIONS(139),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [58] = {
     [aux_sym_declaration_repeat5] = STATE(105),
@@ -2660,18 +2676,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(200),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(200),
     [anon_sym_PERCENTparameter] = ACTIONS(200),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(200),
     [anon_sym_PERCENTtype] = ACTIONS(200),
     [anon_sym_PERCENTleft] = ACTIONS(200),
     [anon_sym_COMMA] = ACTIONS(200),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(200),
     [anon_sym_PERCENTattribute] = ACTIONS(200),
     [anon_sym_PERCENTnonassoc] = ACTIONS(200),
     [anon_sym_SEMI] = ACTIONS(200),
     [anon_sym_PERCENTtoken] = ACTIONS(200),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(202),
   },
   [59] = {
@@ -2682,25 +2698,25 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(200),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(200),
     [anon_sym_PERCENTparameter] = ACTIONS(200),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(200),
     [anon_sym_PERCENTtype] = ACTIONS(200),
     [anon_sym_PERCENTleft] = ACTIONS(200),
     [anon_sym_COMMA] = ACTIONS(200),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(200),
     [anon_sym_PERCENTattribute] = ACTIONS(200),
     [anon_sym_PERCENTnonassoc] = ACTIONS(200),
     [anon_sym_SEMI] = ACTIONS(200),
     [anon_sym_PERCENTtoken] = ACTIONS(200),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(204),
   },
   [60] = {
     [sym_terminal_alias_attrs] = STATE(107),
+    [sym_uid] = ACTIONS(47),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(47),
     [sym_line_comment] = ACTIONS(3),
   },
   [61] = {
@@ -2712,18 +2728,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(47),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(139),
     [anon_sym_PERCENTparameter] = ACTIONS(139),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(139),
     [anon_sym_PERCENTtype] = ACTIONS(139),
     [anon_sym_PERCENTleft] = ACTIONS(139),
     [anon_sym_COMMA] = ACTIONS(103),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(139),
     [anon_sym_PERCENTattribute] = ACTIONS(139),
     [anon_sym_PERCENTnonassoc] = ACTIONS(139),
     [anon_sym_SEMI] = ACTIONS(139),
     [anon_sym_PERCENTtoken] = ACTIONS(139),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [62] = {
     [sym_header] = ACTIONS(190),
@@ -2732,7 +2748,7 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(190),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(190),
     [anon_sym_PERCENTparameter] = ACTIONS(190),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(190),
     [anon_sym_PERCENTtype] = ACTIONS(190),
     [anon_sym_PERCENTleft] = ACTIONS(190),
@@ -2740,23 +2756,23 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(190),
     [sym_qid] = ACTIONS(190),
     [anon_sym_PLUS] = ACTIONS(190),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(190),
     [anon_sym_PERCENTattribute] = ACTIONS(190),
     [anon_sym_PERCENTnonassoc] = ACTIONS(190),
     [anon_sym_SEMI] = ACTIONS(190),
     [anon_sym_PERCENTtoken] = ACTIONS(190),
     [anon_sym_STAR] = ACTIONS(190),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(190),
   },
   [63] = {
     [sym_strict_actual] = STATE(109),
     [sym_symbol] = STATE(33),
     [sym_qid] = ACTIONS(51),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(51),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(51),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(51),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -2768,7 +2784,7 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(192),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(192),
     [anon_sym_PERCENTparameter] = ACTIONS(192),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(192),
     [anon_sym_PERCENTtype] = ACTIONS(192),
     [anon_sym_PERCENTleft] = ACTIONS(192),
@@ -2776,14 +2792,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(192),
     [sym_qid] = ACTIONS(192),
     [anon_sym_PLUS] = ACTIONS(107),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(192),
     [anon_sym_PERCENTattribute] = ACTIONS(192),
     [anon_sym_PERCENTnonassoc] = ACTIONS(192),
     [anon_sym_SEMI] = ACTIONS(192),
     [anon_sym_PERCENTtoken] = ACTIONS(192),
     [anon_sym_STAR] = ACTIONS(107),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(107),
   },
   [65] = {
@@ -2793,7 +2809,7 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(196),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(196),
     [anon_sym_PERCENTparameter] = ACTIONS(196),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(196),
     [anon_sym_PERCENTtype] = ACTIONS(196),
     [anon_sym_PERCENTleft] = ACTIONS(196),
@@ -2801,14 +2817,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(196),
     [sym_qid] = ACTIONS(196),
     [anon_sym_PLUS] = ACTIONS(196),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(196),
     [anon_sym_PERCENTattribute] = ACTIONS(196),
     [anon_sym_PERCENTnonassoc] = ACTIONS(196),
     [anon_sym_SEMI] = ACTIONS(196),
     [anon_sym_PERCENTtoken] = ACTIONS(196),
     [anon_sym_STAR] = ACTIONS(196),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(196),
   },
   [66] = {
@@ -2821,28 +2837,28 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(51),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(139),
     [anon_sym_PERCENTparameter] = ACTIONS(139),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(139),
     [anon_sym_PERCENTtype] = ACTIONS(139),
     [anon_sym_PERCENTleft] = ACTIONS(139),
     [sym_lid] = ACTIONS(51),
     [anon_sym_COMMA] = ACTIONS(105),
     [sym_qid] = ACTIONS(51),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(139),
     [anon_sym_PERCENTattribute] = ACTIONS(139),
     [anon_sym_PERCENTnonassoc] = ACTIONS(139),
     [anon_sym_SEMI] = ACTIONS(139),
     [anon_sym_PERCENTtoken] = ACTIONS(139),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [67] = {
     [sym_strict_actual] = STATE(111),
     [sym_symbol] = STATE(103),
     [sym_qid] = ACTIONS(151),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(151),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(151),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(151),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -2857,7 +2873,7 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(51),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(139),
     [anon_sym_PERCENTparameter] = ACTIONS(139),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(139),
     [anon_sym_PERCENTtype] = ACTIONS(139),
     [anon_sym_PERCENTleft] = ACTIONS(139),
@@ -2865,22 +2881,22 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(105),
     [sym_qid] = ACTIONS(51),
     [anon_sym_PLUS] = ACTIONS(107),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(139),
     [anon_sym_PERCENTattribute] = ACTIONS(139),
     [anon_sym_PERCENTnonassoc] = ACTIONS(139),
     [anon_sym_SEMI] = ACTIONS(139),
     [anon_sym_PERCENTtoken] = ACTIONS(139),
     [anon_sym_STAR] = ACTIONS(107),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(107),
   },
   [69] = {
     [sym_symbol] = STATE(113),
     [sym_qid] = ACTIONS(51),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(51),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(51),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(51),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -2893,20 +2909,20 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(51),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(139),
     [anon_sym_PERCENTparameter] = ACTIONS(139),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(139),
     [anon_sym_PERCENTtype] = ACTIONS(139),
     [anon_sym_PERCENTleft] = ACTIONS(139),
     [sym_lid] = ACTIONS(51),
     [anon_sym_COMMA] = ACTIONS(111),
     [sym_qid] = ACTIONS(51),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(139),
     [anon_sym_PERCENTattribute] = ACTIONS(139),
     [anon_sym_PERCENTnonassoc] = ACTIONS(139),
     [anon_sym_SEMI] = ACTIONS(139),
     [anon_sym_PERCENTtoken] = ACTIONS(139),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [71] = {
     [sym_symbol] = STATE(22),
@@ -2919,12 +2935,12 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(169),
     [sym_uid] = ACTIONS(31),
     [anon_sym_PERCENTpublic] = ACTIONS(37),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(39),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(39),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(206),
     [sym_lid] = ACTIONS(43),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [72] = {
     [sym_non_terminal] = STATE(74),
@@ -2934,19 +2950,19 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTright] = ACTIONS(208),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(208),
     [anon_sym_PERCENTparameter] = ACTIONS(208),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(208),
     [anon_sym_PERCENTtype] = ACTIONS(208),
     [anon_sym_PERCENTleft] = ACTIONS(208),
     [sym_lid] = ACTIONS(27),
     [anon_sym_COMMA] = ACTIONS(63),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(208),
     [anon_sym_PERCENTattribute] = ACTIONS(208),
     [anon_sym_PERCENTnonassoc] = ACTIONS(208),
     [anon_sym_SEMI] = ACTIONS(208),
     [anon_sym_PERCENTtoken] = ACTIONS(208),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [73] = {
     [sym_header] = ACTIONS(210),
@@ -2954,19 +2970,19 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTright] = ACTIONS(210),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(210),
     [anon_sym_PERCENTparameter] = ACTIONS(210),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(210),
     [anon_sym_PERCENTtype] = ACTIONS(210),
     [anon_sym_PERCENTleft] = ACTIONS(210),
     [sym_lid] = ACTIONS(210),
     [anon_sym_COMMA] = ACTIONS(210),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(210),
     [anon_sym_PERCENTattribute] = ACTIONS(210),
     [anon_sym_PERCENTnonassoc] = ACTIONS(210),
     [anon_sym_SEMI] = ACTIONS(210),
     [anon_sym_PERCENTtoken] = ACTIONS(210),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [74] = {
     [sym_non_terminal] = STATE(74),
@@ -2976,29 +2992,29 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTright] = ACTIONS(210),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(210),
     [anon_sym_PERCENTparameter] = ACTIONS(210),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(210),
     [anon_sym_PERCENTtype] = ACTIONS(210),
     [anon_sym_PERCENTleft] = ACTIONS(210),
     [sym_lid] = ACTIONS(212),
     [anon_sym_COMMA] = ACTIONS(215),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(210),
     [anon_sym_PERCENTattribute] = ACTIONS(210),
     [anon_sym_PERCENTnonassoc] = ACTIONS(210),
     [anon_sym_SEMI] = ACTIONS(210),
     [anon_sym_PERCENTtoken] = ACTIONS(210),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [75] = {
     [sym_equality_symbol] = STATE(117),
     [aux_sym_declaration_repeat5] = STATE(118),
     [anon_sym_COLON_EQ] = ACTIONS(145),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_EQ_EQ] = ACTIONS(145),
     [anon_sym_LPAREN] = ACTIONS(218),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(220),
   },
   [76] = {
@@ -3008,20 +3024,20 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(222),
     [anon_sym_PERCENTprec] = ACTIONS(222),
     [sym_ocaml_type] = ACTIONS(222),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(222),
     [sym_action] = ACTIONS(222),
     [anon_sym__] = ACTIONS(224),
     [sym_lid] = ACTIONS(224),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [77] = {
     [sym_symbol] = STATE(119),
     [sym_qid] = ACTIONS(151),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(151),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(151),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(151),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -3040,63 +3056,63 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(232),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(234),
     [sym_action] = ACTIONS(232),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(238),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [79] = {
     [sym_equality_symbol] = STATE(117),
     [aux_sym_declaration_repeat5] = STATE(134),
     [anon_sym_COLON_EQ] = ACTIONS(145),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_EQ_EQ] = ACTIONS(145),
     [anon_sym_LPAREN] = ACTIONS(218),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(240),
   },
   [80] = {
     [anon_sym_QMARK] = ACTIONS(65),
     [anon_sym_PLUS] = ACTIONS(65),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_LPAREN] = ACTIONS(65),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_LPAREN] = ACTIONS(65),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(65),
     [anon_sym_PIPE] = ACTIONS(65),
     [anon_sym_STAR] = ACTIONS(65),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(65),
   },
   [81] = {
     [aux_sym_old_rule_repeat1] = STATE(137),
+    [anon_sym_COMMA] = ACTIONS(242),
+    [anon_sym_RPAREN] = ACTIONS(244),
     [sym_ocaml_comment] = ACTIONS(3),
-    [anon_sym_RPAREN] = ACTIONS(242),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(244),
   },
   [82] = {
     [anon_sym_QMARK] = ACTIONS(65),
     [sym_uid] = ACTIONS(65),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(65),
     [sym_action] = ACTIONS(65),
     [sym_lid] = ACTIONS(65),
     [anon_sym_COMMA] = ACTIONS(65),
     [sym_qid] = ACTIONS(65),
     [anon_sym_PLUS] = ACTIONS(65),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_LPAREN] = ACTIONS(65),
     [anon_sym_PERCENTprec] = ACTIONS(65),
     [sym_ocaml_type] = ACTIONS(65),
     [anon_sym_SEMI] = ACTIONS(65),
     [anon_sym_PIPE] = ACTIONS(65),
     [anon_sym_STAR] = ACTIONS(65),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(65),
   },
   [83] = {
@@ -3108,18 +3124,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTpublic] = ACTIONS(246),
     [anon_sym_PERCENTprec] = ACTIONS(248),
     [anon_sym_let] = ACTIONS(250),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(246),
     [anon_sym_PIPE] = ACTIONS(246),
     [sym_postlude] = ACTIONS(246),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(250),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [84] = {
     [anon_sym_QMARK] = ACTIONS(65),
     [sym_uid] = ACTIONS(65),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(65),
     [sym_action] = ACTIONS(65),
     [anon_sym_EQ] = ACTIONS(252),
@@ -3127,41 +3143,41 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(65),
     [sym_qid] = ACTIONS(65),
     [anon_sym_PLUS] = ACTIONS(65),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_LPAREN] = ACTIONS(65),
     [anon_sym_PERCENTprec] = ACTIONS(65),
     [sym_ocaml_type] = ACTIONS(65),
     [anon_sym_SEMI] = ACTIONS(65),
     [anon_sym_PIPE] = ACTIONS(65),
     [anon_sym_STAR] = ACTIONS(65),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(65),
   },
   [85] = {
     [sym_symbol] = STATE(142),
     [sym_qid] = ACTIONS(254),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(254),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(254),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(254),
     [sym_line_comment] = ACTIONS(3),
   },
   [86] = {
     [anon_sym_QMARK] = ACTIONS(256),
     [sym_uid] = ACTIONS(256),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_action] = ACTIONS(256),
     [sym_lid] = ACTIONS(256),
     [sym_qid] = ACTIONS(256),
     [anon_sym_PLUS] = ACTIONS(256),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_LPAREN] = ACTIONS(258),
     [anon_sym_PERCENTprec] = ACTIONS(256),
     [sym_ocaml_type] = ACTIONS(256),
     [anon_sym_SEMI] = ACTIONS(256),
     [anon_sym_PIPE] = ACTIONS(256),
     [anon_sym_STAR] = ACTIONS(256),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(256),
   },
   [87] = {
@@ -3170,18 +3186,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_modifier] = STATE(145),
     [sym_attribute] = ACTIONS(260),
     [sym_uid] = ACTIONS(262),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_action] = ACTIONS(262),
     [sym_lid] = ACTIONS(262),
     [sym_qid] = ACTIONS(262),
     [anon_sym_PLUS] = ACTIONS(264),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(262),
     [sym_ocaml_type] = ACTIONS(262),
     [anon_sym_SEMI] = ACTIONS(266),
     [anon_sym_PIPE] = ACTIONS(262),
     [anon_sym_STAR] = ACTIONS(264),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(264),
   },
   [88] = {
@@ -3194,23 +3210,23 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [aux_sym_production_group_repeat1] = STATE(149),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(268),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(268),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [89] = {
     [aux_sym_production_group_repeat2] = STATE(152),
     [sym__high_prec_bar] = STATE(92),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(268),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(268),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [90] = {
@@ -3222,23 +3238,23 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(270),
     [sym_uid] = ACTIONS(270),
     [anon_sym_PERCENTpublic] = ACTIONS(270),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(272),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(274),
     [sym_postlude] = ACTIONS(270),
     [anon_sym_PIPE] = ACTIONS(276),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(272),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [91] = {
     [aux_sym_production_group_repeat2] = STATE(150),
     [sym__high_prec_bar] = STATE(92),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(268),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(268),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [92] = {
@@ -3249,14 +3265,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [aux_sym_production_group_repeat1] = STATE(156),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(278),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(278),
     [sym_action] = ACTIONS(278),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [93] = {
     [sym_symbol] = STATE(86),
@@ -3269,21 +3285,21 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(88),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(155),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(155),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [94] = {
     [sym_symbol] = STATE(159),
     [sym_qid] = ACTIONS(151),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(151),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(151),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(151),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -3299,20 +3315,20 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(88),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(155),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(155),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [96] = {
     [aux_sym_declaration_repeat5] = STATE(96),
     [sym_line_comment] = ACTIONS(3),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_LPAREN] = ACTIONS(280),
     [anon_sym_COLON] = ACTIONS(280),
     [sym_attribute] = ACTIONS(282),
@@ -3320,8 +3336,8 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
   [97] = {
     [aux_sym_declaration_repeat5] = STATE(96),
     [sym_line_comment] = ACTIONS(3),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_LPAREN] = ACTIONS(285),
     [anon_sym_COLON] = ACTIONS(287),
     [sym_attribute] = ACTIONS(167),
@@ -3333,9 +3349,9 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(289),
     [sym_uid] = ACTIONS(289),
     [anon_sym_QMARK] = ACTIONS(87),
-    [sym_line_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_STAR] = ACTIONS(87),
     [sym_lid] = ACTIONS(289),
     [sym_attribute] = ACTIONS(289),
@@ -3347,17 +3363,17 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTright] = ACTIONS(280),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(280),
     [anon_sym_PERCENTparameter] = ACTIONS(280),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(280),
     [anon_sym_PERCENTtype] = ACTIONS(280),
     [anon_sym_PERCENTleft] = ACTIONS(280),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(280),
     [anon_sym_PERCENTattribute] = ACTIONS(280),
     [anon_sym_PERCENTnonassoc] = ACTIONS(280),
     [anon_sym_SEMI] = ACTIONS(280),
     [anon_sym_PERCENTtoken] = ACTIONS(280),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(291),
   },
   [100] = {
@@ -3367,17 +3383,17 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTright] = ACTIONS(208),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(208),
     [anon_sym_PERCENTparameter] = ACTIONS(208),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(208),
     [anon_sym_PERCENTtype] = ACTIONS(208),
     [anon_sym_PERCENTleft] = ACTIONS(208),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(208),
     [anon_sym_PERCENTattribute] = ACTIONS(208),
     [anon_sym_PERCENTnonassoc] = ACTIONS(208),
     [anon_sym_SEMI] = ACTIONS(208),
     [anon_sym_PERCENTtoken] = ACTIONS(208),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(194),
   },
   [101] = {
@@ -3388,9 +3404,9 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_lid] = ACTIONS(294),
     [anon_sym_COMMA] = ACTIONS(297),
     [sym_uid] = ACTIONS(294),
-    [sym_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(289),
   },
   [102] = {
@@ -3398,22 +3414,22 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_modifier] = STATE(167),
     [anon_sym_COMMA] = ACTIONS(300),
     [anon_sym_PLUS] = ACTIONS(302),
-    [sym_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(304),
     [anon_sym_STAR] = ACTIONS(302),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(302),
   },
   [103] = {
     [anon_sym_QMARK] = ACTIONS(93),
     [anon_sym_PLUS] = ACTIONS(93),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_LPAREN] = ACTIONS(306),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_LPAREN] = ACTIONS(306),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(93),
     [anon_sym_STAR] = ACTIONS(93),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(93),
   },
   [104] = {
@@ -3425,18 +3441,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(47),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(208),
     [anon_sym_PERCENTparameter] = ACTIONS(208),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(208),
     [anon_sym_PERCENTtype] = ACTIONS(208),
     [anon_sym_PERCENTleft] = ACTIONS(208),
     [anon_sym_COMMA] = ACTIONS(103),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(208),
     [anon_sym_PERCENTattribute] = ACTIONS(208),
     [anon_sym_PERCENTnonassoc] = ACTIONS(208),
     [anon_sym_SEMI] = ACTIONS(208),
     [anon_sym_PERCENTtoken] = ACTIONS(208),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [105] = {
     [aux_sym_declaration_repeat5] = STATE(106),
@@ -3446,18 +3462,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(308),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(308),
     [anon_sym_PERCENTparameter] = ACTIONS(308),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(308),
     [anon_sym_PERCENTtype] = ACTIONS(308),
     [anon_sym_PERCENTleft] = ACTIONS(308),
     [anon_sym_COMMA] = ACTIONS(308),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(308),
     [anon_sym_PERCENTattribute] = ACTIONS(308),
     [anon_sym_PERCENTnonassoc] = ACTIONS(308),
     [anon_sym_SEMI] = ACTIONS(308),
     [anon_sym_PERCENTtoken] = ACTIONS(308),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(204),
   },
   [106] = {
@@ -3468,18 +3484,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(280),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(280),
     [anon_sym_PERCENTparameter] = ACTIONS(280),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(280),
     [anon_sym_PERCENTtype] = ACTIONS(280),
     [anon_sym_PERCENTleft] = ACTIONS(280),
     [anon_sym_COMMA] = ACTIONS(280),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(280),
     [anon_sym_PERCENTattribute] = ACTIONS(280),
     [anon_sym_PERCENTnonassoc] = ACTIONS(280),
     [anon_sym_SEMI] = ACTIONS(280),
     [anon_sym_PERCENTtoken] = ACTIONS(280),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(310),
   },
   [107] = {
@@ -3489,18 +3505,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(313),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(313),
     [anon_sym_PERCENTparameter] = ACTIONS(313),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(313),
     [anon_sym_PERCENTtype] = ACTIONS(313),
     [anon_sym_PERCENTleft] = ACTIONS(313),
     [anon_sym_COMMA] = ACTIONS(313),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(313),
     [anon_sym_PERCENTattribute] = ACTIONS(313),
     [anon_sym_PERCENTnonassoc] = ACTIONS(313),
     [anon_sym_SEMI] = ACTIONS(313),
     [anon_sym_PERCENTtoken] = ACTIONS(313),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [108] = {
     [sym_terminal_alias_attrs] = STATE(108),
@@ -3511,18 +3527,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(315),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(313),
     [anon_sym_PERCENTparameter] = ACTIONS(313),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(313),
     [anon_sym_PERCENTtype] = ACTIONS(313),
     [anon_sym_PERCENTleft] = ACTIONS(313),
     [anon_sym_COMMA] = ACTIONS(318),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(313),
     [anon_sym_PERCENTattribute] = ACTIONS(313),
     [anon_sym_PERCENTnonassoc] = ACTIONS(313),
     [anon_sym_SEMI] = ACTIONS(313),
     [anon_sym_PERCENTtoken] = ACTIONS(313),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [109] = {
     [sym_modifier] = STATE(65),
@@ -3532,7 +3548,7 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(289),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(289),
     [anon_sym_PERCENTparameter] = ACTIONS(289),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(289),
     [anon_sym_PERCENTtype] = ACTIONS(289),
     [anon_sym_PERCENTleft] = ACTIONS(289),
@@ -3540,14 +3556,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(289),
     [sym_qid] = ACTIONS(289),
     [anon_sym_PLUS] = ACTIONS(107),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(289),
     [anon_sym_PERCENTattribute] = ACTIONS(289),
     [anon_sym_PERCENTnonassoc] = ACTIONS(289),
     [anon_sym_SEMI] = ACTIONS(289),
     [anon_sym_PERCENTtoken] = ACTIONS(289),
     [anon_sym_STAR] = ACTIONS(107),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(107),
   },
   [110] = {
@@ -3560,31 +3576,31 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(321),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(289),
     [anon_sym_PERCENTparameter] = ACTIONS(289),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(289),
     [anon_sym_PERCENTtype] = ACTIONS(289),
     [anon_sym_PERCENTleft] = ACTIONS(289),
     [sym_lid] = ACTIONS(321),
     [anon_sym_COMMA] = ACTIONS(324),
     [sym_qid] = ACTIONS(321),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(289),
     [anon_sym_PERCENTattribute] = ACTIONS(289),
     [anon_sym_PERCENTnonassoc] = ACTIONS(289),
     [anon_sym_SEMI] = ACTIONS(289),
     [anon_sym_PERCENTtoken] = ACTIONS(289),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [111] = {
     [aux_sym_strict_actual_repeat1] = STATE(170),
     [sym_modifier] = STATE(167),
     [anon_sym_COMMA] = ACTIONS(300),
     [anon_sym_PLUS] = ACTIONS(302),
-    [sym_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(327),
     [anon_sym_STAR] = ACTIONS(302),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(302),
   },
   [112] = {
@@ -3597,20 +3613,20 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(51),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(208),
     [anon_sym_PERCENTparameter] = ACTIONS(208),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(208),
     [anon_sym_PERCENTtype] = ACTIONS(208),
     [anon_sym_PERCENTleft] = ACTIONS(208),
     [sym_lid] = ACTIONS(51),
     [anon_sym_COMMA] = ACTIONS(105),
     [sym_qid] = ACTIONS(51),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(208),
     [anon_sym_PERCENTattribute] = ACTIONS(208),
     [anon_sym_PERCENTnonassoc] = ACTIONS(208),
     [anon_sym_SEMI] = ACTIONS(208),
     [anon_sym_PERCENTtoken] = ACTIONS(208),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [113] = {
     [sym_header] = ACTIONS(329),
@@ -3619,20 +3635,20 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(329),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(329),
     [anon_sym_PERCENTparameter] = ACTIONS(329),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(329),
     [anon_sym_PERCENTtype] = ACTIONS(329),
     [anon_sym_PERCENTleft] = ACTIONS(329),
     [sym_lid] = ACTIONS(329),
     [anon_sym_COMMA] = ACTIONS(329),
     [sym_qid] = ACTIONS(329),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(329),
     [anon_sym_PERCENTattribute] = ACTIONS(329),
     [anon_sym_PERCENTnonassoc] = ACTIONS(329),
     [anon_sym_SEMI] = ACTIONS(329),
     [anon_sym_PERCENTtoken] = ACTIONS(329),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [114] = {
     [aux_sym_declaration_repeat2] = STATE(114),
@@ -3643,33 +3659,33 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(331),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(329),
     [anon_sym_PERCENTparameter] = ACTIONS(329),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(329),
     [anon_sym_PERCENTtype] = ACTIONS(329),
     [anon_sym_PERCENTleft] = ACTIONS(329),
     [sym_lid] = ACTIONS(331),
     [anon_sym_COMMA] = ACTIONS(334),
     [sym_qid] = ACTIONS(331),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(329),
     [anon_sym_PERCENTattribute] = ACTIONS(329),
     [anon_sym_PERCENTnonassoc] = ACTIONS(329),
     [anon_sym_SEMI] = ACTIONS(329),
     [anon_sym_PERCENTtoken] = ACTIONS(329),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [115] = {
-    [sym_ocaml_comment] = ACTIONS(3),
     [ts_builtin_sym_end] = ACTIONS(337),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [116] = {
     [sym_symbol] = STATE(171),
     [sym_qid] = ACTIONS(151),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(151),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(151),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(151),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -3688,39 +3704,39 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(232),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(234),
     [sym_action] = ACTIONS(232),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(238),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [118] = {
     [sym_equality_symbol] = STATE(174),
     [aux_sym_declaration_repeat5] = STATE(134),
     [anon_sym_COLON_EQ] = ACTIONS(145),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_EQ_EQ] = ACTIONS(145),
     [anon_sym_LPAREN] = ACTIONS(339),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(240),
   },
   [119] = {
     [aux_sym_old_rule_repeat1] = STATE(176),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(242),
     [anon_sym_RPAREN] = ACTIONS(341),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(244),
   },
   [120] = {
     [anon_sym_PERCENTinline] = ACTIONS(65),
     [anon_sym_QMARK] = ACTIONS(65),
     [sym_uid] = ACTIONS(65),
     [anon_sym_let] = ACTIONS(343),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(65),
     [sym_lid] = ACTIONS(343),
     [sym_qid] = ACTIONS(65),
@@ -3728,31 +3744,31 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(65),
     [anon_sym_PERCENTpublic] = ACTIONS(65),
     [anon_sym_LPAREN] = ACTIONS(65),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(65),
     [anon_sym_PIPE] = ACTIONS(65),
     [anon_sym_STAR] = ACTIONS(65),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(65),
   },
   [121] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(345),
     [anon_sym_RPAREN] = ACTIONS(345),
     [anon_sym_EQ] = ACTIONS(345),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(345),
   },
   [122] = {
     [sym_pattern] = STATE(178),
     [anon_sym_TILDE] = ACTIONS(228),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_LPAREN] = ACTIONS(230),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_LPAREN] = ACTIONS(230),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(347),
     [anon_sym__] = ACTIONS(236),
+    [sym_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(236),
-    [sym_line_comment] = ACTIONS(3),
   },
   [123] = {
     [sym_qid] = ACTIONS(349),
@@ -3762,12 +3778,12 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTpublic] = ACTIONS(349),
     [anon_sym_PERCENTprec] = ACTIONS(349),
     [anon_sym_let] = ACTIONS(351),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(349),
     [sym_postlude] = ACTIONS(349),
     [sym_lid] = ACTIONS(351),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [124] = {
     [sym_symbol] = STATE(126),
@@ -3783,19 +3799,19 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(232),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_action] = ACTIONS(232),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(238),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [125] = {
     [anon_sym_PERCENTinline] = ACTIONS(65),
     [anon_sym_QMARK] = ACTIONS(65),
     [sym_uid] = ACTIONS(65),
     [anon_sym_let] = ACTIONS(343),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(65),
     [anon_sym_EQ] = ACTIONS(345),
     [sym_lid] = ACTIONS(343),
@@ -3804,11 +3820,11 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(65),
     [anon_sym_PERCENTpublic] = ACTIONS(65),
     [anon_sym_LPAREN] = ACTIONS(65),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(65),
     [anon_sym_PIPE] = ACTIONS(65),
     [anon_sym_STAR] = ACTIONS(65),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(65),
   },
   [126] = {
@@ -3817,7 +3833,7 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_attribute] = ACTIONS(355),
     [sym_uid] = ACTIONS(353),
     [anon_sym_let] = ACTIONS(357),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(353),
     [sym_lid] = ACTIONS(357),
     [sym_qid] = ACTIONS(353),
@@ -3825,11 +3841,11 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(353),
     [anon_sym_PERCENTpublic] = ACTIONS(353),
     [anon_sym_LPAREN] = ACTIONS(359),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(353),
     [anon_sym_PIPE] = ACTIONS(353),
     [anon_sym_STAR] = ACTIONS(353),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(353),
   },
   [127] = {
@@ -3838,12 +3854,12 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(361),
     [sym_uid] = ACTIONS(361),
     [anon_sym_PERCENTpublic] = ACTIONS(361),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(363),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(363),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(361),
     [sym_lid] = ACTIONS(363),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [128] = {
     [sym_precedence] = STATE(182),
@@ -3854,16 +3870,16 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTpublic] = ACTIONS(365),
     [anon_sym_PERCENTprec] = ACTIONS(248),
     [anon_sym_let] = ACTIONS(367),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(365),
     [sym_postlude] = ACTIONS(365),
     [sym_lid] = ACTIONS(367),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [129] = {
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_EQ] = ACTIONS(369),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -3874,20 +3890,20 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(371),
     [sym_uid] = ACTIONS(371),
     [anon_sym_PERCENTpublic] = ACTIONS(371),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(373),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(373),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(371),
     [anon_sym_PIPE] = ACTIONS(375),
     [sym_lid] = ACTIONS(373),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [131] = {
     [sym_menhir_action] = STATE(182),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_action] = ACTIONS(232),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(232),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [132] = {
@@ -3895,18 +3911,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTinline] = ACTIONS(377),
     [sym_uid] = ACTIONS(377),
     [anon_sym_let] = ACTIONS(379),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(377),
     [sym_lid] = ACTIONS(379),
     [sym_qid] = ACTIONS(377),
     [anon_sym_PLUS] = ACTIONS(381),
     [ts_builtin_sym_end] = ACTIONS(377),
     [anon_sym_PERCENTpublic] = ACTIONS(377),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(383),
     [anon_sym_PIPE] = ACTIONS(377),
     [anon_sym_STAR] = ACTIONS(381),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(381),
   },
   [133] = {
@@ -3915,53 +3931,53 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(377),
     [sym_uid] = ACTIONS(377),
     [anon_sym_PERCENTpublic] = ACTIONS(377),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(379),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(379),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(377),
     [sym_postlude] = ACTIONS(377),
     [sym_lid] = ACTIONS(379),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [134] = {
     [aux_sym_declaration_repeat5] = STATE(134),
     [anon_sym_COLON_EQ] = ACTIONS(280),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_EQ_EQ] = ACTIONS(280),
     [anon_sym_LPAREN] = ACTIONS(280),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(385),
   },
   [135] = {
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [anon_sym_COLON] = ACTIONS(388),
-    [sym_line_comment] = ACTIONS(3),
   },
   [136] = {
     [sym_symbol] = STATE(190),
     [sym_qid] = ACTIONS(151),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(151),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(151),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(151),
     [sym_line_comment] = ACTIONS(3),
   },
   [137] = {
     [aux_sym_old_rule_repeat1] = STATE(192),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(242),
     [anon_sym_RPAREN] = ACTIONS(390),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(244),
   },
   [138] = {
     [sym_symbol] = STATE(194),
     [sym_qid] = ACTIONS(392),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(392),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(392),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(392),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -3971,39 +3987,39 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(394),
     [sym_uid] = ACTIONS(394),
     [anon_sym_PERCENTpublic] = ACTIONS(394),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(396),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(394),
     [anon_sym_PIPE] = ACTIONS(394),
     [sym_postlude] = ACTIONS(394),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(396),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [140] = {
     [sym_symbol] = STATE(86),
     [sym_actual] = STATE(195),
     [sym_qid] = ACTIONS(153),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(153),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(153),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(153),
     [sym_line_comment] = ACTIONS(3),
   },
   [141] = {
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(65),
     [sym_action] = ACTIONS(65),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(65),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [142] = {
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(398),
     [sym_action] = ACTIONS(398),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(398),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [143] = {
@@ -4018,78 +4034,78 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(200),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(400),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(400),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [144] = {
     [anon_sym_QMARK] = ACTIONS(190),
     [sym_uid] = ACTIONS(190),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(190),
     [sym_action] = ACTIONS(190),
     [sym_lid] = ACTIONS(190),
     [anon_sym_COMMA] = ACTIONS(190),
     [sym_qid] = ACTIONS(190),
     [anon_sym_PLUS] = ACTIONS(190),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(190),
     [sym_ocaml_type] = ACTIONS(190),
     [anon_sym_SEMI] = ACTIONS(190),
     [anon_sym_PIPE] = ACTIONS(190),
     [anon_sym_STAR] = ACTIONS(190),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(190),
   },
   [145] = {
     [anon_sym_QMARK] = ACTIONS(402),
     [sym_uid] = ACTIONS(402),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_action] = ACTIONS(402),
     [sym_lid] = ACTIONS(402),
     [sym_qid] = ACTIONS(402),
     [anon_sym_PLUS] = ACTIONS(402),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(402),
     [sym_ocaml_type] = ACTIONS(402),
     [anon_sym_SEMI] = ACTIONS(402),
     [anon_sym_PIPE] = ACTIONS(402),
     [anon_sym_STAR] = ACTIONS(402),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(402),
   },
   [146] = {
     [aux_sym_old_rule_repeat3] = STATE(204),
     [sym_qid] = ACTIONS(404),
     [sym_uid] = ACTIONS(404),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(404),
     [sym_ocaml_type] = ACTIONS(404),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(406),
     [anon_sym_PIPE] = ACTIONS(404),
     [sym_action] = ACTIONS(404),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(404),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [147] = {
     [aux_sym_old_rule_repeat3] = STATE(205),
     [aux_sym_declaration_repeat5] = STATE(206),
     [sym_qid] = ACTIONS(404),
-    [sym_line_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(404),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(404),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(404),
     [sym_ocaml_type] = ACTIONS(404),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(408),
     [anon_sym_PIPE] = ACTIONS(404),
     [sym_action] = ACTIONS(404),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(404),
     [sym_attribute] = ACTIONS(410),
   },
@@ -4102,13 +4118,13 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTpublic] = ACTIONS(394),
     [anon_sym_PERCENTprec] = ACTIONS(248),
     [anon_sym_let] = ACTIONS(396),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(394),
     [anon_sym_PIPE] = ACTIONS(394),
     [sym_postlude] = ACTIONS(394),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(396),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [149] = {
     [sym_producer] = STATE(149),
@@ -4117,43 +4133,43 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [aux_sym_production_group_repeat1] = STATE(149),
     [sym_qid] = ACTIONS(412),
     [sym_uid] = ACTIONS(412),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(415),
     [sym_ocaml_type] = ACTIONS(415),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(415),
     [sym_action] = ACTIONS(415),
     [sym_lid] = ACTIONS(417),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [150] = {
     [aux_sym_production_group_repeat2] = STATE(152),
     [sym__high_prec_bar] = STATE(92),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(420),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(420),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [151] = {
     [aux_sym_production_group_repeat2] = STATE(209),
     [sym__high_prec_bar] = STATE(92),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(420),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(420),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [152] = {
     [aux_sym_production_group_repeat2] = STATE(152),
     [sym__high_prec_bar] = STATE(92),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(422),
     [sym_action] = ACTIONS(425),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(425),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [153] = {
@@ -4165,14 +4181,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(427),
     [sym_uid] = ACTIONS(427),
     [anon_sym_PERCENTpublic] = ACTIONS(427),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(429),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(431),
     [sym_postlude] = ACTIONS(427),
     [anon_sym_PIPE] = ACTIONS(276),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(429),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [154] = {
     [aux_sym_old_rule_repeat3] = STATE(212),
@@ -4181,13 +4197,13 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(427),
     [sym_uid] = ACTIONS(427),
     [anon_sym_PERCENTpublic] = ACTIONS(427),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(429),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(433),
     [sym_postlude] = ACTIONS(427),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(429),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [155] = {
     [sym_symbol] = STATE(86),
@@ -4200,14 +4216,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(88),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(155),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(155),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [156] = {
     [sym_producer] = STATE(149),
@@ -4217,21 +4233,21 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [aux_sym_production_group_repeat1] = STATE(149),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(425),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(425),
     [sym_action] = ACTIONS(425),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [157] = {
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(425),
     [sym_action] = ACTIONS(425),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(425),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [158] = {
@@ -4243,22 +4259,22 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(427),
     [sym_uid] = ACTIONS(427),
     [anon_sym_PERCENTpublic] = ACTIONS(427),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(429),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(431),
     [sym_postlude] = ACTIONS(427),
     [anon_sym_PIPE] = ACTIONS(276),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(429),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [159] = {
     [aux_sym_old_rule_repeat1] = STATE(216),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(242),
     [anon_sym_RPAREN] = ACTIONS(390),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(244),
   },
   [160] = {
     [sym_symbol] = STATE(86),
@@ -4271,21 +4287,21 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(88),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(155),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(155),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [161] = {
     [sym_symbol] = STATE(218),
     [sym_qid] = ACTIONS(151),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(151),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(151),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(151),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -4301,33 +4317,33 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(88),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(155),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(155),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [163] = {
     [sym_strict_actual] = STATE(220),
     [sym_symbol] = STATE(103),
     [sym_qid] = ACTIONS(151),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(151),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(151),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(151),
     [sym_line_comment] = ACTIONS(3),
   },
   [164] = {
     [anon_sym_QMARK] = ACTIONS(190),
     [anon_sym_PLUS] = ACTIONS(190),
-    [sym_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(190),
     [anon_sym_STAR] = ACTIONS(190),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(190),
   },
   [165] = {
@@ -4336,38 +4352,38 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(435),
     [sym_uid] = ACTIONS(435),
     [sym_attribute] = ACTIONS(435),
-    [sym_line_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_STAR] = ACTIONS(435),
     [sym_lid] = ACTIONS(435),
     [anon_sym_QMARK] = ACTIONS(435),
   },
   [166] = {
     [aux_sym_strict_actual_repeat1] = STATE(222),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(300),
     [anon_sym_RPAREN] = ACTIONS(437),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(300),
   },
   [167] = {
     [anon_sym_QMARK] = ACTIONS(196),
     [anon_sym_PLUS] = ACTIONS(196),
-    [sym_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(196),
     [anon_sym_STAR] = ACTIONS(196),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(196),
   },
   [168] = {
     [sym_strict_actual] = STATE(223),
     [sym_symbol] = STATE(103),
     [sym_qid] = ACTIONS(151),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(151),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(151),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(151),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -4378,7 +4394,7 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(435),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(435),
     [anon_sym_PERCENTparameter] = ACTIONS(435),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(435),
     [anon_sym_PERCENTtype] = ACTIONS(435),
     [anon_sym_PERCENTleft] = ACTIONS(435),
@@ -4386,31 +4402,31 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(435),
     [sym_qid] = ACTIONS(435),
     [anon_sym_PLUS] = ACTIONS(435),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(435),
     [anon_sym_PERCENTattribute] = ACTIONS(435),
     [anon_sym_PERCENTnonassoc] = ACTIONS(435),
     [anon_sym_SEMI] = ACTIONS(435),
     [anon_sym_PERCENTtoken] = ACTIONS(435),
     [anon_sym_STAR] = ACTIONS(435),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(435),
   },
   [170] = {
     [aux_sym_strict_actual_repeat1] = STATE(222),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(300),
     [anon_sym_RPAREN] = ACTIONS(439),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(300),
   },
   [171] = {
     [aux_sym_old_rule_repeat1] = STATE(226),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(242),
     [anon_sym_RPAREN] = ACTIONS(441),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(244),
   },
   [172] = {
     [sym_qid] = ACTIONS(443),
@@ -4418,19 +4434,19 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(443),
     [sym_uid] = ACTIONS(443),
     [anon_sym_PERCENTpublic] = ACTIONS(443),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(445),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(445),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(443),
     [sym_lid] = ACTIONS(445),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [173] = {
     [sym_symbol] = STATE(227),
     [sym_qid] = ACTIONS(151),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(151),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(151),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(151),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -4449,45 +4465,45 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(232),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(234),
     [sym_action] = ACTIONS(232),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(238),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [175] = {
     [sym_equality_symbol] = STATE(229),
     [anon_sym_COLON_EQ] = ACTIONS(145),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_EQ_EQ] = ACTIONS(145),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [176] = {
     [aux_sym_old_rule_repeat1] = STATE(192),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(242),
     [anon_sym_RPAREN] = ACTIONS(441),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(244),
   },
   [177] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(447),
     [anon_sym_RPAREN] = ACTIONS(447),
     [anon_sym_EQ] = ACTIONS(447),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(447),
   },
   [178] = {
     [aux_sym_pattern_repeat1] = STATE(232),
+    [anon_sym_COMMA] = ACTIONS(449),
+    [anon_sym_RPAREN] = ACTIONS(451),
     [sym_ocaml_comment] = ACTIONS(3),
-    [anon_sym_RPAREN] = ACTIONS(449),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(451),
   },
   [179] = {
     [aux_sym_expression_repeat1] = STATE(233),
@@ -4496,13 +4512,13 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(453),
     [sym_uid] = ACTIONS(453),
     [anon_sym_PERCENTpublic] = ACTIONS(453),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(455),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(455),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(453),
     [anon_sym_PIPE] = ACTIONS(375),
     [sym_lid] = ACTIONS(455),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [180] = {
     [sym_symbol] = STATE(237),
@@ -4519,13 +4535,13 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(457),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(459),
     [sym_action] = ACTIONS(457),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(461),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [181] = {
     [aux_sym_declaration_repeat5] = STATE(245),
@@ -4533,18 +4549,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_QMARK] = ACTIONS(463),
     [sym_uid] = ACTIONS(463),
     [anon_sym_let] = ACTIONS(465),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(463),
     [sym_lid] = ACTIONS(465),
     [sym_qid] = ACTIONS(463),
     [anon_sym_PLUS] = ACTIONS(463),
     [ts_builtin_sym_end] = ACTIONS(463),
     [anon_sym_PERCENTpublic] = ACTIONS(463),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(463),
     [anon_sym_PIPE] = ACTIONS(463),
     [anon_sym_STAR] = ACTIONS(463),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(467),
   },
   [182] = {
@@ -4553,21 +4569,21 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(469),
     [sym_uid] = ACTIONS(469),
     [anon_sym_PERCENTpublic] = ACTIONS(469),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(471),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(471),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(469),
     [sym_postlude] = ACTIONS(469),
     [sym_lid] = ACTIONS(471),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [183] = {
     [sym_symbol] = STATE(246),
     [sym_symbol_expression] = STATE(247),
     [sym_qid] = ACTIONS(31),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(31),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(31),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(31),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -4585,12 +4601,12 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(232),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_action] = ACTIONS(232),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(238),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [185] = {
     [aux_sym_expression_repeat1] = STATE(249),
@@ -4599,13 +4615,13 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(453),
     [sym_uid] = ACTIONS(453),
     [anon_sym_PERCENTpublic] = ACTIONS(453),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(455),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(455),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(453),
     [anon_sym_PIPE] = ACTIONS(375),
     [sym_lid] = ACTIONS(455),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [186] = {
     [sym_symbol] = STATE(126),
@@ -4621,30 +4637,30 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(232),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_action] = ACTIONS(232),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(238),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [187] = {
     [anon_sym_PERCENTinline] = ACTIONS(190),
     [anon_sym_QMARK] = ACTIONS(190),
     [sym_uid] = ACTIONS(190),
     [anon_sym_let] = ACTIONS(473),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(190),
     [sym_lid] = ACTIONS(473),
     [sym_qid] = ACTIONS(190),
     [anon_sym_PLUS] = ACTIONS(190),
     [ts_builtin_sym_end] = ACTIONS(190),
     [anon_sym_PERCENTpublic] = ACTIONS(190),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(190),
     [anon_sym_PIPE] = ACTIONS(190),
     [anon_sym_STAR] = ACTIONS(190),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(190),
   },
   [188] = {
@@ -4653,18 +4669,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_QMARK] = ACTIONS(463),
     [sym_uid] = ACTIONS(463),
     [anon_sym_let] = ACTIONS(465),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(463),
     [sym_lid] = ACTIONS(465),
     [sym_qid] = ACTIONS(463),
     [anon_sym_PLUS] = ACTIONS(463),
     [ts_builtin_sym_end] = ACTIONS(463),
     [anon_sym_PERCENTpublic] = ACTIONS(463),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(463),
     [anon_sym_PIPE] = ACTIONS(463),
     [anon_sym_STAR] = ACTIONS(463),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(475),
   },
   [189] = {
@@ -4679,35 +4695,35 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(88),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(155),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(155),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [190] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(477),
     [anon_sym_RPAREN] = ACTIONS(477),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(477),
   },
   [191] = {
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [anon_sym_COLON] = ACTIONS(479),
-    [sym_line_comment] = ACTIONS(3),
   },
   [192] = {
     [aux_sym_old_rule_repeat1] = STATE(192),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(481),
     [anon_sym_RPAREN] = ACTIONS(477),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(481),
   },
   [193] = {
     [sym_qid] = ACTIONS(65),
@@ -4715,14 +4731,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(65),
     [sym_uid] = ACTIONS(65),
     [anon_sym_PERCENTpublic] = ACTIONS(65),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(343),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(65),
     [anon_sym_PIPE] = ACTIONS(65),
     [sym_postlude] = ACTIONS(65),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(343),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [194] = {
     [sym_qid] = ACTIONS(398),
@@ -4730,14 +4746,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(398),
     [sym_uid] = ACTIONS(398),
     [anon_sym_PERCENTpublic] = ACTIONS(398),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(484),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(398),
     [anon_sym_PIPE] = ACTIONS(398),
     [sym_postlude] = ACTIONS(398),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(484),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [195] = {
     [aux_sym_declaration_repeat5] = STATE(256),
@@ -4745,48 +4761,48 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_modifier] = STATE(145),
     [sym_attribute] = ACTIONS(486),
     [sym_uid] = ACTIONS(488),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_action] = ACTIONS(488),
     [sym_lid] = ACTIONS(488),
     [sym_qid] = ACTIONS(488),
     [anon_sym_PLUS] = ACTIONS(264),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(488),
     [sym_ocaml_type] = ACTIONS(488),
     [anon_sym_SEMI] = ACTIONS(490),
     [anon_sym_PIPE] = ACTIONS(488),
     [anon_sym_STAR] = ACTIONS(264),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(264),
   },
   [196] = {
     [sym_precedence] = STATE(258),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(246),
     [anon_sym_RPAREN] = ACTIONS(246),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(492),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(246),
   },
   [197] = {
     [anon_sym_QMARK] = ACTIONS(256),
     [sym_uid] = ACTIONS(256),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(494),
     [sym_action] = ACTIONS(256),
     [sym_lid] = ACTIONS(256),
     [anon_sym_COMMA] = ACTIONS(494),
     [sym_qid] = ACTIONS(256),
     [anon_sym_PLUS] = ACTIONS(256),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_LPAREN] = ACTIONS(496),
     [anon_sym_PERCENTprec] = ACTIONS(256),
     [sym_ocaml_type] = ACTIONS(256),
     [anon_sym_SEMI] = ACTIONS(256),
     [anon_sym_PIPE] = ACTIONS(256),
     [anon_sym_STAR] = ACTIONS(256),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(256),
   },
   [198] = {
@@ -4795,27 +4811,27 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_modifier] = STATE(260),
     [sym_attribute] = ACTIONS(260),
     [sym_uid] = ACTIONS(262),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_action] = ACTIONS(262),
     [sym_lid] = ACTIONS(262),
     [sym_qid] = ACTIONS(262),
     [anon_sym_PLUS] = ACTIONS(264),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(262),
     [sym_ocaml_type] = ACTIONS(262),
     [anon_sym_SEMI] = ACTIONS(266),
     [anon_sym_PIPE] = ACTIONS(262),
     [anon_sym_STAR] = ACTIONS(264),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(264),
   },
   [199] = {
     [aux_sym_actual_repeat1] = STATE(263),
+    [anon_sym_COMMA] = ACTIONS(498),
+    [anon_sym_RPAREN] = ACTIONS(500),
     [sym_ocaml_comment] = ACTIONS(3),
-    [anon_sym_RPAREN] = ACTIONS(498),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(500),
   },
   [200] = {
     [aux_sym_production_group_repeat2] = STATE(265),
@@ -4827,85 +4843,85 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [aux_sym_production_group_repeat1] = STATE(149),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(502),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(502),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [201] = {
     [aux_sym_production_group_repeat2] = STATE(152),
     [sym__high_prec_bar] = STATE(92),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(502),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(502),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [202] = {
     [aux_sym_old_rule_repeat2] = STATE(267),
     [sym__high_prec_bar] = STATE(268),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(494),
     [anon_sym_PIPE] = ACTIONS(504),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(494),
   },
   [203] = {
     [aux_sym_production_group_repeat2] = STATE(265),
     [sym__high_prec_bar] = STATE(92),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(502),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(502),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [204] = {
     [aux_sym_old_rule_repeat3] = STATE(204),
     [sym_qid] = ACTIONS(506),
     [sym_uid] = ACTIONS(506),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(506),
     [sym_ocaml_type] = ACTIONS(506),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(508),
     [anon_sym_PIPE] = ACTIONS(506),
     [sym_action] = ACTIONS(506),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(506),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [205] = {
     [aux_sym_old_rule_repeat3] = STATE(204),
     [sym_qid] = ACTIONS(488),
     [sym_uid] = ACTIONS(488),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(488),
     [sym_ocaml_type] = ACTIONS(488),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(406),
     [anon_sym_PIPE] = ACTIONS(488),
     [sym_action] = ACTIONS(488),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(488),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [206] = {
     [aux_sym_declaration_repeat5] = STATE(206),
     [sym_qid] = ACTIONS(280),
-    [sym_line_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(280),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(280),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(280),
     [sym_ocaml_type] = ACTIONS(280),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(280),
     [anon_sym_PIPE] = ACTIONS(280),
     [sym_action] = ACTIONS(280),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(280),
     [sym_attribute] = ACTIONS(511),
   },
@@ -4915,14 +4931,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(514),
     [sym_uid] = ACTIONS(514),
     [anon_sym_PERCENTpublic] = ACTIONS(514),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(516),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(514),
     [anon_sym_PIPE] = ACTIONS(514),
     [sym_postlude] = ACTIONS(514),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(516),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [208] = {
     [sym_precedence] = STATE(269),
@@ -4933,22 +4949,22 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTpublic] = ACTIONS(514),
     [anon_sym_PERCENTprec] = ACTIONS(248),
     [anon_sym_let] = ACTIONS(516),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(514),
     [anon_sym_PIPE] = ACTIONS(514),
     [sym_postlude] = ACTIONS(514),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(516),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [209] = {
     [aux_sym_production_group_repeat2] = STATE(152),
     [sym__high_prec_bar] = STATE(92),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(518),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(518),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [210] = {
@@ -4959,14 +4975,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(520),
     [sym_uid] = ACTIONS(520),
     [anon_sym_PERCENTpublic] = ACTIONS(520),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(522),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(520),
     [anon_sym_PIPE] = ACTIONS(524),
     [sym_postlude] = ACTIONS(520),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(522),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [211] = {
     [aux_sym_old_rule_repeat3] = STATE(212),
@@ -4975,13 +4991,13 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(527),
     [sym_uid] = ACTIONS(527),
     [anon_sym_PERCENTpublic] = ACTIONS(527),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(529),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(433),
     [sym_postlude] = ACTIONS(527),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(529),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [212] = {
     [aux_sym_old_rule_repeat3] = STATE(212),
@@ -4990,13 +5006,13 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(506),
     [sym_uid] = ACTIONS(506),
     [anon_sym_PERCENTpublic] = ACTIONS(506),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(531),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(533),
     [sym_postlude] = ACTIONS(506),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(531),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [213] = {
     [sym_qid] = ACTIONS(520),
@@ -5004,21 +5020,21 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(520),
     [sym_uid] = ACTIONS(520),
     [anon_sym_PERCENTpublic] = ACTIONS(520),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(522),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(520),
     [anon_sym_PIPE] = ACTIONS(520),
     [sym_postlude] = ACTIONS(520),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(522),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [214] = {
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(536),
     [sym_action] = ACTIONS(536),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(536),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [215] = {
@@ -5030,22 +5046,22 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(527),
     [sym_uid] = ACTIONS(527),
     [anon_sym_PERCENTpublic] = ACTIONS(527),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(529),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(538),
     [sym_postlude] = ACTIONS(527),
     [anon_sym_PIPE] = ACTIONS(276),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(529),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [216] = {
     [aux_sym_old_rule_repeat1] = STATE(192),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(242),
     [anon_sym_RPAREN] = ACTIONS(540),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(244),
   },
   [217] = {
     [aux_sym_old_rule_repeat2] = STATE(273),
@@ -5056,22 +5072,22 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(527),
     [sym_uid] = ACTIONS(527),
     [anon_sym_PERCENTpublic] = ACTIONS(527),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(529),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(538),
     [sym_postlude] = ACTIONS(527),
     [anon_sym_PIPE] = ACTIONS(276),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(529),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [218] = {
     [aux_sym_old_rule_repeat1] = STATE(274),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(242),
     [anon_sym_RPAREN] = ACTIONS(540),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(244),
   },
   [219] = {
     [sym_symbol] = STATE(86),
@@ -5084,24 +5100,24 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(88),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(155),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(155),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [220] = {
     [sym_modifier] = STATE(167),
     [anon_sym_COMMA] = ACTIONS(542),
     [anon_sym_PLUS] = ACTIONS(302),
-    [sym_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(542),
     [anon_sym_STAR] = ACTIONS(302),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(302),
   },
   [221] = {
@@ -5110,31 +5126,31 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(544),
     [sym_uid] = ACTIONS(544),
     [sym_attribute] = ACTIONS(544),
-    [sym_line_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_STAR] = ACTIONS(544),
     [sym_lid] = ACTIONS(544),
     [anon_sym_QMARK] = ACTIONS(544),
   },
   [222] = {
     [aux_sym_strict_actual_repeat1] = STATE(222),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(546),
     [anon_sym_RPAREN] = ACTIONS(542),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(546),
   },
   [223] = {
     [aux_sym_strict_actual_repeat1] = STATE(276),
     [sym_modifier] = STATE(167),
     [anon_sym_COMMA] = ACTIONS(300),
     [anon_sym_PLUS] = ACTIONS(302),
-    [sym_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(549),
     [anon_sym_STAR] = ACTIONS(302),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(302),
   },
   [224] = {
@@ -5144,7 +5160,7 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_uid] = ACTIONS(544),
     [anon_sym_PERCENT_PERCENT] = ACTIONS(544),
     [anon_sym_PERCENTparameter] = ACTIONS(544),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PERCENTon_error_reduce] = ACTIONS(544),
     [anon_sym_PERCENTtype] = ACTIONS(544),
     [anon_sym_PERCENTleft] = ACTIONS(544),
@@ -5152,39 +5168,39 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(544),
     [sym_qid] = ACTIONS(544),
     [anon_sym_PLUS] = ACTIONS(544),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_grammar_attribute] = ACTIONS(544),
     [anon_sym_PERCENTattribute] = ACTIONS(544),
     [anon_sym_PERCENTnonassoc] = ACTIONS(544),
     [anon_sym_SEMI] = ACTIONS(544),
     [anon_sym_PERCENTtoken] = ACTIONS(544),
     [anon_sym_STAR] = ACTIONS(544),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(544),
   },
   [225] = {
     [sym_equality_symbol] = STATE(277),
     [anon_sym_COLON_EQ] = ACTIONS(145),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_EQ_EQ] = ACTIONS(145),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [226] = {
     [aux_sym_old_rule_repeat1] = STATE(192),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(242),
     [anon_sym_RPAREN] = ACTIONS(551),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(244),
   },
   [227] = {
     [aux_sym_old_rule_repeat1] = STATE(279),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(242),
     [anon_sym_RPAREN] = ACTIONS(551),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(244),
   },
   [228] = {
     [sym_qid] = ACTIONS(553),
@@ -5192,12 +5208,12 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(553),
     [sym_uid] = ACTIONS(553),
     [anon_sym_PERCENTpublic] = ACTIONS(553),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(555),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(555),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(553),
     [sym_lid] = ACTIONS(555),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [229] = {
     [sym_symbol] = STATE(126),
@@ -5214,27 +5230,27 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(232),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(234),
     [sym_action] = ACTIONS(232),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(238),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [230] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(557),
     [anon_sym_RPAREN] = ACTIONS(557),
     [anon_sym_EQ] = ACTIONS(557),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(557),
   },
   [231] = {
     [sym_pattern] = STATE(281),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [anon_sym_TILDE] = ACTIONS(228),
     [sym_comment] = ACTIONS(3),
+    [anon_sym_TILDE] = ACTIONS(228),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(236),
@@ -5242,11 +5258,11 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
   },
   [232] = {
     [aux_sym_pattern_repeat1] = STATE(283),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(449),
     [anon_sym_RPAREN] = ACTIONS(559),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(451),
   },
   [233] = {
     [aux_sym_expression_repeat1] = STATE(249),
@@ -5255,21 +5271,21 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(561),
     [sym_uid] = ACTIONS(561),
     [anon_sym_PERCENTpublic] = ACTIONS(561),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(563),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(563),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(561),
     [anon_sym_PIPE] = ACTIONS(375),
     [sym_lid] = ACTIONS(563),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [234] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(349),
     [anon_sym_RPAREN] = ACTIONS(349),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(349),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(349),
   },
   [235] = {
@@ -5286,26 +5302,26 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(457),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_action] = ACTIONS(457),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(461),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [236] = {
     [anon_sym_COMMA] = ACTIONS(65),
     [anon_sym_PLUS] = ACTIONS(65),
     [sym_attribute] = ACTIONS(65),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_LPAREN] = ACTIONS(65),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(65),
     [anon_sym_PIPE] = ACTIONS(65),
     [anon_sym_RPAREN] = ACTIONS(65),
     [anon_sym_EQ] = ACTIONS(345),
     [anon_sym_STAR] = ACTIONS(65),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(65),
   },
   [237] = {
@@ -5313,76 +5329,76 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(353),
     [anon_sym_PLUS] = ACTIONS(353),
     [sym_attribute] = ACTIONS(565),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_LPAREN] = ACTIONS(567),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(353),
     [anon_sym_PIPE] = ACTIONS(353),
     [anon_sym_RPAREN] = ACTIONS(353),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_STAR] = ACTIONS(353),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(353),
   },
   [238] = {
     [aux_sym_symbol_expression_repeat1] = STATE(289),
+    [anon_sym_COMMA] = ACTIONS(569),
+    [anon_sym_RPAREN] = ACTIONS(571),
     [sym_ocaml_comment] = ACTIONS(3),
-    [anon_sym_RPAREN] = ACTIONS(569),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(571),
   },
   [239] = {
     [sym_precedence] = STATE(290),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(365),
     [anon_sym_RPAREN] = ACTIONS(365),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(492),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(365),
   },
   [240] = {
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_EQ] = ACTIONS(573),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [241] = {
     [aux_sym_expression_repeat1] = STATE(293),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(371),
     [anon_sym_PIPE] = ACTIONS(575),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(371),
   },
   [242] = {
     [sym_menhir_action] = STATE(290),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_action] = ACTIONS(457),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(457),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [243] = {
     [sym_modifier] = STATE(295),
     [anon_sym_COMMA] = ACTIONS(377),
     [anon_sym_PLUS] = ACTIONS(87),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(577),
     [anon_sym_PIPE] = ACTIONS(377),
     [anon_sym_RPAREN] = ACTIONS(377),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_STAR] = ACTIONS(87),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(87),
   },
   [244] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(377),
     [anon_sym_RPAREN] = ACTIONS(377),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(377),
   },
   [245] = {
@@ -5391,40 +5407,40 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_QMARK] = ACTIONS(280),
     [sym_uid] = ACTIONS(280),
     [anon_sym_let] = ACTIONS(579),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(280),
     [sym_lid] = ACTIONS(579),
     [sym_qid] = ACTIONS(280),
     [anon_sym_PLUS] = ACTIONS(280),
     [ts_builtin_sym_end] = ACTIONS(280),
     [anon_sym_PERCENTpublic] = ACTIONS(280),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(280),
     [anon_sym_PIPE] = ACTIONS(280),
     [anon_sym_STAR] = ACTIONS(280),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(581),
   },
   [246] = {
     [aux_sym_declaration_repeat5] = STATE(297),
     [anon_sym_QMARK] = ACTIONS(353),
     [anon_sym_PLUS] = ACTIONS(353),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_LPAREN] = ACTIONS(584),
-    [anon_sym_SEMI] = ACTIONS(353),
     [sym_ocaml_comment] = ACTIONS(3),
-    [anon_sym_STAR] = ACTIONS(353),
+    [anon_sym_LPAREN] = ACTIONS(584),
     [sym_line_comment] = ACTIONS(3),
+    [anon_sym_SEMI] = ACTIONS(353),
+    [anon_sym_STAR] = ACTIONS(353),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(586),
   },
   [247] = {
     [sym_modifier] = STATE(299),
     [anon_sym_SEMI] = ACTIONS(588),
     [anon_sym_PLUS] = ACTIONS(87),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_STAR] = ACTIONS(87),
     [sym_line_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_STAR] = ACTIONS(87),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(87),
   },
   [248] = {
@@ -5433,13 +5449,13 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(590),
     [sym_uid] = ACTIONS(590),
     [anon_sym_PERCENTpublic] = ACTIONS(590),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(592),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(592),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(590),
     [sym_postlude] = ACTIONS(590),
     [sym_lid] = ACTIONS(592),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [249] = {
     [aux_sym_expression_repeat1] = STATE(249),
@@ -5448,13 +5464,13 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(590),
     [sym_uid] = ACTIONS(590),
     [anon_sym_PERCENTpublic] = ACTIONS(590),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(592),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(592),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(594),
     [sym_postlude] = ACTIONS(590),
     [sym_lid] = ACTIONS(592),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [250] = {
     [sym_qid] = ACTIONS(597),
@@ -5462,13 +5478,13 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(597),
     [sym_uid] = ACTIONS(597),
     [anon_sym_PERCENTpublic] = ACTIONS(597),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(599),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(599),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(597),
     [sym_postlude] = ACTIONS(597),
     [sym_lid] = ACTIONS(599),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [251] = {
     [aux_sym_declaration_repeat5] = STATE(245),
@@ -5476,18 +5492,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_QMARK] = ACTIONS(601),
     [sym_uid] = ACTIONS(601),
     [anon_sym_let] = ACTIONS(603),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(601),
     [sym_lid] = ACTIONS(603),
     [sym_qid] = ACTIONS(601),
     [anon_sym_PLUS] = ACTIONS(601),
     [ts_builtin_sym_end] = ACTIONS(601),
     [anon_sym_PERCENTpublic] = ACTIONS(601),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(601),
     [anon_sym_PIPE] = ACTIONS(601),
     [anon_sym_STAR] = ACTIONS(601),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(467),
   },
   [252] = {
@@ -5499,14 +5515,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(605),
     [sym_uid] = ACTIONS(605),
     [anon_sym_PERCENTpublic] = ACTIONS(605),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(607),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(609),
     [sym_postlude] = ACTIONS(605),
     [anon_sym_PIPE] = ACTIONS(276),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(607),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [253] = {
     [sym_symbol] = STATE(86),
@@ -5519,14 +5535,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(88),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(155),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(155),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [254] = {
     [sym_symbol] = STATE(86),
@@ -5540,60 +5556,60 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(88),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(155),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(155),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [255] = {
     [aux_sym_old_rule_repeat3] = STATE(204),
     [sym_qid] = ACTIONS(611),
     [sym_uid] = ACTIONS(611),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(611),
     [sym_ocaml_type] = ACTIONS(611),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(406),
     [anon_sym_PIPE] = ACTIONS(611),
     [sym_action] = ACTIONS(611),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(611),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [256] = {
     [aux_sym_old_rule_repeat3] = STATE(304),
     [aux_sym_declaration_repeat5] = STATE(206),
     [sym_qid] = ACTIONS(611),
-    [sym_line_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(611),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(611),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(611),
     [sym_ocaml_type] = ACTIONS(611),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(613),
     [anon_sym_PIPE] = ACTIONS(611),
     [sym_action] = ACTIONS(611),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(611),
     [sym_attribute] = ACTIONS(410),
   },
   [257] = {
     [sym_symbol] = STATE(305),
     [sym_qid] = ACTIONS(151),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(151),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(151),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(151),
     [sym_line_comment] = ACTIONS(3),
   },
   [258] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(394),
     [anon_sym_RPAREN] = ACTIONS(394),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(394),
   },
   [259] = {
@@ -5608,49 +5624,49 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(200),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(400),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(400),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [260] = {
     [anon_sym_QMARK] = ACTIONS(402),
     [sym_uid] = ACTIONS(402),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(615),
     [sym_action] = ACTIONS(402),
     [sym_lid] = ACTIONS(402),
     [anon_sym_COMMA] = ACTIONS(615),
     [sym_qid] = ACTIONS(402),
     [anon_sym_PLUS] = ACTIONS(402),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(402),
     [sym_ocaml_type] = ACTIONS(402),
     [anon_sym_SEMI] = ACTIONS(402),
     [anon_sym_PIPE] = ACTIONS(402),
     [anon_sym_STAR] = ACTIONS(402),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(402),
   },
   [261] = {
     [anon_sym_QMARK] = ACTIONS(617),
     [sym_uid] = ACTIONS(617),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_action] = ACTIONS(617),
     [sym_lid] = ACTIONS(617),
     [sym_qid] = ACTIONS(617),
     [anon_sym_PLUS] = ACTIONS(617),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(617),
     [sym_ocaml_type] = ACTIONS(617),
     [anon_sym_SEMI] = ACTIONS(617),
     [anon_sym_PIPE] = ACTIONS(617),
     [anon_sym_STAR] = ACTIONS(617),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(617),
   },
   [262] = {
@@ -5665,61 +5681,61 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(200),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(400),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(400),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [263] = {
     [aux_sym_actual_repeat1] = STATE(309),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(498),
     [anon_sym_RPAREN] = ACTIONS(619),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(500),
   },
   [264] = {
     [sym_precedence] = STATE(310),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(394),
     [anon_sym_RPAREN] = ACTIONS(394),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(492),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(394),
   },
   [265] = {
     [aux_sym_production_group_repeat2] = STATE(152),
     [sym__high_prec_bar] = STATE(92),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(621),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(621),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [266] = {
     [aux_sym_production_group_repeat2] = STATE(312),
     [sym__high_prec_bar] = STATE(92),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(621),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(621),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [267] = {
     [aux_sym_old_rule_repeat2] = STATE(313),
     [sym__high_prec_bar] = STATE(268),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(615),
     [anon_sym_PIPE] = ACTIONS(504),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(615),
   },
   [268] = {
@@ -5733,14 +5749,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(200),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(400),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(400),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [269] = {
     [sym_qid] = ACTIONS(623),
@@ -5748,14 +5764,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(623),
     [sym_uid] = ACTIONS(623),
     [anon_sym_PERCENTpublic] = ACTIONS(623),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(625),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(623),
     [anon_sym_PIPE] = ACTIONS(623),
     [sym_postlude] = ACTIONS(623),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(625),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [270] = {
     [sym_precedence] = STATE(315),
@@ -5766,13 +5782,13 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_PERCENTpublic] = ACTIONS(623),
     [anon_sym_PERCENTprec] = ACTIONS(248),
     [anon_sym_let] = ACTIONS(625),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(623),
     [anon_sym_PIPE] = ACTIONS(623),
     [sym_postlude] = ACTIONS(623),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(625),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [271] = {
     [aux_sym_old_rule_repeat3] = STATE(212),
@@ -5781,19 +5797,19 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(605),
     [sym_uid] = ACTIONS(605),
     [anon_sym_PERCENTpublic] = ACTIONS(605),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(607),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(433),
     [sym_postlude] = ACTIONS(605),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(607),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [272] = {
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [anon_sym_COLON] = ACTIONS(627),
-    [sym_line_comment] = ACTIONS(3),
   },
   [273] = {
     [aux_sym_old_rule_repeat2] = STATE(210),
@@ -5804,40 +5820,40 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(605),
     [sym_uid] = ACTIONS(605),
     [anon_sym_PERCENTpublic] = ACTIONS(605),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(607),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(609),
     [sym_postlude] = ACTIONS(605),
     [anon_sym_PIPE] = ACTIONS(276),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(607),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [274] = {
     [aux_sym_old_rule_repeat1] = STATE(192),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(242),
     [anon_sym_RPAREN] = ACTIONS(629),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(244),
   },
   [275] = {
     [anon_sym_QMARK] = ACTIONS(435),
     [anon_sym_PLUS] = ACTIONS(435),
-    [sym_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(435),
     [anon_sym_STAR] = ACTIONS(435),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(435),
   },
   [276] = {
     [aux_sym_strict_actual_repeat1] = STATE(222),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(300),
     [anon_sym_RPAREN] = ACTIONS(631),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(300),
   },
   [277] = {
     [sym_symbol] = STATE(126),
@@ -5854,29 +5870,29 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(232),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(234),
     [sym_action] = ACTIONS(232),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(238),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [278] = {
     [sym_equality_symbol] = STATE(320),
     [anon_sym_COLON_EQ] = ACTIONS(145),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_EQ_EQ] = ACTIONS(145),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [279] = {
     [aux_sym_old_rule_repeat1] = STATE(192),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(242),
     [anon_sym_RPAREN] = ACTIONS(633),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(244),
   },
   [280] = {
     [sym_qid] = ACTIONS(635),
@@ -5884,43 +5900,43 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(635),
     [sym_uid] = ACTIONS(635),
     [anon_sym_PERCENTpublic] = ACTIONS(635),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(637),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(637),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(635),
     [sym_lid] = ACTIONS(637),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [281] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(639),
     [anon_sym_RPAREN] = ACTIONS(639),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(639),
   },
   [282] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(641),
     [anon_sym_RPAREN] = ACTIONS(641),
     [anon_sym_EQ] = ACTIONS(641),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(641),
   },
   [283] = {
     [aux_sym_pattern_repeat1] = STATE(283),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(643),
     [anon_sym_RPAREN] = ACTIONS(639),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(643),
   },
   [284] = {
     [aux_sym_expression_repeat1] = STATE(322),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(453),
     [anon_sym_PIPE] = ACTIONS(575),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(453),
   },
   [285] = {
@@ -5938,26 +5954,26 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(457),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(459),
     [sym_action] = ACTIONS(457),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(461),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [286] = {
     [aux_sym_declaration_repeat5] = STATE(324),
     [anon_sym_COMMA] = ACTIONS(463),
     [anon_sym_PLUS] = ACTIONS(463),
     [sym_attribute] = ACTIONS(646),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(463),
     [anon_sym_PIPE] = ACTIONS(463),
     [anon_sym_RPAREN] = ACTIONS(463),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_STAR] = ACTIONS(463),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(463),
   },
   [287] = {
@@ -5966,18 +5982,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_QMARK] = ACTIONS(648),
     [sym_uid] = ACTIONS(648),
     [anon_sym_let] = ACTIONS(650),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(648),
     [sym_lid] = ACTIONS(650),
     [sym_qid] = ACTIONS(648),
     [anon_sym_PLUS] = ACTIONS(648),
     [ts_builtin_sym_end] = ACTIONS(648),
     [anon_sym_PERCENTpublic] = ACTIONS(648),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(648),
     [anon_sym_PIPE] = ACTIONS(648),
     [anon_sym_STAR] = ACTIONS(648),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(652),
   },
   [288] = {
@@ -5995,37 +6011,37 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(457),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(459),
     [sym_action] = ACTIONS(457),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(461),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [289] = {
     [aux_sym_symbol_expression_repeat1] = STATE(328),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(569),
     [anon_sym_RPAREN] = ACTIONS(654),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(571),
   },
   [290] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(469),
     [anon_sym_RPAREN] = ACTIONS(469),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(469),
   },
   [291] = {
     [sym_symbol] = STATE(246),
     [sym_symbol_expression] = STATE(329),
     [sym_qid] = ACTIONS(31),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_uid] = ACTIONS(31),
     [sym_comment] = ACTIONS(3),
+    [sym_uid] = ACTIONS(31),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(31),
     [sym_line_comment] = ACTIONS(3),
   },
@@ -6043,20 +6059,20 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(457),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_action] = ACTIONS(457),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(461),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [293] = {
     [aux_sym_expression_repeat1] = STATE(331),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(453),
     [anon_sym_PIPE] = ACTIONS(575),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(453),
   },
   [294] = {
@@ -6073,25 +6089,25 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(457),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_action] = ACTIONS(457),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(461),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [295] = {
     [aux_sym_declaration_repeat5] = STATE(333),
     [anon_sym_COMMA] = ACTIONS(463),
     [anon_sym_PLUS] = ACTIONS(463),
     [sym_attribute] = ACTIONS(656),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(463),
     [anon_sym_PIPE] = ACTIONS(463),
     [anon_sym_RPAREN] = ACTIONS(463),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_STAR] = ACTIONS(463),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(463),
   },
   [296] = {
@@ -6109,23 +6125,23 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(457),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(459),
     [sym_action] = ACTIONS(457),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(461),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [297] = {
     [aux_sym_declaration_repeat5] = STATE(335),
     [anon_sym_QMARK] = ACTIONS(463),
     [anon_sym_PLUS] = ACTIONS(463),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_SEMI] = ACTIONS(463),
     [sym_ocaml_comment] = ACTIONS(3),
-    [anon_sym_STAR] = ACTIONS(463),
     [sym_line_comment] = ACTIONS(3),
+    [anon_sym_SEMI] = ACTIONS(463),
+    [anon_sym_STAR] = ACTIONS(463),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(658),
   },
   [298] = {
@@ -6142,22 +6158,22 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(232),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_action] = ACTIONS(232),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(238),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [299] = {
     [aux_sym_declaration_repeat5] = STATE(337),
     [anon_sym_QMARK] = ACTIONS(463),
     [anon_sym_PLUS] = ACTIONS(463),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_SEMI] = ACTIONS(463),
     [sym_ocaml_comment] = ACTIONS(3),
-    [anon_sym_STAR] = ACTIONS(463),
     [sym_line_comment] = ACTIONS(3),
+    [anon_sym_SEMI] = ACTIONS(463),
+    [anon_sym_STAR] = ACTIONS(463),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(660),
   },
   [300] = {
@@ -6169,14 +6185,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(662),
     [sym_uid] = ACTIONS(662),
     [anon_sym_PERCENTpublic] = ACTIONS(662),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(664),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(666),
     [sym_postlude] = ACTIONS(662),
     [anon_sym_PIPE] = ACTIONS(276),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(664),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [301] = {
     [aux_sym_old_rule_repeat3] = STATE(212),
@@ -6185,13 +6201,13 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(662),
     [sym_uid] = ACTIONS(662),
     [anon_sym_PERCENTpublic] = ACTIONS(662),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(664),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(433),
     [sym_postlude] = ACTIONS(662),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(664),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [302] = {
     [aux_sym_old_rule_repeat2] = STATE(339),
@@ -6202,14 +6218,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(662),
     [sym_uid] = ACTIONS(662),
     [anon_sym_PERCENTpublic] = ACTIONS(662),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(664),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(666),
     [sym_postlude] = ACTIONS(662),
     [anon_sym_PIPE] = ACTIONS(276),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(664),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [303] = {
     [sym_symbol] = STATE(86),
@@ -6222,121 +6238,121 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(88),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(155),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(155),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [304] = {
     [aux_sym_old_rule_repeat3] = STATE(204),
     [sym_qid] = ACTIONS(668),
     [sym_uid] = ACTIONS(668),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(668),
     [sym_ocaml_type] = ACTIONS(668),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(406),
     [anon_sym_PIPE] = ACTIONS(668),
     [sym_action] = ACTIONS(668),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(668),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [305] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(398),
     [anon_sym_RPAREN] = ACTIONS(398),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(398),
   },
   [306] = {
     [aux_sym_actual_repeat1] = STATE(342),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(498),
     [anon_sym_RPAREN] = ACTIONS(670),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(500),
   },
   [307] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(672),
     [anon_sym_RPAREN] = ACTIONS(672),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(672),
   },
   [308] = {
     [anon_sym_QMARK] = ACTIONS(674),
     [sym_uid] = ACTIONS(674),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_action] = ACTIONS(674),
     [sym_lid] = ACTIONS(674),
     [sym_qid] = ACTIONS(674),
     [anon_sym_PLUS] = ACTIONS(674),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(674),
     [sym_ocaml_type] = ACTIONS(674),
     [anon_sym_SEMI] = ACTIONS(674),
     [anon_sym_PIPE] = ACTIONS(674),
     [anon_sym_STAR] = ACTIONS(674),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(674),
   },
   [309] = {
     [aux_sym_actual_repeat1] = STATE(309),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(676),
     [anon_sym_RPAREN] = ACTIONS(672),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(676),
   },
   [310] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(514),
     [anon_sym_RPAREN] = ACTIONS(514),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(514),
   },
   [311] = {
     [sym_precedence] = STATE(343),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(514),
     [anon_sym_RPAREN] = ACTIONS(514),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(492),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(514),
   },
   [312] = {
     [aux_sym_production_group_repeat2] = STATE(152),
     [sym__high_prec_bar] = STATE(92),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(679),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(679),
+    [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [313] = {
     [aux_sym_old_rule_repeat2] = STATE(313),
     [sym__high_prec_bar] = STATE(268),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(681),
     [anon_sym_RPAREN] = ACTIONS(520),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(520),
   },
   [314] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(520),
     [anon_sym_RPAREN] = ACTIONS(520),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(520),
   },
   [315] = {
@@ -6345,14 +6361,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(684),
     [sym_uid] = ACTIONS(684),
     [anon_sym_PERCENTpublic] = ACTIONS(684),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(686),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(684),
     [anon_sym_PIPE] = ACTIONS(684),
     [sym_postlude] = ACTIONS(684),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(686),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [316] = {
     [sym_symbol] = STATE(86),
@@ -6366,29 +6382,29 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(88),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(155),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(155),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [317] = {
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [anon_sym_COLON] = ACTIONS(688),
-    [sym_line_comment] = ACTIONS(3),
   },
   [318] = {
     [anon_sym_QMARK] = ACTIONS(544),
     [anon_sym_PLUS] = ACTIONS(544),
-    [sym_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(544),
     [anon_sym_STAR] = ACTIONS(544),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(544),
   },
   [319] = {
@@ -6397,12 +6413,12 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(690),
     [sym_uid] = ACTIONS(690),
     [anon_sym_PERCENTpublic] = ACTIONS(690),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(692),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(692),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(690),
     [sym_lid] = ACTIONS(692),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [320] = {
     [sym_symbol] = STATE(126),
@@ -6419,51 +6435,51 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(232),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(234),
     [sym_action] = ACTIONS(232),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(238),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [321] = {
     [sym_equality_symbol] = STATE(348),
     [anon_sym_COLON_EQ] = ACTIONS(145),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_EQ_EQ] = ACTIONS(145),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
   },
   [322] = {
     [aux_sym_expression_repeat1] = STATE(331),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(561),
     [anon_sym_PIPE] = ACTIONS(575),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(561),
   },
   [323] = {
     [aux_sym_symbol_expression_repeat1] = STATE(350),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(569),
     [anon_sym_RPAREN] = ACTIONS(694),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(571),
   },
   [324] = {
     [aux_sym_declaration_repeat5] = STATE(324),
     [anon_sym_COMMA] = ACTIONS(280),
     [anon_sym_PLUS] = ACTIONS(280),
     [sym_attribute] = ACTIONS(696),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(280),
     [anon_sym_PIPE] = ACTIONS(280),
     [anon_sym_RPAREN] = ACTIONS(280),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_STAR] = ACTIONS(280),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(280),
   },
   [325] = {
@@ -6472,26 +6488,26 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_QMARK] = ACTIONS(699),
     [sym_uid] = ACTIONS(699),
     [anon_sym_let] = ACTIONS(701),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(699),
     [sym_lid] = ACTIONS(701),
     [sym_qid] = ACTIONS(699),
     [anon_sym_PLUS] = ACTIONS(699),
     [ts_builtin_sym_end] = ACTIONS(699),
     [anon_sym_PERCENTpublic] = ACTIONS(699),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(699),
     [anon_sym_PIPE] = ACTIONS(699),
     [anon_sym_STAR] = ACTIONS(699),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(467),
   },
   [326] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(703),
     [anon_sym_RPAREN] = ACTIONS(703),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(703),
   },
   [327] = {
     [aux_sym_declaration_repeat5] = STATE(351),
@@ -6499,61 +6515,61 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_QMARK] = ACTIONS(699),
     [sym_uid] = ACTIONS(699),
     [anon_sym_let] = ACTIONS(701),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(699),
     [sym_lid] = ACTIONS(701),
     [sym_qid] = ACTIONS(699),
     [anon_sym_PLUS] = ACTIONS(699),
     [ts_builtin_sym_end] = ACTIONS(699),
     [anon_sym_PERCENTpublic] = ACTIONS(699),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(699),
     [anon_sym_PIPE] = ACTIONS(699),
     [anon_sym_STAR] = ACTIONS(699),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(705),
   },
   [328] = {
     [aux_sym_symbol_expression_repeat1] = STATE(328),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(707),
     [anon_sym_RPAREN] = ACTIONS(703),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(707),
   },
   [329] = {
     [sym_modifier] = STATE(299),
     [anon_sym_SEMI] = ACTIONS(710),
     [anon_sym_PLUS] = ACTIONS(87),
-    [sym_ocaml_comment] = ACTIONS(3),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_STAR] = ACTIONS(87),
     [sym_line_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_STAR] = ACTIONS(87),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(87),
   },
   [330] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(590),
     [anon_sym_RPAREN] = ACTIONS(590),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(590),
   },
   [331] = {
     [aux_sym_expression_repeat1] = STATE(331),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(712),
     [anon_sym_RPAREN] = ACTIONS(590),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(590),
   },
   [332] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(597),
     [anon_sym_RPAREN] = ACTIONS(597),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(597),
   },
   [333] = {
@@ -6561,32 +6577,32 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(601),
     [anon_sym_PLUS] = ACTIONS(601),
     [sym_attribute] = ACTIONS(646),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(601),
     [anon_sym_PIPE] = ACTIONS(601),
     [anon_sym_RPAREN] = ACTIONS(601),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_STAR] = ACTIONS(601),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(601),
   },
   [334] = {
     [aux_sym_symbol_expression_repeat1] = STATE(354),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(569),
     [anon_sym_RPAREN] = ACTIONS(715),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(571),
   },
   [335] = {
     [aux_sym_declaration_repeat5] = STATE(335),
     [anon_sym_QMARK] = ACTIONS(280),
     [anon_sym_PLUS] = ACTIONS(280),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_SEMI] = ACTIONS(280),
     [sym_ocaml_comment] = ACTIONS(3),
-    [anon_sym_STAR] = ACTIONS(280),
     [sym_line_comment] = ACTIONS(3),
+    [anon_sym_SEMI] = ACTIONS(280),
+    [anon_sym_STAR] = ACTIONS(280),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(717),
   },
   [336] = {
@@ -6595,23 +6611,23 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(720),
     [sym_uid] = ACTIONS(720),
     [anon_sym_PERCENTpublic] = ACTIONS(720),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(722),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(722),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(720),
     [sym_postlude] = ACTIONS(720),
     [sym_lid] = ACTIONS(722),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [337] = {
     [aux_sym_declaration_repeat5] = STATE(335),
     [anon_sym_QMARK] = ACTIONS(601),
     [anon_sym_PLUS] = ACTIONS(601),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_SEMI] = ACTIONS(601),
     [sym_ocaml_comment] = ACTIONS(3),
-    [anon_sym_STAR] = ACTIONS(601),
     [sym_line_comment] = ACTIONS(3),
+    [anon_sym_SEMI] = ACTIONS(601),
+    [anon_sym_STAR] = ACTIONS(601),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(658),
   },
   [338] = {
@@ -6621,13 +6637,13 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(724),
     [sym_uid] = ACTIONS(724),
     [anon_sym_PERCENTpublic] = ACTIONS(724),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(726),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(433),
     [sym_postlude] = ACTIONS(724),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(726),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [339] = {
     [aux_sym_old_rule_repeat2] = STATE(210),
@@ -6638,14 +6654,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(724),
     [sym_uid] = ACTIONS(724),
     [anon_sym_PERCENTpublic] = ACTIONS(724),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(726),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(728),
     [sym_postlude] = ACTIONS(724),
     [anon_sym_PIPE] = ACTIONS(276),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(726),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [340] = {
     [aux_sym_old_rule_repeat2] = STATE(356),
@@ -6656,58 +6672,58 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(724),
     [sym_uid] = ACTIONS(724),
     [anon_sym_PERCENTpublic] = ACTIONS(724),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(726),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(728),
     [sym_postlude] = ACTIONS(724),
     [anon_sym_PIPE] = ACTIONS(276),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(726),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [341] = {
     [anon_sym_QMARK] = ACTIONS(617),
     [sym_uid] = ACTIONS(617),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(730),
     [sym_action] = ACTIONS(617),
     [sym_lid] = ACTIONS(617),
     [anon_sym_COMMA] = ACTIONS(730),
     [sym_qid] = ACTIONS(617),
     [anon_sym_PLUS] = ACTIONS(617),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(617),
     [sym_ocaml_type] = ACTIONS(617),
     [anon_sym_SEMI] = ACTIONS(617),
     [anon_sym_PIPE] = ACTIONS(617),
     [anon_sym_STAR] = ACTIONS(617),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(617),
   },
   [342] = {
     [aux_sym_actual_repeat1] = STATE(309),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(498),
     [anon_sym_RPAREN] = ACTIONS(732),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(500),
   },
   [343] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(623),
     [anon_sym_RPAREN] = ACTIONS(623),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(623),
   },
   [344] = {
     [sym_precedence] = STATE(358),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(623),
     [anon_sym_RPAREN] = ACTIONS(623),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(492),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(623),
   },
   [345] = {
@@ -6721,14 +6737,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(88),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(155),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(155),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [346] = {
     [sym_symbol] = STATE(86),
@@ -6742,14 +6758,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(88),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(155),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(155),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [347] = {
     [sym_qid] = ACTIONS(734),
@@ -6757,12 +6773,12 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(734),
     [sym_uid] = ACTIONS(734),
     [anon_sym_PERCENTpublic] = ACTIONS(734),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(736),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(736),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(734),
     [sym_lid] = ACTIONS(736),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [348] = {
     [sym_symbol] = STATE(126),
@@ -6779,35 +6795,35 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(232),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(234),
     [sym_action] = ACTIONS(232),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(238),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [349] = {
     [aux_sym_declaration_repeat5] = STATE(362),
     [anon_sym_COMMA] = ACTIONS(648),
     [anon_sym_PLUS] = ACTIONS(648),
     [sym_attribute] = ACTIONS(738),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(648),
     [anon_sym_PIPE] = ACTIONS(648),
     [anon_sym_RPAREN] = ACTIONS(648),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_STAR] = ACTIONS(648),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(648),
   },
   [350] = {
     [aux_sym_symbol_expression_repeat1] = STATE(328),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(569),
     [anon_sym_RPAREN] = ACTIONS(740),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(571),
   },
   [351] = {
     [aux_sym_declaration_repeat5] = STATE(245),
@@ -6815,18 +6831,18 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_QMARK] = ACTIONS(742),
     [sym_uid] = ACTIONS(742),
     [anon_sym_let] = ACTIONS(744),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(742),
     [sym_lid] = ACTIONS(744),
     [sym_qid] = ACTIONS(742),
     [anon_sym_PLUS] = ACTIONS(742),
     [ts_builtin_sym_end] = ACTIONS(742),
     [anon_sym_PERCENTpublic] = ACTIONS(742),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(742),
     [anon_sym_PIPE] = ACTIONS(742),
     [anon_sym_STAR] = ACTIONS(742),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(467),
   },
   [352] = {
@@ -6843,31 +6859,31 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(230),
     [anon_sym_PERCENTprec] = ACTIONS(157),
     [sym_ocaml_type] = ACTIONS(457),
-    [sym_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [sym_ocaml_comment] = ACTIONS(3),
     [sym_action] = ACTIONS(457),
     [anon_sym__] = ACTIONS(236),
     [sym_lid] = ACTIONS(461),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [353] = {
     [aux_sym_declaration_repeat5] = STATE(365),
     [anon_sym_QMARK] = ACTIONS(648),
     [anon_sym_PLUS] = ACTIONS(648),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_SEMI] = ACTIONS(648),
     [sym_ocaml_comment] = ACTIONS(3),
-    [anon_sym_STAR] = ACTIONS(648),
     [sym_line_comment] = ACTIONS(3),
+    [anon_sym_SEMI] = ACTIONS(648),
+    [anon_sym_STAR] = ACTIONS(648),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(746),
   },
   [354] = {
     [aux_sym_symbol_expression_repeat1] = STATE(328),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_COMMA] = ACTIONS(569),
     [anon_sym_RPAREN] = ACTIONS(748),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
-    [anon_sym_COMMA] = ACTIONS(571),
   },
   [355] = {
     [aux_sym_old_rule_repeat3] = STATE(212),
@@ -6876,13 +6892,13 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(750),
     [sym_uid] = ACTIONS(750),
     [anon_sym_PERCENTpublic] = ACTIONS(750),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(752),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(433),
     [sym_postlude] = ACTIONS(750),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(752),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [356] = {
     [aux_sym_old_rule_repeat2] = STATE(210),
@@ -6893,40 +6909,40 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(750),
     [sym_uid] = ACTIONS(750),
     [anon_sym_PERCENTpublic] = ACTIONS(750),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(752),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(754),
     [sym_postlude] = ACTIONS(750),
     [anon_sym_PIPE] = ACTIONS(276),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(752),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [357] = {
     [anon_sym_QMARK] = ACTIONS(674),
     [sym_uid] = ACTIONS(674),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_RPAREN] = ACTIONS(756),
     [sym_action] = ACTIONS(674),
     [sym_lid] = ACTIONS(674),
     [anon_sym_COMMA] = ACTIONS(756),
     [sym_qid] = ACTIONS(674),
     [anon_sym_PLUS] = ACTIONS(674),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_PERCENTprec] = ACTIONS(674),
     [sym_ocaml_type] = ACTIONS(674),
     [anon_sym_SEMI] = ACTIONS(674),
     [anon_sym_PIPE] = ACTIONS(674),
     [anon_sym_STAR] = ACTIONS(674),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(674),
   },
   [358] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(684),
     [anon_sym_RPAREN] = ACTIONS(684),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(684),
   },
   [359] = {
@@ -6938,14 +6954,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(750),
     [sym_uid] = ACTIONS(750),
     [anon_sym_PERCENTpublic] = ACTIONS(750),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(752),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(754),
     [sym_postlude] = ACTIONS(750),
     [anon_sym_PIPE] = ACTIONS(276),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(752),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [360] = {
     [sym_symbol] = STATE(86),
@@ -6958,14 +6974,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [sym_producer] = STATE(88),
     [sym_qid] = ACTIONS(153),
     [sym_uid] = ACTIONS(153),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_ocaml_type] = ACTIONS(155),
     [anon_sym_PERCENTprec] = ACTIONS(157),
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(159),
     [sym_action] = ACTIONS(155),
     [sym_lid] = ACTIONS(161),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [361] = {
     [sym_qid] = ACTIONS(758),
@@ -6973,25 +6989,25 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(758),
     [sym_uid] = ACTIONS(758),
     [anon_sym_PERCENTpublic] = ACTIONS(758),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_let] = ACTIONS(760),
     [sym_ocaml_comment] = ACTIONS(3),
+    [anon_sym_let] = ACTIONS(760),
+    [sym_line_comment] = ACTIONS(3),
     [sym_postlude] = ACTIONS(758),
     [sym_lid] = ACTIONS(760),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [362] = {
     [aux_sym_declaration_repeat5] = STATE(324),
     [anon_sym_COMMA] = ACTIONS(699),
     [anon_sym_PLUS] = ACTIONS(699),
     [sym_attribute] = ACTIONS(646),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(699),
     [anon_sym_PIPE] = ACTIONS(699),
     [anon_sym_RPAREN] = ACTIONS(699),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_STAR] = ACTIONS(699),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(699),
   },
   [363] = {
@@ -6999,43 +7015,43 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_COMMA] = ACTIONS(699),
     [anon_sym_PLUS] = ACTIONS(699),
     [sym_attribute] = ACTIONS(762),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(699),
     [anon_sym_PIPE] = ACTIONS(699),
     [anon_sym_RPAREN] = ACTIONS(699),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_STAR] = ACTIONS(699),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(699),
   },
   [364] = {
-    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_PIPE] = ACTIONS(720),
     [anon_sym_RPAREN] = ACTIONS(720),
+    [sym_ocaml_comment] = ACTIONS(3),
     [sym_comment] = ACTIONS(3),
-    [sym_line_comment] = ACTIONS(3),
     [anon_sym_COMMA] = ACTIONS(720),
   },
   [365] = {
     [aux_sym_declaration_repeat5] = STATE(335),
     [anon_sym_QMARK] = ACTIONS(699),
     [anon_sym_PLUS] = ACTIONS(699),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_SEMI] = ACTIONS(699),
     [sym_ocaml_comment] = ACTIONS(3),
-    [anon_sym_STAR] = ACTIONS(699),
     [sym_line_comment] = ACTIONS(3),
+    [anon_sym_SEMI] = ACTIONS(699),
+    [anon_sym_STAR] = ACTIONS(699),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(658),
   },
   [366] = {
     [aux_sym_declaration_repeat5] = STATE(371),
     [anon_sym_QMARK] = ACTIONS(699),
     [anon_sym_PLUS] = ACTIONS(699),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_SEMI] = ACTIONS(699),
     [sym_ocaml_comment] = ACTIONS(3),
-    [anon_sym_STAR] = ACTIONS(699),
     [sym_line_comment] = ACTIONS(3),
+    [anon_sym_SEMI] = ACTIONS(699),
+    [anon_sym_STAR] = ACTIONS(699),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(764),
   },
   [367] = {
@@ -7045,13 +7061,13 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(766),
     [sym_uid] = ACTIONS(766),
     [anon_sym_PERCENTpublic] = ACTIONS(766),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(768),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(433),
     [sym_postlude] = ACTIONS(766),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(768),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [368] = {
     [aux_sym_old_rule_repeat2] = STATE(210),
@@ -7062,14 +7078,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(766),
     [sym_uid] = ACTIONS(766),
     [anon_sym_PERCENTpublic] = ACTIONS(766),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(768),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(770),
     [sym_postlude] = ACTIONS(766),
     [anon_sym_PIPE] = ACTIONS(276),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(768),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [369] = {
     [aux_sym_old_rule_repeat2] = STATE(373),
@@ -7080,38 +7096,38 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(766),
     [sym_uid] = ACTIONS(766),
     [anon_sym_PERCENTpublic] = ACTIONS(766),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(768),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(770),
     [sym_postlude] = ACTIONS(766),
     [anon_sym_PIPE] = ACTIONS(276),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(768),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [370] = {
     [aux_sym_declaration_repeat5] = STATE(324),
     [anon_sym_COMMA] = ACTIONS(742),
     [anon_sym_PLUS] = ACTIONS(742),
     [sym_attribute] = ACTIONS(646),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(742),
     [anon_sym_PIPE] = ACTIONS(742),
     [anon_sym_RPAREN] = ACTIONS(742),
-    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_STAR] = ACTIONS(742),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
     [anon_sym_QMARK] = ACTIONS(742),
   },
   [371] = {
     [aux_sym_declaration_repeat5] = STATE(335),
     [anon_sym_QMARK] = ACTIONS(742),
     [anon_sym_PLUS] = ACTIONS(742),
-    [sym_comment] = ACTIONS(3),
-    [anon_sym_SEMI] = ACTIONS(742),
     [sym_ocaml_comment] = ACTIONS(3),
-    [anon_sym_STAR] = ACTIONS(742),
     [sym_line_comment] = ACTIONS(3),
+    [anon_sym_SEMI] = ACTIONS(742),
+    [anon_sym_STAR] = ACTIONS(742),
+    [sym_comment] = ACTIONS(3),
     [sym_attribute] = ACTIONS(658),
   },
   [372] = {
@@ -7121,13 +7137,13 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(772),
     [sym_uid] = ACTIONS(772),
     [anon_sym_PERCENTpublic] = ACTIONS(772),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(774),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(433),
     [sym_postlude] = ACTIONS(772),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(774),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [373] = {
     [aux_sym_old_rule_repeat2] = STATE(210),
@@ -7138,14 +7154,14 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(772),
     [sym_uid] = ACTIONS(772),
     [anon_sym_PERCENTpublic] = ACTIONS(772),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(774),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(776),
     [sym_postlude] = ACTIONS(772),
     [anon_sym_PIPE] = ACTIONS(276),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(774),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
   [374] = {
     [aux_sym_old_rule_repeat3] = STATE(212),
@@ -7154,13 +7170,13 @@ static uint16_t ts_parse_table[STATE_COUNT][SYMBOL_COUNT] = {
     [ts_builtin_sym_end] = ACTIONS(778),
     [sym_uid] = ACTIONS(778),
     [anon_sym_PERCENTpublic] = ACTIONS(778),
-    [sym_comment] = ACTIONS(3),
+    [sym_ocaml_comment] = ACTIONS(3),
     [anon_sym_let] = ACTIONS(780),
+    [sym_line_comment] = ACTIONS(3),
     [anon_sym_SEMI] = ACTIONS(433),
     [sym_postlude] = ACTIONS(778),
-    [sym_ocaml_comment] = ACTIONS(3),
     [sym_lid] = ACTIONS(780),
-    [sym_line_comment] = ACTIONS(3),
+    [sym_comment] = ACTIONS(3),
   },
 };
 
@@ -7279,8 +7295,8 @@ static TSParseActionEntry ts_parse_actions[] = {
   [236] = {.count = 1, .reusable = false}, SHIFT(121),
   [238] = {.count = 1, .reusable = false}, SHIFT(125),
   [240] = {.count = 1, .reusable = true}, SHIFT(134),
-  [242] = {.count = 1, .reusable = true}, SHIFT(135),
-  [244] = {.count = 1, .reusable = true}, SHIFT(136),
+  [242] = {.count = 1, .reusable = true}, SHIFT(136),
+  [244] = {.count = 1, .reusable = true}, SHIFT(135),
   [246] = {.count = 1, .reusable = true}, REDUCE(sym_production_group, 1),
   [248] = {.count = 1, .reusable = true}, SHIFT(138),
   [250] = {.count = 1, .reusable = false}, REDUCE(sym_production_group, 1),
@@ -7375,8 +7391,8 @@ static TSParseActionEntry ts_parse_actions[] = {
   [443] = {.count = 1, .reusable = true}, REDUCE(sym_new_rule, 5),
   [445] = {.count = 1, .reusable = false}, REDUCE(sym_new_rule, 5),
   [447] = {.count = 1, .reusable = true}, REDUCE(sym_pattern, 2),
-  [449] = {.count = 1, .reusable = true}, SHIFT(230),
-  [451] = {.count = 1, .reusable = true}, SHIFT(231),
+  [449] = {.count = 1, .reusable = true}, SHIFT(231),
+  [451] = {.count = 1, .reusable = true}, SHIFT(230),
   [453] = {.count = 1, .reusable = true}, REDUCE(sym_expression, 2),
   [455] = {.count = 1, .reusable = false}, REDUCE(sym_expression, 2),
   [457] = {.count = 1, .reusable = true}, SHIFT(234),
@@ -7399,8 +7415,8 @@ static TSParseActionEntry ts_parse_actions[] = {
   [492] = {.count = 1, .reusable = true}, SHIFT(257),
   [494] = {.count = 1, .reusable = true}, REDUCE(sym_lax_actual, 1),
   [496] = {.count = 1, .reusable = true}, SHIFT(259),
-  [498] = {.count = 1, .reusable = true}, SHIFT(261),
-  [500] = {.count = 1, .reusable = true}, SHIFT(262),
+  [498] = {.count = 1, .reusable = true}, SHIFT(262),
+  [500] = {.count = 1, .reusable = true}, SHIFT(261),
   [502] = {.count = 1, .reusable = true}, SHIFT(264),
   [504] = {.count = 1, .reusable = true}, SHIFT(268),
   [506] = {.count = 1, .reusable = true}, REDUCE(aux_sym_old_rule_repeat3, 2),
@@ -7432,8 +7448,8 @@ static TSParseActionEntry ts_parse_actions[] = {
   [563] = {.count = 1, .reusable = false}, REDUCE(sym_expression, 3),
   [565] = {.count = 1, .reusable = true}, SHIFT(286),
   [567] = {.count = 1, .reusable = true}, SHIFT(285),
-  [569] = {.count = 1, .reusable = true}, SHIFT(287),
-  [571] = {.count = 1, .reusable = true}, SHIFT(288),
+  [569] = {.count = 1, .reusable = true}, SHIFT(288),
+  [571] = {.count = 1, .reusable = true}, SHIFT(287),
   [573] = {.count = 1, .reusable = true}, SHIFT(291),
   [575] = {.count = 1, .reusable = true}, SHIFT(292),
   [577] = {.count = 1, .reusable = true}, SHIFT(294),

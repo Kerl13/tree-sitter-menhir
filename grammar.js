@@ -24,7 +24,6 @@ module.exports = grammar({
     $.grammar_attribute,  // %[@ ... ]
     $.postlude,           // %% → eof
     // Comments
-    $.line_comment,       // // ...
     $.comment,            // /* ... */
     $.ocaml_comment       // (* ... *)
   ],
@@ -203,7 +202,11 @@ module.exports = grammar({
       // '(' [separated_list(',', pattern)] ')'
       seq('(', ')'),
       seq('(', separated_nonempty_list(',', $.pattern), ')')
-    )
+    ),
+
+    // Comments
+
+    line_comment: $ => /\/\/.*/
   }
 })
 

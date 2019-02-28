@@ -1442,6 +1442,10 @@
           ]
         }
       ]
+    },
+    "line_comment": {
+      "type": "PATTERN",
+      "value": "\\/\\/.*"
     }
   },
   "extras": [
@@ -1487,10 +1491,6 @@
     {
       "type": "SYMBOL",
       "name": "postlude"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "line_comment"
     },
     {
       "type": "SYMBOL",

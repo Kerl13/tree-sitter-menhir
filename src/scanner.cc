@@ -11,7 +11,6 @@ enum {
   ATTRIBUTE,          // [@ ... ]
   GRAMMAR_ATTRIBUTE,  // %[@ ... ]
   POSTLUDE,           // %% → eof
-  LINE_COMMENT,       // // ...
   COMMENT,            // /* ... */
   OCAML_COMMENT       // (* ... *)
 };
@@ -53,14 +52,10 @@ struct Scanner {
       }
       return false;
 
-    // --- // and /* ------------------------------------------------------- //
+    // --- /* -------------------------------------------------------------- //
     } else if (lexer->lookahead == '/') {
       advance(lexer);
-      if (valid_symbols[LINE_COMMENT] && lexer->lookahead == '/') {
-        advance(lexer);
-        lexer->result_symbol = LINE_COMMENT;
-        return scan_line_comment(lexer);
-      } else if (valid_symbols[COMMENT] && lexer->lookahead == '*') {
+      if (valid_symbols[COMMENT] && lexer->lookahead == '*') {
         advance(lexer);
         lexer->result_symbol = COMMENT;
         return scan_comment(lexer);
@@ -191,15 +186,6 @@ struct Scanner {
     while (lexer->lookahead != '\0') {
       advance(lexer);
     }
-    return true;
-  }
-
-  bool scan_line_comment(TSLexer *lexer) {
-    while (lexer->lookahead != '\n' && lexer->lookahead != '\r') {
-      if (lexer->lookahead == '\0') { return true; }
-      advance(lexer);
-    }
-    advance(lexer);
     return true;
   }
 
