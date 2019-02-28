@@ -16,14 +16,7 @@ module.exports = grammar({
   inline: $ => [$.rule, $.continuation],
 
   externals: $ => [
-    // OCaml stuff
-    $.header,             // %{ ... %}
-    $.action,             // { ... }
-    $.attribute,          // [@ ... ]
-    $.grammar_attribute,  // %[@ ... ]
-    // Comments
-    $.comment,            // /* ... */
-    $.ocaml_comment       // (* ... *)
+    $.ocaml_comment
   ],
 
   rules: {
@@ -31,7 +24,10 @@ module.exports = grammar({
       repeat($.declaration),
       '%%',
       repeat($.rule),
-      optional($.postlude)
+      optional(seq(
+        '%%',
+        optional($.postlude)
+      ))
     ),
 
     // Bars are a little annoying, see comment in
@@ -52,15 +48,15 @@ module.exports = grammar({
     declaration: $ => choice(
       $.header,
 
-      seq('%parameter', $._ocaml_type),
+      seq('%parameter', $.type),
 
-      seq('%token', optional($._ocaml_type), clist($.terminal_alias_attrs)),
+      seq('%token', optional($.type), clist($.terminal_alias_attrs)),
 
       seq($.priority_keyword, clist($.symbol)),
 
-      seq('%type', $._ocaml_type, clist($.strict_actual)),
+      seq('%type', $.type, clist($.strict_actual)),
 
-      seq('%start', optional($._ocaml_type), clist($.non_terminal)),
+      seq('%start', optional($.type), clist($.non_terminal)),
 
       seq('%attribute', clist($.strict_actual), repeat1($.attribute)),
 
@@ -113,7 +109,7 @@ module.exports = grammar({
         $._high_prec_bar,
         seq(repeat($.producer), optional($.precedence))
       ),
-      choice($.action, $._ocaml_type),
+      choice($.action, $.type),
       optional($.precedence)
     ),
 
@@ -190,10 +186,8 @@ module.exports = grammar({
 
     menhir_action: $ => choice(
       $.action,
-      $.point_free_action
+      $.type
     ),
-
-    point_free_action: $ => choice($._ocaml_type, '<>'),
 
     pattern: $ => choice(
       $.lid,
@@ -208,20 +202,59 @@ module.exports = grammar({
 
     line_comment: $ => /\/\/.*/,
 
-    // Postlude
+    comment: $ => token(seq(
+      '/*',
+      /[^*]*\*+([^/*][^*]*\*+)*/,
+      '/'
+    )),
 
-    postlude: $ => /%%(.|\n|\r)*/,
+    // OCaml
 
-    // OCaml types
+    header: $ => seq(
+      '%{',
+      optional($.ocaml),
+      '%}'
+    ),
 
-    _ocaml_type: $ => seq(
+    action: $ => seq(
+      '{',
+      optional($.ocaml),
+      '}'
+    ),
+
+    attribute: $ => seq(
+      '[@',
+      optional($.ocaml),
+      ']'
+    ),
+
+    grammar_attribute: $ => seq(
+      '%[@',
+      optional($.ocaml),
+      ']'
+    ),
+
+    type: $ => seq(
       '<',
-      $.ocaml_type,
+      optional($.ocaml_type),
       '>'
     ),
 
-    // ocaml_type: $ => repeat1(choice(/-./, /\[./, /[^>\-\[]+/, '\n', '\r')),
-    ocaml_type: $ => /(-.|\[.|[^>\-\[]|[\n\r])+/,
+    postlude: $ => $.ocaml,
+
+    ocaml: $ => $._ocaml,
+
+    _ocaml: $ => repeat1(choice(
+      seq('{', optional($._ocaml), '}'),
+      seq('[', optional($._ocaml), ']'),
+      /"([^"\\]|\x00|\\(.|\n))*"/,
+      /'([^'\\]|\x00|\\[\\"'ntbr ]|\\[0-9][0-9][0-9]|\\x[0-9A-Fa-f][0-9A-Fa-f]|\\o[0-3][0-7][0-7])'/,
+      /'?[A-Za-z_][a-zA-Z0-9_']*/,
+      /[^{}\[\]"'%(A-Za-z_]+/,
+      '%', '('
+    )),
+
+    ocaml_type: $ => repeat1(/->?|\[>?|[^-\[>]+/),
   }
 })
 
