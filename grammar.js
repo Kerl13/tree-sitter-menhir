@@ -22,7 +22,6 @@ module.exports = grammar({
     $.action,             // { ... }
     $.attribute,          // [@ ... ]
     $.grammar_attribute,  // %[@ ... ]
-    $.postlude,           // %% → eof
     // Comments
     $.comment,            // /* ... */
     $.ocaml_comment       // (* ... *)
@@ -206,7 +205,11 @@ module.exports = grammar({
 
     // Comments
 
-    line_comment: $ => /\/\/.*/
+    line_comment: $ => /\/\/.*/,
+
+    // Postlude
+
+    postlude: $ => /%%(.|\n|\r)*/
   }
 })
 

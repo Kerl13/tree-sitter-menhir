@@ -1446,6 +1446,10 @@
     "line_comment": {
       "type": "PATTERN",
       "value": "\\/\\/.*"
+    },
+    "postlude": {
+      "type": "PATTERN",
+      "value": "%%(.|\\n|\\r)*"
     }
   },
   "extras": [
@@ -1487,10 +1491,6 @@
     {
       "type": "SYMBOL",
       "name": "grammar_attribute"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "postlude"
     },
     {
       "type": "SYMBOL",
