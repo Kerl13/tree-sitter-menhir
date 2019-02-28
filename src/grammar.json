@@ -26,8 +26,25 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "postlude"
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "%%"
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "postlude"
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "BLANK"
@@ -97,7 +114,7 @@
             },
             {
               "type": "SYMBOL",
-              "name": "_ocaml_type"
+              "name": "type"
             }
           ]
         },
@@ -113,7 +130,7 @@
               "members": [
                 {
                   "type": "SYMBOL",
-                  "name": "_ocaml_type"
+                  "name": "type"
                 },
                 {
                   "type": "BLANK"
@@ -206,7 +223,7 @@
             },
             {
               "type": "SYMBOL",
-              "name": "_ocaml_type"
+              "name": "type"
             },
             {
               "type": "SEQ",
@@ -255,7 +272,7 @@
               "members": [
                 {
                   "type": "SYMBOL",
-                  "name": "_ocaml_type"
+                  "name": "type"
                 },
                 {
                   "type": "BLANK"
@@ -698,7 +715,7 @@
             },
             {
               "type": "SYMBOL",
-              "name": "_ocaml_type"
+              "name": "type"
             }
           ]
         },
@@ -1371,20 +1388,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "point_free_action"
-        }
-      ]
-    },
-    "point_free_action": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "_ocaml_type"
-        },
-        {
-          "type": "STRING",
-          "value": "<>"
+          "name": "type"
         }
       ]
     },
@@ -1460,11 +1464,127 @@
       "type": "PATTERN",
       "value": "\\/\\/.*"
     },
-    "postlude": {
-      "type": "PATTERN",
-      "value": "%%(.|\\n|\\r)*"
+    "comment": {
+      "type": "TOKEN",
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "/*"
+          },
+          {
+            "type": "PATTERN",
+            "value": "[^*]*\\*+([^\\/*][^*]*\\*+)*"
+          },
+          {
+            "type": "STRING",
+            "value": "/"
+          }
+        ]
+      }
     },
-    "_ocaml_type": {
+    "header": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "%{"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "ocaml"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "%}"
+        }
+      ]
+    },
+    "action": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "{"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "ocaml"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "}"
+        }
+      ]
+    },
+    "attribute": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "[@"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "ocaml"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "]"
+        }
+      ]
+    },
+    "grammar_attribute": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "%[@"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "ocaml"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "]"
+        }
+      ]
+    },
+    "type": {
       "type": "SEQ",
       "members": [
         {
@@ -1472,8 +1592,16 @@
           "value": "<"
         },
         {
-          "type": "SYMBOL",
-          "name": "ocaml_type"
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "ocaml_type"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         },
         {
           "type": "STRING",
@@ -1481,9 +1609,102 @@
         }
       ]
     },
+    "postlude": {
+      "type": "SYMBOL",
+      "name": "ocaml"
+    },
+    "ocaml": {
+      "type": "SYMBOL",
+      "name": "_ocaml"
+    },
+    "_ocaml": {
+      "type": "REPEAT1",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "{"
+              },
+              {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "_ocaml"
+                  },
+                  {
+                    "type": "BLANK"
+                  }
+                ]
+              },
+              {
+                "type": "STRING",
+                "value": "}"
+              }
+            ]
+          },
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "["
+              },
+              {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "_ocaml"
+                  },
+                  {
+                    "type": "BLANK"
+                  }
+                ]
+              },
+              {
+                "type": "STRING",
+                "value": "]"
+              }
+            ]
+          },
+          {
+            "type": "PATTERN",
+            "value": "\"([^\"\\\\]|\\x00|\\\\(.|\\n))*\""
+          },
+          {
+            "type": "PATTERN",
+            "value": "'([^'\\\\]|\\x00|\\\\[\\\\\"'ntbr ]|\\\\[0-9][0-9][0-9]|\\\\x[0-9A-Fa-f][0-9A-Fa-f]|\\\\o[0-3][0-7][0-7])'"
+          },
+          {
+            "type": "PATTERN",
+            "value": "'?[A-Za-z_][a-zA-Z0-9_']*"
+          },
+          {
+            "type": "PATTERN",
+            "value": "[^{}\\[\\]\"'%(A-Za-z_]+"
+          },
+          {
+            "type": "STRING",
+            "value": "%"
+          },
+          {
+            "type": "STRING",
+            "value": "("
+          }
+        ]
+      }
+    },
     "ocaml_type": {
-      "type": "PATTERN",
-      "value": "(-.|\\[.|[^>\\-\\[]|[\\n\\r])+"
+      "type": "REPEAT1",
+      "content": {
+        "type": "PATTERN",
+        "value": "->?|\\[>?|[^-\\[>]+"
+      }
     }
   },
   "extras": [
@@ -1506,26 +1727,6 @@
   ],
   "conflicts": [],
   "externals": [
-    {
-      "type": "SYMBOL",
-      "name": "header"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "action"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "attribute"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "grammar_attribute"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "comment"
-    },
     {
       "type": "SYMBOL",
       "name": "ocaml_comment"

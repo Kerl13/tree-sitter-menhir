@@ -18,16 +18,16 @@ ident: IDENT { $1 }
       (producer (lid) (actual (symbol (lid))))
       (producer (actual (symbol (uid))))
       (producer (lid) (actual (symbol (lid))))
-      (action))
+      (action (ocaml)))
     (production_group
       (producer (lid) (actual (symbol (lid))))
-      (action)))
+      (action (ocaml))))
 
   (old_rule
     (symbol (lid))
     (production_group
       (producer (actual (symbol (uid))))
-      (action))))
+      (action (ocaml)))))
 
 =====
 Annotations
@@ -53,7 +53,7 @@ Annotations
       (producer (actual (symbol (uid)))) (precedence (symbol (lid)))
       (producer (actual (symbol (uid))))
       (producer (actual (symbol (uid)))) (precedence (symbol (lid)))
-      (action))))
+      (action (ocaml)))))
 
 =====
 Parameterized non terminal
@@ -74,7 +74,7 @@ Parameterized non terminal
     (symbol (lid)) (symbol (lid)) (symbol (uid))
     (production_group
       (producer (lid) (actual (symbol (uid))))
-      (action))
+      (action (ocaml)))
     (production_group
       (producer (lid) (actual (symbol (uid))))
       (producer (actual (symbol (lid))))
@@ -84,4 +84,4 @@ Parameterized non terminal
           (symbol (lid))
           (lax_actual (symbol (lid)))
           (lax_actual (symbol (uid)))))
-      (action))))
+      (action (ocaml)))))

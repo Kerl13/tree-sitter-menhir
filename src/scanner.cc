@@ -5,20 +5,21 @@
 namespace {
 
 enum {
-  HEADER,             // %{ ... %}
-  ACTION,             // { ... }
-  ATTRIBUTE,          // [@ ... ]
-  GRAMMAR_ATTRIBUTE,  // %[@ ... ]
-  COMMENT,            // /* ... */
-  OCAML_COMMENT       // (* ... *)
+  COMMENT
 };
 
 struct Scanner {
+  std::string quoted_string_id;
+
   unsigned serialize(char *buffer) {
-    return 0;
+    size_t size = quoted_string_id.size();
+    quoted_string_id.copy(buffer, size);
+    return size;
   }
 
-  void deserialize(const char *buffer, unsigned length) {}
+  void deserialize(const char *buffer, unsigned length) {
+    quoted_string_id.assign(buffer, length);
+  }
 
   void advance(TSLexer *lexer) {
     lexer->advance(lexer, false);
@@ -28,195 +29,24 @@ struct Scanner {
     lexer->advance(lexer, true);
   }
 
+  bool is_eof(TSLexer *lexer) {
+    uint32_t column = lexer->get_column(lexer);
+    advance(lexer);
+    return lexer->get_column(lexer) <= column;
+  }
+
   bool scan(TSLexer *lexer, const bool *valid_symbols) {
     while (isspace(lexer->lookahead)) {
       skip(lexer);
     }
 
-    // --- %{ and %[ and %% ------------------------------------------------ //
-    if (lexer->lookahead == '%') {
+    if (valid_symbols[COMMENT] && lexer->lookahead == '(') {
       advance(lexer);
-      if (valid_symbols[HEADER] && lexer->lookahead == '{') {
-        advance(lexer);
-        lexer->result_symbol = HEADER;
-        return scan_action(true, lexer);
-      } else if (valid_symbols[GRAMMAR_ATTRIBUTE] && lexer->lookahead == '[') {
-        advance(lexer);
-        lexer->result_symbol = GRAMMAR_ATTRIBUTE;
-        return scan_attribute(lexer);
-      }
-      return false;
-
-    // --- /* -------------------------------------------------------------- //
-    } else if (lexer->lookahead == '/') {
-      advance(lexer);
-      if (valid_symbols[COMMENT] && lexer->lookahead == '*') {
-        advance(lexer);
-        lexer->result_symbol = COMMENT;
-        return scan_comment(lexer);
-      }
-      return false;
-
-    // --- (* ... *) ------------------------------------------------------- //
-    } else if (valid_symbols[OCAML_COMMENT] && lexer->lookahead == '(') {
-      advance(lexer);
-      lexer->result_symbol = OCAML_COMMENT;
-      return scan_ocaml_comment(lexer);
-    // --- { ... } --------------------------------------------------------- //
-    } else if (valid_symbols[ACTION] && lexer->lookahead == '{') {
-      advance(lexer);
-      lexer->result_symbol = ACTION;
-      return scan_action(false, lexer);
-    // --- [@ ... ] -------------------------------------------------------- //
-    } else if (valid_symbols[ATTRIBUTE] && lexer->lookahead == '[') {
-      advance(lexer);
-      lexer->result_symbol = ATTRIBUTE;
-      return scan_attribute(lexer);
+      lexer->result_symbol = COMMENT;
+      return scan_comment(lexer);
     }
 
     return false;
-  }
-
-  bool scan_action(bool percent, TSLexer *lexer) {
-    for (;;) {
-      // TODO: handle $i expressions
-      // TODO: handle parentheses?
-      switch (lexer->lookahead) {
-        case '{':
-          advance(lexer);
-          scan_action(false, lexer);
-          break;
-        case '}':
-          advance(lexer);
-          if (!percent) {
-            return true;
-          }
-          break;
-        case '%':
-          advance(lexer);
-          if (percent && lexer->lookahead == '}') {
-            advance(lexer);
-            return true;
-          }
-          break;
-        case '"':
-          advance(lexer);
-          scan_string(lexer);
-          break;
-        case '\'':
-          advance(lexer);
-          scan_character(lexer);
-          break;
-        case '(':
-          advance(lexer);
-          scan_ocaml_comment(lexer);
-          break;
-        case '\0':
-          return true;
-        default:
-          advance(lexer);
-      }
-    }
-  }
-
-  bool scan_attribute(TSLexer *lexer) {
-    for (;;) {
-      // TODO: follow parentheses and curly brackets?
-      switch (lexer->lookahead) {
-        case '[':
-          advance(lexer);
-          scan_attribute(lexer);
-          break;
-        case ']':
-          advance(lexer);
-          return true;
-        case '"':
-          advance(lexer);
-          scan_string(lexer);
-          break;
-        case '\'':
-          advance(lexer);
-          scan_character(lexer);
-          break;
-        case '\0':
-          return true;
-        default:
-          advance(lexer);
-      }
-    }
-  }
-
-  bool scan_comment(TSLexer *lexer) {
-    for (;;) {
-      switch (lexer->lookahead) {
-        case '*':
-          advance(lexer);
-          if (lexer->lookahead == '/') {
-            advance(lexer);
-            return true;
-          }
-          break;
-        case '\'':
-          advance(lexer);
-          scan_character(lexer);
-          break;
-        case '"':
-          advance(lexer);
-          scan_string(lexer);
-          break;
-        case '\0':
-          return true;
-        default:
-          if (isalpha(lexer->lookahead) || lexer->lookahead == '_') {
-            advance(lexer);
-            while (isalnum(lexer->lookahead) || lexer->lookahead == '_' || lexer->lookahead == '\'') {
-              advance(lexer);
-            }
-          } else {
-            advance(lexer);
-          }
-      }
-    }
-  }
-
-  bool scan_ocaml_comment(TSLexer *lexer) {
-    if (lexer->lookahead != '*') return false;
-    advance(lexer);
-
-    for (;;) {
-      switch (lexer->lookahead) {
-        case '(':
-          advance(lexer);
-          scan_ocaml_comment(lexer);
-          break;
-        case '*':
-          advance(lexer);
-          if (lexer->lookahead == ')') {
-            advance(lexer);
-            return true;
-          }
-          break;
-        case '\'':
-          advance(lexer);
-          scan_character(lexer);
-          break;
-        case '"':
-          advance(lexer);
-          scan_string(lexer);
-          break;
-        case '\0':
-          return true;
-        default:
-          if (isalpha(lexer->lookahead) || lexer->lookahead == '_') {
-            advance(lexer);
-            while (isalnum(lexer->lookahead) || lexer->lookahead == '_' || lexer->lookahead == '\'') {
-              advance(lexer);
-            }
-          } else {
-            advance(lexer);
-          }
-      }
-    }
   }
 
   void scan_string(TSLexer *lexer) {
@@ -230,21 +60,7 @@ struct Scanner {
           advance(lexer);
           return;
         case '\0':
-          // XXX. Super hackish trick:
-          // In order to decide whether this \0 is a \0 character in the
-          // source file or the end of the file, we look one step ahead. If
-          // the next character is a \0 again, it is likely that the lexer did
-          // not really advance and that we read the same character. We assume
-          // we reached the end of the file
-          //
-          // Is there a clean way to do this?
-          // https://github.com/tree-sitter/tree-sitter/issues/280
-          advance(lexer);
-          if (lexer->lookahead == 0) {
-            // \0 again, this is probably the end of the file
-            return;
-          }
-          // Surprise! There is something after \0
+          if (is_eof(lexer)) return;
           break;
         default:
           advance(lexer);
@@ -252,14 +68,16 @@ struct Scanner {
     }
   }
 
-  void scan_character(TSLexer *lexer) {
+  char scan_character(TSLexer *lexer) {
+    char last = 0;
+
     switch (lexer->lookahead) {
       case '\\':
         advance(lexer);
         if (isdigit(lexer->lookahead)) {
           advance(lexer);
           for (size_t i = 0; i < 2; i++) {
-            if (!isdigit(lexer->lookahead)) return;
+            if (!isdigit(lexer->lookahead)) return 0;
             advance(lexer);
           }
         } else {
@@ -267,69 +85,130 @@ struct Scanner {
             case 'x':
               advance(lexer);
               for (size_t i = 0; i < 2; i++) {
-                if (!isdigit(lexer->lookahead) && (tolower(lexer->lookahead) < 'a' || tolower(lexer->lookahead) > 'f')) return;
+                if (!isdigit(lexer->lookahead) && (tolower(lexer->lookahead) < 'a' || tolower(lexer->lookahead) > 'f')) return 0;
                 advance(lexer);
               }
               break;
             case 'o':
               advance(lexer);
               for (size_t i = 0; i < 3; i++) {
-                if (!isdigit(lexer->lookahead) || lexer->lookahead > '7') return;
+                if (!isdigit(lexer->lookahead) || lexer->lookahead > '7') return 0;
                 advance(lexer);
               }
               break;
             case '\'':
-              advance(lexer);
-              if (lexer->lookahead == '\'') {
-                advance(lexer);
-              } else {
-                scan_character(lexer);
-              }
-              return;
             case '"':
-              advance(lexer);
-              if (lexer->lookahead == '\'') {
-                advance(lexer);
-              } else {
-                scan_string(lexer);
-              }
-              return;
             case '\\':
             case 'n':
             case 't':
             case 'b':
             case 'r':
             case ' ':
+              last = lexer->lookahead;
               advance(lexer);
               break;
             default:
-              return;
+              return 0;
           }
         }
         break;
       case '\'':
         break;
       case '\0':
-        // XXX. Super hackish trick:
-        // In order to decide whether this \0 is a \0 character in the
-        // source file or the end of the file, we look one step ahead. If
-        // the next character is a \0 again, it is likely that the lexer did
-        // not really advance and that we read the same character. We assume
-        // we reached the end of the file
-        //
-        // Is there a clean way to do this?
-        // https://github.com/tree-sitter/tree-sitter/issues/280
-        advance(lexer);
-        if (lexer->lookahead == 0) {
-          // \0 again, this is probably the end of the file
-          return;
-        }
-        // Surprise! There is something after \0
+        if (is_eof(lexer)) return 0;
         break;
       default:
+        last = lexer->lookahead;
         advance(lexer);
     }
-    if (lexer->lookahead == '\'') advance(lexer);
+
+    if (lexer->lookahead == '\'') {
+      advance(lexer);
+      return 0;
+    } else {
+      return last;
+    }
+  }
+
+  bool scan_quoted_string(TSLexer *lexer) {
+    size_t i;
+    quoted_string_id.clear();
+
+    while (islower(lexer->lookahead) || lexer->lookahead == '_') {
+      quoted_string_id.push_back(lexer->lookahead);
+      advance(lexer);
+    }
+
+    if (lexer->lookahead != '|') return false;
+    advance(lexer);
+
+    for (;;) {
+      switch (lexer->lookahead) {
+        case '|':
+          advance(lexer);
+          for (i = 0; i < quoted_string_id.size(); i++) {
+            if (lexer->lookahead != quoted_string_id[i]) break;
+            advance(lexer);
+          }
+          if (i == quoted_string_id.size() && lexer->lookahead == '}') {
+            advance(lexer);
+            return true;
+          }
+          break;
+        case '\0':
+          if (is_eof(lexer)) return false;
+          break;
+        default:
+          advance(lexer);
+      }
+    }
+  }
+
+  bool scan_comment(TSLexer *lexer) {
+    char last = 0;
+
+    if (lexer->lookahead != '*') return false;
+    advance(lexer);
+
+    for (;;) {
+      switch (last ? last : lexer->lookahead) {
+        case '(':
+          if (last) last = 0; else advance(lexer);
+          scan_comment(lexer);
+          break;
+        case '*':
+          if (last) last = 0; else advance(lexer);
+          if (lexer->lookahead == ')') {
+            advance(lexer);
+            return true;
+          }
+          break;
+        case '\'':
+          if (last) last = 0; else advance(lexer);
+          last = scan_character(lexer);
+          break;
+        case '"':
+          if (last) last = 0; else advance(lexer);
+          scan_string(lexer);
+          break;
+        case '{':
+          if (last) last = 0; else advance(lexer);
+          scan_quoted_string(lexer);
+          break;
+        case '\0':
+          if (is_eof(lexer)) return false;
+          break;
+        default:
+          if (isalpha(lexer->lookahead) || lexer->lookahead == '_') {
+            if (last) last = 0; else advance(lexer);
+            while (isalnum(lexer->lookahead) || lexer->lookahead == '_' || lexer->lookahead == '\'') {
+              advance(lexer);
+            }
+          } else {
+            if (last) last = 0; else advance(lexer);
+          }
+      }
+    }
   }
 };
 

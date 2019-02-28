@@ -10,7 +10,7 @@ OCaml types
 
 -----
 (source_file
-  (declaration (ocaml_type) (strict_actual (symbol (uid))))
-  (declaration (ocaml_type) (strict_actual (symbol (uid))))
-  (declaration (ocaml_type) (strict_actual (symbol (uid))))
-  (declaration (ocaml_type) (strict_actual (symbol (uid)))))
+  (declaration (type (ocaml_type)) (strict_actual (symbol (uid))))
+  (declaration (type (ocaml_type)) (strict_actual (symbol (uid))))
+  (declaration (type (ocaml_type)) (strict_actual (symbol (uid))))
+  (declaration (type (ocaml_type)) (strict_actual (symbol (uid)))))
