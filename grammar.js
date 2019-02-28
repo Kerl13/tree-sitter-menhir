@@ -18,7 +18,6 @@ module.exports = grammar({
   externals: $ => [
     // OCaml stuff
     $.header,             // %{ ... %}
-    $.ocaml_type,         // < ... >
     $.action,             // { ... }
     $.attribute,          // [@ ... ]
     $.grammar_attribute,  // %[@ ... ]
@@ -53,15 +52,15 @@ module.exports = grammar({
     declaration: $ => choice(
       $.header,
 
-      seq('%parameter', $.ocaml_type),
+      seq('%parameter', $._ocaml_type),
 
-      seq('%token', optional($.ocaml_type), clist($.terminal_alias_attrs)),
+      seq('%token', optional($._ocaml_type), clist($.terminal_alias_attrs)),
 
       seq($.priority_keyword, clist($.symbol)),
 
-      seq('%type', $.ocaml_type, clist($.strict_actual)),
+      seq('%type', $._ocaml_type, clist($.strict_actual)),
 
-      seq('%start', optional($.ocaml_type), clist($.non_terminal)),
+      seq('%start', optional($._ocaml_type), clist($.non_terminal)),
 
       seq('%attribute', clist($.strict_actual), repeat1($.attribute)),
 
@@ -114,7 +113,7 @@ module.exports = grammar({
         $._high_prec_bar,
         seq(repeat($.producer), optional($.precedence))
       ),
-      choice($.action, $.ocaml_type),
+      choice($.action, $._ocaml_type),
       optional($.precedence)
     ),
 
@@ -191,8 +190,10 @@ module.exports = grammar({
 
     menhir_action: $ => choice(
       $.action,
-      $.ocaml_type
+      $.point_free_action
     ),
+
+    point_free_action: $ => choice($._ocaml_type, '<>'),
 
     pattern: $ => choice(
       $.lid,
@@ -209,7 +210,18 @@ module.exports = grammar({
 
     // Postlude
 
-    postlude: $ => /%%(.|\n|\r)*/
+    postlude: $ => /%%(.|\n|\r)*/,
+
+    // OCaml types
+
+    _ocaml_type: $ => seq(
+      '<',
+      $.ocaml_type,
+      '>'
+    ),
+
+    // ocaml_type: $ => repeat1(choice(/-./, /\[./, /[^>\-\[]+/, '\n', '\r')),
+    ocaml_type: $ => /(-.|\[.|[^>\-\[]|[\n\r])+/,
   }
 })
 

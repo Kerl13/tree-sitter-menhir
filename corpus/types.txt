@@ -1,0 +1,16 @@
+=====
+OCaml types
+=====
+
+%type < a -> b > TOK
+%type < 'a -> [> `A of 'a] > TOK
+%type < [< `A of 'a]  -> 'a > TOK
+%type < a (* some comment *) -> b > TOK
+%%
+
+-----
+(source_file
+  (declaration (ocaml_type) (strict_actual (symbol (uid))))
+  (declaration (ocaml_type) (strict_actual (symbol (uid))))
+  (declaration (ocaml_type) (strict_actual (symbol (uid))))
+  (declaration (ocaml_type) (strict_actual (symbol (uid)))))

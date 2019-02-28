@@ -97,7 +97,7 @@
             },
             {
               "type": "SYMBOL",
-              "name": "ocaml_type"
+              "name": "_ocaml_type"
             }
           ]
         },
@@ -113,7 +113,7 @@
               "members": [
                 {
                   "type": "SYMBOL",
-                  "name": "ocaml_type"
+                  "name": "_ocaml_type"
                 },
                 {
                   "type": "BLANK"
@@ -206,7 +206,7 @@
             },
             {
               "type": "SYMBOL",
-              "name": "ocaml_type"
+              "name": "_ocaml_type"
             },
             {
               "type": "SEQ",
@@ -255,7 +255,7 @@
               "members": [
                 {
                   "type": "SYMBOL",
-                  "name": "ocaml_type"
+                  "name": "_ocaml_type"
                 },
                 {
                   "type": "BLANK"
@@ -698,7 +698,7 @@
             },
             {
               "type": "SYMBOL",
-              "name": "ocaml_type"
+              "name": "_ocaml_type"
             }
           ]
         },
@@ -1371,7 +1371,20 @@
         },
         {
           "type": "SYMBOL",
-          "name": "ocaml_type"
+          "name": "point_free_action"
+        }
+      ]
+    },
+    "point_free_action": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_ocaml_type"
+        },
+        {
+          "type": "STRING",
+          "value": "<>"
         }
       ]
     },
@@ -1450,6 +1463,27 @@
     "postlude": {
       "type": "PATTERN",
       "value": "%%(.|\\n|\\r)*"
+    },
+    "_ocaml_type": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "<"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "ocaml_type"
+        },
+        {
+          "type": "STRING",
+          "value": ">"
+        }
+      ]
+    },
+    "ocaml_type": {
+      "type": "PATTERN",
+      "value": "(-.|\\[.|[^>\\-\\[]|[\\n\\r])+"
     }
   },
   "extras": [
@@ -1475,10 +1509,6 @@
     {
       "type": "SYMBOL",
       "name": "header"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "ocaml_type"
     },
     {
       "type": "SYMBOL",

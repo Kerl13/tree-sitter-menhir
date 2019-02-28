@@ -6,7 +6,6 @@ namespace {
 
 enum {
   HEADER,             // %{ ... %}
-  OCAML_TYPE,         // < ... >
   ACTION,             // { ... }
   ATTRIBUTE,          // [@ ... ]
   GRAMMAR_ATTRIBUTE,  // %[@ ... ]
@@ -63,11 +62,6 @@ struct Scanner {
       advance(lexer);
       lexer->result_symbol = OCAML_COMMENT;
       return scan_ocaml_comment(lexer);
-    // --- < ... > --------------------------------------------------------- //
-    } else if (valid_symbols[OCAML_TYPE] && lexer->lookahead == '<') {
-      advance(lexer);
-      lexer->result_symbol = OCAML_TYPE;
-      return scan_ocaml_type(lexer);
     // --- { ... } --------------------------------------------------------- //
     } else if (valid_symbols[ACTION] && lexer->lookahead == '{') {
       advance(lexer);
@@ -116,32 +110,6 @@ struct Scanner {
         case '(':
           advance(lexer);
           scan_ocaml_comment(lexer);
-          break;
-        case '\0':
-          return true;
-        default:
-          advance(lexer);
-      }
-    }
-  }
-
-  bool scan_ocaml_type(TSLexer *lexer) {
-    for (;;) {
-      switch (lexer->lookahead) {
-        case '(':
-          advance(lexer);
-          scan_ocaml_comment(lexer);
-          break;
-        case '>':
-          advance(lexer);
-          return true;
-        case '-':  // beware of ->
-          advance(lexer);
-          advance(lexer);
-          break;
-        case '[':  // beware of [>
-          advance(lexer);
-          advance(lexer);
           break;
         case '\0':
           return true;

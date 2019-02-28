@@ -31,7 +31,7 @@ let ident ==
         (pattern)
         (symbol_expression (symbol (lid)))
       (seq_expression
-        (action_expression (menhir_action (ocaml_type)))))))
+        (action_expression (menhir_action (point_free_action (ocaml_type))))))))
 
   (new_rule
     (lid)
@@ -41,7 +41,7 @@ let ident ==
         (pattern (lid)) (symbol_expression (symbol (uid)))
       (seq_expression
         (action_expression
-          (menhir_action (ocaml_type))))))))
+          (menhir_action (point_free_action (ocaml_type)))))))))
 
 
 =====
@@ -93,4 +93,4 @@ let delimited(opening, x, closing) ==
       (seq_expression (symbol_expression (symbol (lid)))
       (seq_expression
         (action_expression
-          (menhir_action (ocaml_type))))))))))
+          (menhir_action (point_free_action))))))))))
