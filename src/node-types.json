@@ -1,0 +1,343 @@
+[
+  {
+    "type": "action",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "action_expression",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "actual",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "attribute",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "continuation",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "declaration",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "equality_symbol",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "expression",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "flags",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "grammar_attribute",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "header",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "lax_actual",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "menhir_action",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "modifier",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "new_rule",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "non_terminal",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "ocaml",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "ocaml_type",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "old_rule",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "pattern",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "postlude",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "precedence",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "priority_keyword",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "producer",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "production_group",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "rule",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "seq_expression",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "source_file",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "strict_actual",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "symbol",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "symbol_expression",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "terminal_alias_attrs",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "type",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "%%",
+    "named": false
+  },
+  {
+    "type": "|",
+    "named": false
+  },
+  {
+    "type": "lid",
+    "named": true
+  },
+  {
+    "type": "uid",
+    "named": true
+  },
+  {
+    "type": "qid",
+    "named": true
+  },
+  {
+    "type": "%parameter",
+    "named": false
+  },
+  {
+    "type": "%token",
+    "named": false
+  },
+  {
+    "type": ",",
+    "named": false
+  },
+  {
+    "type": "%type",
+    "named": false
+  },
+  {
+    "type": "%start",
+    "named": false
+  },
+  {
+    "type": "%attribute",
+    "named": false
+  },
+  {
+    "type": "%on_error_reduce",
+    "named": false
+  },
+  {
+    "type": ";",
+    "named": false
+  },
+  {
+    "type": "%left",
+    "named": false
+  },
+  {
+    "type": "%right",
+    "named": false
+  },
+  {
+    "type": "%nonassoc",
+    "named": false
+  },
+  {
+    "type": "(",
+    "named": false
+  },
+  {
+    "type": ")",
+    "named": false
+  },
+  {
+    "type": ":",
+    "named": false
+  },
+  {
+    "type": "%public",
+    "named": false
+  },
+  {
+    "type": "%inline",
+    "named": false
+  },
+  {
+    "type": "%prec",
+    "named": false
+  },
+  {
+    "type": "=",
+    "named": false
+  },
+  {
+    "type": "?",
+    "named": false
+  },
+  {
+    "type": "*",
+    "named": false
+  },
+  {
+    "type": "+",
+    "named": false
+  },
+  {
+    "type": "let",
+    "named": false
+  },
+  {
+    "type": "==",
+    "named": false
+  },
+  {
+    "type": ":=",
+    "named": false
+  },
+  {
+    "type": "_",
+    "named": false
+  },
+  {
+    "type": "~",
+    "named": false
+  },
+  {
+    "type": "line_comment",
+    "named": true
+  },
+  {
+    "type": "comment",
+    "named": true
+  },
+  {
+    "type": "%{",
+    "named": false
+  },
+  {
+    "type": "%}",
+    "named": false
+  },
+  {
+    "type": "{",
+    "named": false
+  },
+  {
+    "type": "}",
+    "named": false
+  },
+  {
+    "type": "[@",
+    "named": false
+  },
+  {
+    "type": "]",
+    "named": false
+  },
+  {
+    "type": "%[@",
+    "named": false
+  },
+  {
+    "type": "<",
+    "named": false
+  },
+  {
+    "type": ">",
+    "named": false
+  },
+  {
+    "type": "[",
+    "named": false
+  },
+  {
+    "type": "%",
+    "named": false
+  }
+]
