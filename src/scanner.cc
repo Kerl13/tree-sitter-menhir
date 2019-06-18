@@ -9,17 +9,11 @@ enum {
 };
 
 struct Scanner {
-  std::string quoted_string_id;
-
   unsigned serialize(char *buffer) {
-    size_t size = quoted_string_id.size();
-    quoted_string_id.copy(buffer, size);
-    return size;
+    return 0;
   }
 
-  void deserialize(const char *buffer, unsigned length) {
-    quoted_string_id.assign(buffer, length);
-  }
+  void deserialize(const char *buffer, unsigned length) {}
 
   void advance(TSLexer *lexer) {
     lexer->advance(lexer, false);
@@ -131,11 +125,11 @@ struct Scanner {
   }
 
   bool scan_quoted_string(TSLexer *lexer) {
+    std::string id;
     size_t i;
-    quoted_string_id.clear();
 
     while (islower(lexer->lookahead) || lexer->lookahead == '_') {
-      quoted_string_id.push_back(lexer->lookahead);
+      id.push_back(lexer->lookahead);
       advance(lexer);
     }
 
@@ -146,11 +140,11 @@ struct Scanner {
       switch (lexer->lookahead) {
         case '|':
           advance(lexer);
-          for (i = 0; i < quoted_string_id.size(); i++) {
-            if (lexer->lookahead != quoted_string_id[i]) break;
+          for (i = 0; i < id.size(); i++) {
+            if (lexer->lookahead != id[i]) break;
             advance(lexer);
           }
-          if (i == quoted_string_id.size() && lexer->lookahead == '}') {
+          if (i == id.size() && lexer->lookahead == '}') {
             advance(lexer);
             return true;
           }
