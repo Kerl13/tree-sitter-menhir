@@ -10,7 +10,7 @@ namespace {
 
 NAN_METHOD(New) {}
 
-void Init(Handle<Object> exports, Handle<Object> module) {
+void Init(Local<Object> exports, Local<Object> module) {
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("Language").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
