@@ -2,32 +2,125 @@
   {
     "type": "action",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "ocaml",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "action_expression",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "menhir_action",
+          "named": true
+        },
+        {
+          "type": "precedence",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "actual",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "actual",
+          "named": true
+        },
+        {
+          "type": "lax_actual",
+          "named": true
+        },
+        {
+          "type": "modifier",
+          "named": true
+        },
+        {
+          "type": "symbol",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "attribute",
     "named": true,
-    "fields": {}
-  },
-  {
-    "type": "continuation",
-    "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "ocaml",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "declaration",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "attribute",
+          "named": true
+        },
+        {
+          "type": "grammar_attribute",
+          "named": true
+        },
+        {
+          "type": "header",
+          "named": true
+        },
+        {
+          "type": "non_terminal",
+          "named": true
+        },
+        {
+          "type": "priority_keyword",
+          "named": true
+        },
+        {
+          "type": "strict_actual",
+          "named": true
+        },
+        {
+          "type": "symbol",
+          "named": true
+        },
+        {
+          "type": "terminal_alias_attrs",
+          "named": true
+        },
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "equality_symbol",
@@ -37,7 +130,17 @@
   {
     "type": "expression",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "seq_expression",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "flags",
@@ -47,22 +150,82 @@
   {
     "type": "grammar_attribute",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "ocaml",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "header",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "ocaml",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "lax_actual",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "actual",
+          "named": true
+        },
+        {
+          "type": "lax_actual",
+          "named": true
+        },
+        {
+          "type": "modifier",
+          "named": true
+        },
+        {
+          "type": "production_group",
+          "named": true
+        },
+        {
+          "type": "symbol",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "menhir_action",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "action",
+          "named": true
+        },
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "modifier",
@@ -72,12 +235,48 @@
   {
     "type": "new_rule",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "attribute",
+          "named": true
+        },
+        {
+          "type": "equality_symbol",
+          "named": true
+        },
+        {
+          "type": "expression",
+          "named": true
+        },
+        {
+          "type": "lid",
+          "named": true
+        },
+        {
+          "type": "symbol",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "non_terminal",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "lid",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "ocaml",
@@ -92,22 +291,78 @@
   {
     "type": "old_rule",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "attribute",
+          "named": true
+        },
+        {
+          "type": "flags",
+          "named": true
+        },
+        {
+          "type": "production_group",
+          "named": true
+        },
+        {
+          "type": "symbol",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "pattern",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "lid",
+          "named": true
+        },
+        {
+          "type": "pattern",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "postlude",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "ocaml",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "precedence",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "symbol",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "priority_keyword",
@@ -117,91 +372,232 @@
   {
     "type": "producer",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "actual",
+          "named": true
+        },
+        {
+          "type": "attribute",
+          "named": true
+        },
+        {
+          "type": "lid",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "production_group",
     "named": true,
-    "fields": {}
-  },
-  {
-    "type": "rule",
-    "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "action",
+          "named": true
+        },
+        {
+          "type": "precedence",
+          "named": true
+        },
+        {
+          "type": "producer",
+          "named": true
+        },
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "seq_expression",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "action_expression",
+          "named": true
+        },
+        {
+          "type": "pattern",
+          "named": true
+        },
+        {
+          "type": "seq_expression",
+          "named": true
+        },
+        {
+          "type": "symbol_expression",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "source_file",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "declaration",
+          "named": true
+        },
+        {
+          "type": "new_rule",
+          "named": true
+        },
+        {
+          "type": "old_rule",
+          "named": true
+        },
+        {
+          "type": "postlude",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "strict_actual",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "modifier",
+          "named": true
+        },
+        {
+          "type": "strict_actual",
+          "named": true
+        },
+        {
+          "type": "symbol",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "symbol",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "lid",
+          "named": true
+        },
+        {
+          "type": "qid",
+          "named": true
+        },
+        {
+          "type": "uid",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "symbol_expression",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "attribute",
+          "named": true
+        },
+        {
+          "type": "expression",
+          "named": true
+        },
+        {
+          "type": "modifier",
+          "named": true
+        },
+        {
+          "type": "symbol",
+          "named": true
+        },
+        {
+          "type": "symbol_expression",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "terminal_alias_attrs",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "attribute",
+          "named": true
+        },
+        {
+          "type": "qid",
+          "named": true
+        },
+        {
+          "type": "uid",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "type",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "ocaml_type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "%",
+    "named": false
   },
   {
     "type": "%%",
     "named": false
   },
   {
-    "type": "|",
-    "named": false
-  },
-  {
-    "type": "lid",
-    "named": true
-  },
-  {
-    "type": "uid",
-    "named": true
-  },
-  {
-    "type": "qid",
-    "named": true
-  },
-  {
-    "type": "%parameter",
-    "named": false
-  },
-  {
-    "type": "%token",
-    "named": false
-  },
-  {
-    "type": ",",
-    "named": false
-  },
-  {
-    "type": "%type",
-    "named": false
-  },
-  {
-    "type": "%start",
+    "type": "%[@",
     "named": false
   },
   {
@@ -209,11 +605,7 @@
     "named": false
   },
   {
-    "type": "%on_error_reduce",
-    "named": false
-  },
-  {
-    "type": ";",
+    "type": "%inline",
     "named": false
   },
   {
@@ -221,11 +613,47 @@
     "named": false
   },
   {
+    "type": "%nonassoc",
+    "named": false
+  },
+  {
+    "type": "%on_error_reduce",
+    "named": false
+  },
+  {
+    "type": "%parameter",
+    "named": false
+  },
+  {
+    "type": "%prec",
+    "named": false
+  },
+  {
+    "type": "%public",
+    "named": false
+  },
+  {
     "type": "%right",
     "named": false
   },
   {
-    "type": "%nonassoc",
+    "type": "%start",
+    "named": false
+  },
+  {
+    "type": "%token",
+    "named": false
+  },
+  {
+    "type": "%type",
+    "named": false
+  },
+  {
+    "type": "%{",
+    "named": false
+  },
+  {
+    "type": "%}",
     "named": false
   },
   {
@@ -237,30 +665,6 @@
     "named": false
   },
   {
-    "type": ":",
-    "named": false
-  },
-  {
-    "type": "%public",
-    "named": false
-  },
-  {
-    "type": "%inline",
-    "named": false
-  },
-  {
-    "type": "%prec",
-    "named": false
-  },
-  {
-    "type": "=",
-    "named": false
-  },
-  {
-    "type": "?",
-    "named": false
-  },
-  {
     "type": "*",
     "named": false
   },
@@ -269,11 +673,11 @@
     "named": false
   },
   {
-    "type": "let",
+    "type": ",",
     "named": false
   },
   {
-    "type": "==",
+    "type": ":",
     "named": false
   },
   {
@@ -281,35 +685,31 @@
     "named": false
   },
   {
-    "type": "_",
+    "type": ";",
     "named": false
   },
   {
-    "type": "~",
+    "type": "<",
     "named": false
   },
   {
-    "type": "line_comment",
-    "named": true
-  },
-  {
-    "type": "comment",
-    "named": true
-  },
-  {
-    "type": "%{",
+    "type": "=",
     "named": false
   },
   {
-    "type": "%}",
+    "type": "==",
     "named": false
   },
   {
-    "type": "{",
+    "type": ">",
     "named": false
   },
   {
-    "type": "}",
+    "type": "?",
+    "named": false
+  },
+  {
+    "type": "[",
     "named": false
   },
   {
@@ -321,23 +721,39 @@
     "named": false
   },
   {
-    "type": "%[@",
+    "type": "_",
     "named": false
   },
   {
-    "type": "<",
+    "type": "let",
     "named": false
   },
   {
-    "type": ">",
+    "type": "lid",
+    "named": true
+  },
+  {
+    "type": "qid",
+    "named": true
+  },
+  {
+    "type": "uid",
+    "named": true
+  },
+  {
+    "type": "{",
     "named": false
   },
   {
-    "type": "[",
+    "type": "|",
     "named": false
   },
   {
-    "type": "%",
+    "type": "}",
+    "named": false
+  },
+  {
+    "type": "~",
     "named": false
   }
 ]
