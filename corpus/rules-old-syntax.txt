@@ -81,7 +81,7 @@ Parameterized non terminal
       (producer
         (lid)
         (actual
-          (symbol (lid))
+          (funcall (lid))
           (lax_actual (symbol (lid)))
           (lax_actual (symbol (uid)))))
       (action (ocaml)))))

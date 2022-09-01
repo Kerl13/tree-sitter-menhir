@@ -46,6 +46,10 @@
           "named": true
         },
         {
+          "type": "funcall",
+          "named": true
+        },
+        {
           "type": "lax_actual",
           "named": true
         },
@@ -148,6 +152,29 @@
     "fields": {}
   },
   {
+    "type": "funcall",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "lid",
+          "named": true
+        },
+        {
+          "type": "qid",
+          "named": true
+        },
+        {
+          "type": "uid",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "grammar_attribute",
     "named": true,
     "fields": {},
@@ -187,6 +214,10 @@
       "types": [
         {
           "type": "actual",
+          "named": true
+        },
+        {
+          "type": "funcall",
           "named": true
         },
         {
@@ -482,6 +513,10 @@
       "required": true,
       "types": [
         {
+          "type": "funcall",
+          "named": true
+        },
+        {
           "type": "modifier",
           "named": true
         },
@@ -533,6 +568,10 @@
         },
         {
           "type": "expression",
+          "named": true
+        },
+        {
+          "type": "funcall",
           "named": true
         },
         {

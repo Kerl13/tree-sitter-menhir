@@ -1,6 +1,6 @@
 {
   "name": "tree-sitter-menhir",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Tree-sitter parser for menhir files",
   "main": "bindings/node",
   "repository": "https://github.com/Kerl13/tree-sitter-menhir",

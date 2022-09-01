@@ -171,7 +171,13 @@ module.exports = grammar({
     continuation: $ => seq(';', $.seq_expression),
 
     symbol_expression: $ => choice(
-      seq($.symbol, plist($.expression), repeat($.attribute)),
+      seq($.symbol, repeat($.attribute)),
+
+      seq(
+        alias($.symbol, $.funcall),
+        '(', separated_nonempty_list(',', $.expression), ')',
+        repeat($.attribute)
+      ),
 
       seq($.symbol_expression, $.modifier, repeat($.attribute))
     ),
@@ -272,7 +278,11 @@ function plist(rule) {
 
 function generic_actual($, rule_a, rule_b) {
   return choice(
-    seq($.symbol, plist(rule_a)),
+    seq($.symbol),
+    seq(
+      alias($.symbol, $.funcall),
+      '(', separated_nonempty_list(',', rule_a), ')'
+    ),
     seq(rule_b, $.modifier),
   )
 }
