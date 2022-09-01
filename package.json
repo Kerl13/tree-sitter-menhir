@@ -2,7 +2,7 @@
   "name": "tree-sitter-menhir",
   "version": "0.1.3",
   "description": "Tree-sitter parser for menhir files",
-  "main": "index.js",
+  "main": "bindings/node",
   "repository": "https://github.com/Kerl13/tree-sitter-menhir",
   "keywords": [
     "parser",
@@ -10,15 +10,15 @@
     "menhir"
   ],
   "scripts": {
-    "build": "tree-sitter generate && node-gyp build",
+    "build": "tree-sitter generate",
     "test": "tree-sitter test && script/run_menhir_test_suite.sh"
   },
   "author": "Martin Pépin",
   "license": "MIT",
   "dependencies": {
-    "nan": "^2.14.1"
+    "nan": "^2.16.0"
   },
   "devDependencies": {
-    "tree-sitter-cli": "^0.16.7"
+    "tree-sitter-cli": "^0.20.6"
   }
 }

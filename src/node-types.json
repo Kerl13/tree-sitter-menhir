@@ -725,11 +725,23 @@
     "named": false
   },
   {
+    "type": "comment",
+    "named": true
+  },
+  {
     "type": "let",
     "named": false
   },
   {
     "type": "lid",
+    "named": true
+  },
+  {
+    "type": "line_comment",
+    "named": true
+  },
+  {
+    "type": "ocaml_comment",
     "named": true
   },
   {
