@@ -16,9 +16,9 @@
   "author": "Martin Pépin",
   "license": "MIT",
   "dependencies": {
-    "nan": "^2.16.0"
+    "nan": "^2.17.0"
   },
   "devDependencies": {
-    "tree-sitter-cli": "^0.20.6"
+    "tree-sitter-cli": "^0.20.8"
   }
 }
