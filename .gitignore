@@ -1,3 +1,9 @@
-/node_modules
-/build
-/test_suite
+/node_modules/
+/build/
+/test_suite/
+/prebuilds/
+*.wasm
+.DS_Store
+/target/
+Cargo.lock
+package-lock.json

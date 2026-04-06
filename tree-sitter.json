@@ -1,0 +1,33 @@
+{
+  "grammars": [
+    {
+      "name": "menhir",
+      "camelcase": "Menhir",
+      "scope": "source.menhir",
+      "path": ".",
+      "file-types": ["mly"],
+      "highlights": "queries/highlights.scm",
+      "injections": "queries/injections.scm",
+      "injection-regex": "^(mly|menhir)$"
+    }
+  ],
+  "metadata": {
+    "version": "0.5.0",
+    "license": "MIT",
+    "description": "Menhir grammar for tree-sitter with OCaml language injection",
+    "links": {
+      "repository": "https://github.com/Kerl13/tree-sitter-menhir"
+    }
+  },
+  "parser": {
+    "abi-version": 14
+  },
+  "bindings": {
+    "c": true,
+    "node": true,
+    "rust": true,
+    "go": true,
+    "python": false,
+    "swift": false
+  }
+}
