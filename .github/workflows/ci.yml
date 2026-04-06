@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - grammar.js
+      - src/**
+      - test/**
+      - bindings/**
+      - binding.gyp
+      - .github/workflows/ci.yml
+  pull_request:
+    paths:
+      - grammar.js
+      - src/**
+      - test/**
+      - bindings/**
+      - binding.gyp
+      - .github/workflows/ci.yml
+  workflow_dispatch:
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test Parser
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-latest]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up tree-sitter
+        uses: tree-sitter/setup-action/cli@v2
+
+      - name: Run parser tests
+        uses: tree-sitter/parser-test-action@v3
+        with:
+          test-rust: ${{runner.os == 'Linux'}}
+          test-node: true
+          test-python: false
+          test-go: false
+          test-swift: false
+          node-version: '22'
+
+  parse-examples:
+    name: Parse Example Files
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-latest]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up tree-sitter
+        uses: tree-sitter/setup-action/cli@v2
+
+      - name: Parse example files
+        uses: tree-sitter/parse-action@v4
+        with:
+          files: test/examples/*.mly
+
+  parse-menhir-suite:
+    name: Parse Official Menhir Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up tree-sitter
+        uses: tree-sitter/setup-action/cli@v2
+
+      - name: Run Menhir test suite
+        run: bash script/parse_examples.sh
+
+  check-queries:
+    name: Check Queries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up tree-sitter
+        uses: tree-sitter/setup-action/cli@v2
+
+      - name: Test highlight queries
+        run: tree-sitter highlight queries/highlights.scm --check
+
+      - name: Test injection queries
+        run: tree-sitter highlight queries/injections.scm --check || true
