@@ -10,4 +10,4 @@ Postlude
 let s = List.fold_left ( + ) 0 [1; 2; 3]
 ---
 
-(source_file (ocaml_comment) (postlude (ocaml)))
+(source_file (postlude (ocaml)))

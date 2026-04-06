@@ -1,4 +1,5 @@
 {
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
   "name": "menhir",
   "rules": {
     "source_file": {
@@ -79,7 +80,7 @@
     },
     "qid": {
       "type": "PATTERN",
-      "value": "\"[\\x23-\\x5b\\x5d-\\x7e\\x20\\x21]+\""
+      "value": "\"([\\x20-\\x21\\x23-\\x5b\\x5d-\\x7e]|\\\\.)*\""
     },
     "symbol": {
       "type": "CHOICE",
@@ -1626,96 +1627,11 @@
     },
     "ocaml": {
       "type": "SYMBOL",
-      "name": "_ocaml"
-    },
-    "_ocaml": {
-      "type": "REPEAT1",
-      "content": {
-        "type": "CHOICE",
-        "members": [
-          {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "STRING",
-                "value": "{"
-              },
-              {
-                "type": "CHOICE",
-                "members": [
-                  {
-                    "type": "SYMBOL",
-                    "name": "_ocaml"
-                  },
-                  {
-                    "type": "BLANK"
-                  }
-                ]
-              },
-              {
-                "type": "STRING",
-                "value": "}"
-              }
-            ]
-          },
-          {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "STRING",
-                "value": "["
-              },
-              {
-                "type": "CHOICE",
-                "members": [
-                  {
-                    "type": "SYMBOL",
-                    "name": "_ocaml"
-                  },
-                  {
-                    "type": "BLANK"
-                  }
-                ]
-              },
-              {
-                "type": "STRING",
-                "value": "]"
-              }
-            ]
-          },
-          {
-            "type": "PATTERN",
-            "value": "\"([^\"\\\\]|\\x00|\\\\(.|\\n))*\""
-          },
-          {
-            "type": "PATTERN",
-            "value": "'([^'\\\\]|\\x00|\\\\[\\\\\"'ntbr ]|\\\\[0-9][0-9][0-9]|\\\\x[0-9A-Fa-f][0-9A-Fa-f]|\\\\o[0-3][0-7][0-7])'"
-          },
-          {
-            "type": "PATTERN",
-            "value": "'?[A-Za-z_][a-zA-Z0-9_']*"
-          },
-          {
-            "type": "PATTERN",
-            "value": "[^{}\\[\\]\"'%(A-Za-z_]+"
-          },
-          {
-            "type": "STRING",
-            "value": "%"
-          },
-          {
-            "type": "STRING",
-            "value": "("
-          }
-        ]
-      }
+      "name": "_ocaml_content"
     },
     "ocaml_type": {
-      "type": "REPEAT1",
-      "content": {
-        "type": "PATTERN",
-        "value": "->?|\\[>?|[^-\\[>]+"
-      }
+      "type": "SYMBOL",
+      "name": "_ocaml_type_content"
     }
   },
   "extras": [
@@ -1742,12 +1658,20 @@
     {
       "type": "SYMBOL",
       "name": "ocaml_comment"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_ocaml_content"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_ocaml_type_content"
     }
   ],
   "inline": [
     "rule",
     "continuation"
   ],
-  "supertypes": []
+  "supertypes": [],
+  "reserved": {}
 }
-

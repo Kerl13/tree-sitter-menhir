@@ -3,7 +3,11 @@
 #include <tree_sitter/parser.h>
 #include <wctype.h>
 
-enum TokenType { COMMENT };
+enum TokenType {
+  OCAML_COMMENT,       // OCaml comments: (* ... *)
+  OCAML_CONTENT,       // OCaml code block content
+  OCAML_TYPE_CONTENT,  // OCaml type expression content
+};
 
 typedef struct {
   size_t quoted_string_id_length;
@@ -37,6 +41,8 @@ static inline void quoted_string_id_push(Scanner *scanner, char c) {
 static inline void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
 
 static inline void skip(TSLexer *lexer) { lexer->advance(lexer, true); }
+
+static inline void mark_end(TSLexer *lexer) { lexer->mark_end(lexer); }
 
 static inline bool eof(TSLexer *lexer) { return lexer->eof(lexer); }
 
@@ -272,6 +278,173 @@ static bool scan_comment(Scanner *scanner, TSLexer *lexer) {
   }
 }
 
+// Scan OCaml code blocks: %{ %}, { }, [@ ], %[@ ], postlude
+static bool scan_ocaml_code_block(Scanner *scanner, TSLexer *lexer) {
+  int brace_depth = 0;
+  int bracket_depth = 0;
+  char last = 0;
+
+  for (;;) {
+    switch (lexer->lookahead) {
+      case '{':
+        if (last) last = 0;
+        else advance(lexer);
+        brace_depth++;
+        break;
+
+      case '}':
+        if (brace_depth == 0) {
+          // Closing delimiter found
+          return true;
+        }
+        if (last) last = 0;
+        else advance(lexer);
+        brace_depth--;
+        break;
+
+      case '[':
+        if (last) last = 0;
+        else advance(lexer);
+        bracket_depth++;
+        break;
+
+      case ']':
+        if (bracket_depth == 0 && brace_depth == 0) {
+          // Closing delimiter for [@
+          return true;
+        }
+        if (last) last = 0;
+        else advance(lexer);
+        if (bracket_depth > 0) bracket_depth--;
+        break;
+
+      case '%':
+        // Mark end before advancing, so token doesn't include closing delimiter
+        mark_end(lexer);
+        advance(lexer);
+        if (lexer->lookahead == '}') {
+          // Closing delimiter for %{
+          return true;
+        }
+        // Not %}, the % was already consumed, continue
+        break;
+
+      case '(':
+        if (last) {
+          last = 0;
+        } else {
+          advance(lexer);
+        }
+        scan_comment(scanner, lexer);
+        break;
+
+      case '"':
+        if (last) {
+          last = 0;
+        } else {
+          advance(lexer);
+        }
+        scan_string(lexer);
+        break;
+
+      case '\'':
+        if (last) {
+          last = 0;
+        } else {
+          advance(lexer);
+        }
+        last = scan_character(lexer);
+        break;
+
+      case '\0':
+        if (eof(lexer)) return true;
+        if (last) {
+          last = 0;
+        } else {
+          advance(lexer);
+        }
+        break;
+
+      default:
+        if (scan_identifier(lexer) || last) {
+          last = 0;
+        } else {
+          advance(lexer);
+        }
+    }
+    mark_end(lexer);
+  }
+}
+
+// Scan OCaml type expressions: < ... >
+static bool scan_ocaml_type_expr(Scanner *scanner, TSLexer *lexer) {
+  char last = 0;
+
+  // Check for empty type: <>
+  if (lexer->lookahead == '>') {
+    return false;  // Empty type
+  }
+
+  // No angle bracket depth tracking - OCaml types don't nest < >
+  // [< and [> are polymorphic variant markers, not angle brackets
+  for (;;) {
+    switch (lexer->lookahead) {
+      case '[':
+        // Could be [< or [> polymorphic variant marker
+        last = '[';
+        advance(lexer);
+        break;
+
+      case '-':
+        // Could be part of -> arrow operator
+        last = '-';
+        advance(lexer);
+        break;
+
+      case '<':
+        // Could be [< polymorphic variant marker
+        if (last == '[') {
+          // This is [<, not a nested angle bracket
+          last = 0;
+          advance(lexer);
+        } else {
+          last = 0;
+          advance(lexer);
+        }
+        break;
+
+      case '>':
+        // Check if this is part of ->, [>, or the closing delimiter
+        if (last == '-' || last == '[') {
+          // This is -> or [>, not the closing delimiter
+          last = 0;
+          advance(lexer);
+        } else {
+          // Closing delimiter found
+          return true;
+        }
+        break;
+
+      case '(':
+        last = 0;
+        advance(lexer);
+        scan_comment(scanner, lexer);
+        break;
+
+      case '\0':
+        if (eof(lexer)) return true;
+        last = 0;
+        advance(lexer);
+        break;
+
+      default:
+        last = 0;
+        advance(lexer);
+    }
+    mark_end(lexer);
+  }
+}
+
 void *tree_sitter_menhir_external_scanner_create() {
   Scanner *scanner = calloc(1, sizeof(Scanner));
   return scanner;
@@ -302,9 +475,22 @@ bool tree_sitter_menhir_external_scanner_scan(void *payload, TSLexer *lexer,
     skip(lexer);
   }
 
-  if (valid_symbols[COMMENT] && lexer->lookahead == '(') {
+  // Handle OCaml code blocks
+  if (valid_symbols[OCAML_CONTENT]) {
+    lexer->result_symbol = OCAML_CONTENT;
+    return scan_ocaml_code_block(scanner, lexer);
+  }
+
+  // Handle OCaml type expressions
+  if (valid_symbols[OCAML_TYPE_CONTENT]) {
+    lexer->result_symbol = OCAML_TYPE_CONTENT;
+    return scan_ocaml_type_expr(scanner, lexer);
+  }
+
+  // Handle OCaml comments
+  if (valid_symbols[OCAML_COMMENT] && lexer->lookahead == '(') {
     advance(lexer);
-    lexer->result_symbol = COMMENT;
+    lexer->result_symbol = OCAML_COMMENT;
     return scan_comment(scanner, lexer);
   }
 
