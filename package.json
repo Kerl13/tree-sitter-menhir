@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "install": "node-gyp-build",
-    "build": "tree-sitter generate",
+    "build": "tree-sitter generate --abi 14",
     "test": "node --test bindings/node/*_test.js",
     "test:corpus": "tree-sitter test",
     "test:examples": "bash script/parse_examples.sh",
@@ -32,7 +32,7 @@
     "eslint": "^9.15.0",
     "eslint-config-treesitter": "^1.0.2",
     "tree-sitter": "^0.25.0",
-    "tree-sitter-cli": "^0.25.0"
+    "tree-sitter-cli": "0.27.0"
   },
   "peerDependencies": {
     "tree-sitter": "^0.25.0"
