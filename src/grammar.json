@@ -1682,8 +1682,13 @@
       ]
     },
     "postlude": {
-      "type": "SYMBOL",
-      "name": "ocaml"
+      "type": "ALIAS",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_postlude_content"
+      },
+      "named": true,
+      "value": "ocaml"
     },
     "ocaml": {
       "type": "SYMBOL",
@@ -1726,6 +1731,10 @@
     {
       "type": "SYMBOL",
       "name": "_ocaml_type_content"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_postlude_content"
     }
   ],
   "inline": [

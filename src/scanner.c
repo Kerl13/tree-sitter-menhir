@@ -8,6 +8,7 @@ enum TokenType {
   OCAML_COMMENT,       // OCaml comments: (* ... *)
   OCAML_CONTENT,       // OCaml code block content
   OCAML_TYPE_CONTENT,  // OCaml type expression content
+  POSTLUDE_CONTENT,    // Everything after the second %%
 };
 
 typedef struct {
@@ -279,102 +280,93 @@ static bool scan_comment(Scanner *scanner, TSLexer *lexer) {
   }
 }
 
-// Scan OCaml code blocks: %{ %}, { }, [@ ], %[@ ], postlude
+// Scan OCaml code blocks: %{ %}, { }, [@ ], %[@ ].
+//
+// [last] holds a character that [scan_character] has already consumed
+// without finding a closing quote (as in the type variable 'a). That
+// character must still be examined, but must not be consumed twice.
 static bool scan_ocaml_code_block(Scanner *scanner, TSLexer *lexer) {
   int brace_depth = 0;
   int bracket_depth = 0;
   char last = 0;
 
   for (;;) {
-    switch (lexer->lookahead) {
+    int32_t c = last ? last : lexer->lookahead;
+    bool consumed = last != 0;
+    last = 0;
+
+    switch (c) {
       case '{':
-        if (last) last = 0;
-        else advance(lexer);
-        brace_depth++;
+        if (!consumed) advance(lexer);
+        // {|...|} and {id|...|id} are OCaml quoted strings, not braces.
+        if (scan_quoted_string(scanner, lexer)) {
+          advance(lexer);
+        } else {
+          brace_depth++;
+        }
         break;
 
       case '}':
-        if (brace_depth == 0) {
-          // Closing delimiter found
-          return true;
-        }
-        if (last) last = 0;
-        else advance(lexer);
+        if (brace_depth == 0) return true;  // closing delimiter of { }
+        if (!consumed) advance(lexer);
         brace_depth--;
         break;
 
       case '[':
-        if (last) last = 0;
-        else advance(lexer);
+        if (!consumed) advance(lexer);
         bracket_depth++;
         break;
 
       case ']':
         if (bracket_depth == 0 && brace_depth == 0) {
-          // Closing delimiter for [@
-          return true;
+          return true;  // closing delimiter of [@ ]
         }
-        if (last) last = 0;
-        else advance(lexer);
+        if (!consumed) advance(lexer);
         if (bracket_depth > 0) bracket_depth--;
         break;
 
       case '%':
-        // Mark end before advancing, so token doesn't include closing delimiter
-        mark_end(lexer);
-        advance(lexer);
-        if (lexer->lookahead == '}') {
-          // Closing delimiter for %{
-          return true;
+        if (!consumed) {
+          // Mark the end first, so that %} is not part of the token.
+          mark_end(lexer);
+          advance(lexer);
+          if (lexer->lookahead == '}') return true;  // closing %}
         }
-        // Not %}, the % was already consumed, continue
         break;
 
       case '(':
-        if (last) {
-          last = 0;
-        } else {
-          advance(lexer);
-        }
+        if (!consumed) advance(lexer);
         scan_comment(scanner, lexer);
         break;
 
       case '"':
-        if (last) {
-          last = 0;
-        } else {
-          advance(lexer);
-        }
+        if (!consumed) advance(lexer);
         scan_string(lexer);
         break;
 
       case '\'':
-        if (last) {
-          last = 0;
-        } else {
-          advance(lexer);
-        }
+        if (!consumed) advance(lexer);
         last = scan_character(lexer);
         break;
 
       case '\0':
         if (eof(lexer)) return true;
-        if (last) {
-          last = 0;
-        } else {
-          advance(lexer);
-        }
+        if (!consumed) advance(lexer);
         break;
 
       default:
-        if (scan_identifier(lexer) || last) {
-          last = 0;
-        } else {
-          advance(lexer);
-        }
+        if (!consumed && !scan_identifier(lexer)) advance(lexer);
     }
     mark_end(lexer);
   }
+}
+
+// Scan the postlude: everything after the second %%, up to end of file.
+static bool scan_postlude(TSLexer *lexer) {
+  if (eof(lexer)) return false;
+  while (!eof(lexer)) advance(lexer);
+  mark_end(lexer);
+  return true;
 }
 
 // Scan OCaml type expressions: < ... >
@@ -476,18 +468,29 @@ bool tree_sitter_menhir_external_scanner_scan(void *payload, TSLexer *lexer,
                                               const bool *valid_symbols) {
   Scanner *scanner = (Scanner *)payload;
 
+  // During error recovery every symbol is valid. Do not let the greedy
+  // content scanners swallow the rest of the file; only comments are safe.
+  bool error_recovery = valid_symbols[OCAML_CONTENT] &&
+                        valid_symbols[OCAML_TYPE_CONTENT] &&
+                        valid_symbols[POSTLUDE_CONTENT];
+
   while (iswspace(lexer->lookahead)) {
     skip(lexer);
   }
 
+  if (!error_recovery && valid_symbols[POSTLUDE_CONTENT]) {
+    lexer->result_symbol = POSTLUDE_CONTENT;
+    return scan_postlude(lexer);
+  }
+
   // Handle OCaml code blocks
-  if (valid_symbols[OCAML_CONTENT]) {
+  if (!error_recovery && valid_symbols[OCAML_CONTENT]) {
     lexer->result_symbol = OCAML_CONTENT;
     return scan_ocaml_code_block(scanner, lexer);
   }
 
   // Handle OCaml type expressions
-  if (valid_symbols[OCAML_TYPE_CONTENT]) {
+  if (!error_recovery && valid_symbols[OCAML_TYPE_CONTENT]) {
     lexer->result_symbol = OCAML_TYPE_CONTENT;
     return scan_ocaml_type_expr(scanner, lexer);
   }

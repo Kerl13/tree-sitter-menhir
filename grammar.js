@@ -19,6 +19,7 @@ module.exports = grammar({
     $.ocaml_comment, // OCaml-style comments: (* ... *)
     $._ocaml_content, // OCaml code block content (external scanner)
     $._ocaml_type_content, // OCaml type expression content (external scanner)
+    $._postlude_content, // Everything after the second %% (external scanner)
   ],
 
   rules: {
@@ -261,7 +262,8 @@ module.exports = grammar({
       '>',
     ),
 
-    postlude: $ => $.ocaml,
+    // Menhir treats everything after the second %% as the postlude.
+    postlude: $ => alias($._postlude_content, $.ocaml),
 
     // OCaml code injection - external scanner tokenizes the content
     // which will be parsed by tree-sitter-ocaml grammar via injection
