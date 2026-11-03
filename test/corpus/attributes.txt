@@ -1,0 +1,90 @@
+==================
+Attributes on tokens, rules and producers
+==================
+
+%token A "a" [@foo "foo"] [@a 0]
+%token B [@foo.bar "foo"]
+%attribute main [@cost 0]
+%[@claim "this is a grammar attribute"]
+%%
+
+main [@main ()] [@cost 0]:
+  A B [@producer true] { () }
+
+---
+
+(source_file
+  (declaration
+    (terminal_alias_attrs
+      (uid)
+      (qid)
+      (attribute
+        (ocaml))
+      (attribute
+        (ocaml))))
+  (declaration
+    (terminal_alias_attrs
+      (uid)
+      (attribute
+        (ocaml))))
+  (declaration
+    (strict_actual
+      (symbol
+        (lid)))
+    (attribute
+      (ocaml)))
+  (declaration
+    (grammar_attribute
+      (ocaml)))
+  (old_rule
+    (symbol
+      (lid))
+    (attribute
+      (ocaml))
+    (attribute
+      (ocaml))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (producer
+        (actual
+          (symbol
+            (uid)))
+        (attribute
+          (ocaml)))
+      (action
+        (ocaml)))))
+
+==================
+Attribute payloads with brackets and strings
+==================
+
+%token RBRACKET [@symbol "]"] [@list [1; 2; [3]]]
+%%
+
+main: RBRACKET [@x {| ] |}] { () }
+
+---
+
+(source_file
+  (declaration
+    (terminal_alias_attrs
+      (uid)
+      (attribute
+        (ocaml))
+      (attribute
+        (ocaml))))
+  (old_rule
+    (symbol
+      (lid))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid)))
+        (attribute
+          (ocaml)))
+      (action
+        (ocaml)))))
