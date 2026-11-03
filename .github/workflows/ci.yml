@@ -7,16 +7,24 @@ on:
       - grammar.js
       - src/**
       - test/**
+      - queries/**
       - bindings/**
       - binding.gyp
+      - script/**
+      - Makefile
+      - package.json
       - .github/workflows/ci.yml
   pull_request:
     paths:
       - grammar.js
       - src/**
       - test/**
+      - queries/**
       - bindings/**
       - binding.gyp
+      - script/**
+      - Makefile
+      - package.json
       - .github/workflows/ci.yml
   workflow_dispatch:
 
@@ -24,94 +32,142 @@ concurrency:
   group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: true
 
-env:
-  # Pinned so generated output cannot drift with upstream releases.
-  TREE_SITTER_VERSION: v0.27.0
-  TS_ABI_VERSION: '14'
-
 jobs:
+  versions:
+    # Versions come from the Makefile; other jobs read them from here.
+    name: Resolve Versions
+    runs-on: ubuntu-latest
+    outputs:
+      tree-sitter: ${{steps.read.outputs.tree-sitter}}
+      abi: ${{steps.read.outputs.abi}}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Read versions from the Makefile
+        id: read
+        run: |
+          {
+            echo "tree-sitter=$(make ts-version)"
+            echo "abi=$(make abi-version)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Check the copies that cannot be derived
+        run: |
+          set -eu
+          abi=$(make abi-version)
+          ts=$(make ts-version)
+
+          # package.json can't read the Makefile, so check it matches.
+          pinned=$(jq -r '.devDependencies["tree-sitter-cli"]' package.json)
+          if [ "$pinned" != "${ts#v}" ]; then
+            echo "package.json pins tree-sitter-cli $pinned, Makefile says $ts" >&2
+            exit 1
+          fi
+
+          # Emacs loads the committed parser, so it must be at the pinned ABI.
+          built=$(sed -n 's/#define LANGUAGE_VERSION //p' src/parser.c)
+          if [ "$built" != "$abi" ]; then
+            echo "src/parser.c is ABI $built, Makefile says $abi" >&2
+            echo "run 'make generate' and commit the result" >&2
+            exit 1
+          fi
+
   test:
     name: Test Parser
+    needs: versions
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-14, windows-latest]
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-2022 # newer windows requires newer node requires newer ABI
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Set up tree-sitter
         uses: tree-sitter/setup-action/cli@v2
         with:
-          tree-sitter-ref: ${{env.TREE_SITTER_VERSION}}
-
-      - name: Report tree-sitter version
-        run: tree-sitter --version
-        shell: bash
+          tree-sitter-ref: ${{needs.versions.outputs.tree-sitter}}
 
       - name: Run parser tests
         uses: tree-sitter/parser-test-action@v3
         with:
           generate: true
-          abi-version: ${{env.TS_ABI_VERSION}}
+          abi-version: ${{needs.versions.outputs.abi}}
+          node-version: '20'
           test-rust: ${{runner.os == 'Linux'}}
           test-node: true
           test-python: false
-          test-go: false
+          test-go: true
           test-swift: false
-          node-version: '22'
 
   parse-examples:
-    name: Parse Example Files
+    name: Parse Examples
+    needs: versions
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-14, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Set up tree-sitter
         uses: tree-sitter/setup-action/cli@v2
         with:
-          tree-sitter-ref: ${{env.TREE_SITTER_VERSION}}
+          tree-sitter-ref: ${{needs.versions.outputs.tree-sitter}}
+
+      - name: Generate parser
+        run: make generate
 
       - name: Parse example files
         uses: tree-sitter/parse-action@v4
         with:
           files: test/examples/*.mly
 
-  parse-menhir-suite:
-    name: Parse Official Menhir Test Suite
+  menhir-suite:
+    name: Parse Menhir Test Suite
+    needs: versions
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Set up tree-sitter
         uses: tree-sitter/setup-action/cli@v2
         with:
-          tree-sitter-ref: ${{env.TREE_SITTER_VERSION}}
+          tree-sitter-ref: ${{needs.versions.outputs.tree-sitter}}
 
-      - name: Run Menhir test suite
+      - name: Generate parser
+        run: make generate
+
+      - name: Parse the Menhir test suite
         run: bash script/parse_examples.sh
 
   check-queries:
     name: Check Queries
+    needs: versions
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Set up tree-sitter
         uses: tree-sitter/setup-action/cli@v2
         with:
-          tree-sitter-ref: ${{env.TREE_SITTER_VERSION}}
+          tree-sitter-ref: ${{needs.versions.outputs.tree-sitter}}
 
-      - name: Test highlight queries
-        run: tree-sitter highlight queries/highlights.scm --check
+      - name: Generate parser
+        run: make generate
 
-      - name: Test injection queries
-        run: tree-sitter highlight queries/injections.scm --check || true
+      # Fails on a query that names a node type the grammar does not have.
+      - name: Check queries against the grammar
+        run: |
+          for query in queries/*.scm; do
+            tree-sitter query "$query" test/examples/*.mly > /dev/null
+          done

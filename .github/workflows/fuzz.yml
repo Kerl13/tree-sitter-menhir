@@ -1,0 +1,39 @@
+name: Fuzz Parser
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - grammar.js
+      - src/parser.c
+      - src/scanner.c
+      - Makefile
+  pull_request:
+    paths:
+      - grammar.js
+      - src/parser.c
+      - src/scanner.c
+      - Makefile
+  workflow_dispatch:
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
+
+jobs:
+  fuzz:
+    name: Fuzz
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Read the tree-sitter version from the Makefile
+        id: versions
+        run: echo "tree-sitter=$(make ts-version)" >> "$GITHUB_OUTPUT"
+
+      - name: Fuzz parser
+        uses: tree-sitter/fuzz-action@v4
+        with:
+          tree-sitter-version: ${{steps.versions.outputs.tree-sitter}}
+          language: menhir

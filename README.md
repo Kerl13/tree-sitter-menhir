@@ -84,8 +84,9 @@ OCaml code in actions, headers, and attributes will have full syntax highlightin
 ## Development
 
 The versions of the tree-sitter CLI and the parser ABI are pinned in the
-`Makefile`. The ABI is 14 because most Emacs builds cannot load ABI 15 yet.
-`package.json` pins the same tree-sitter CLI.
+`Makefile`, and CI reads them from there. The ABI is 14 because most Emacs
+builds cannot load ABI 15 yet. `package.json` pins the same tree-sitter CLI,
+and CI checks that the two agree.
 
 ```bash
 npm install            # Install dependencies (tree-sitter CLI, eslint)
