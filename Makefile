@@ -7,11 +7,19 @@ DESCRIPTION := Menhir grammar for tree-sitter with OCaml language injection
 SRC_DIR := src
 
 TS ?= tree-sitter
+MENHIR ?= menhir
+PYTHON ?= python3
 
 # Only place the versions are set; CI reads them via the targets below.
 # ABI 14 because most Emacs builds can't load ABI 15 yet.
 TREE_SITTER_VERSION := v0.27.0
 TS_ABI_VERSION := 14
+# The Menhir release the grammar is checked against (the opam version), and
+# the commit of https://gitlab.inria.fr/fpottier/menhir for that release.
+# Release tags are stripped of the test suite, hence the separate commit.
+# Use MENHIR_REF=master to check against unreleased Menhir.
+MENHIR_VERSION := 20260209
+MENHIR_REF ?= 5e79dfee539a00518a4c99bf16961154d02e10a0
 
 # install directory layout
 PREFIX ?= /usr/local
@@ -122,6 +130,17 @@ test:
 generate:
 	$(TS) generate --abi $(TS_ABI_VERSION)
 
+# Parse Menhir's own .mly files: every valid one must parse cleanly, and
+# every one that Menhir rejects with a syntax error must produce an error.
+test-menhir:
+	TS='$(TS)' MENHIR_REF='$(MENHIR_REF)' script/parse-menhir-suite.sh
+
+# Check tokens, start symbols and rule names against the menhir binary.
+compare-menhir:
+	TS='$(TS)' MENHIR_REF='$(MENHIR_REF)' script/parse-menhir-suite.sh --fetch-only
+	$(PYTHON) -I script/compare-with-menhir.py --menhir '$(MENHIR)' --tree-sitter '$(TS)' \
+		$$(find test_suite/menhir-$(MENHIR_REF) -name '*.mly' -not -path '*/bad/*' | sort)
+
 # Read by the CI workflows.
 abi-version:
 	@echo $(TS_ABI_VERSION)
@@ -129,4 +148,11 @@ abi-version:
 ts-version:
 	@echo $(TREE_SITTER_VERSION)
 
-.PHONY: all install uninstall clean test generate abi-version ts-version
+menhir-version:
+	@echo $(MENHIR_VERSION)
+
+menhir-ref:
+	@echo $(MENHIR_REF)
+
+.PHONY: all install uninstall clean test generate test-menhir compare-menhir \
+	abi-version ts-version menhir-version menhir-ref

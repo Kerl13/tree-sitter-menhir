@@ -40,6 +40,7 @@ jobs:
     outputs:
       tree-sitter: ${{steps.read.outputs.tree-sitter}}
       abi: ${{steps.read.outputs.abi}}
+      menhir: ${{steps.read.outputs.menhir}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -50,6 +51,7 @@ jobs:
           {
             echo "tree-sitter=$(make ts-version)"
             echo "abi=$(make abi-version)"
+            echo "menhir=$(make menhir-version)"
           } >> "$GITHUB_OUTPUT"
 
       - name: Check the copies that cannot be derived
@@ -131,6 +133,8 @@ jobs:
           files: test/examples/*.mly
 
   menhir-suite:
+    # Every valid .mly file in Menhir's sources and test suite must parse,
+    # and every one Menhir rejects with a syntax error must not.
     name: Parse Menhir Test Suite
     needs: versions
     runs-on: ubuntu-latest
@@ -147,7 +151,35 @@ jobs:
         run: make generate
 
       - name: Parse the Menhir test suite
-        run: bash script/parse_examples.sh
+        run: make test-menhir
+
+  compare-menhir:
+    # Cross-check tokens, start symbols and rule names with Menhir itself.
+    name: Compare With Menhir ${{needs.versions.outputs.menhir}}
+    needs: versions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up tree-sitter
+        uses: tree-sitter/setup-action/cli@v2
+        with:
+          tree-sitter-ref: ${{needs.versions.outputs.tree-sitter}}
+
+      - name: Set up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: '5'
+
+      - name: Install Menhir
+        run: opam install --yes menhir.${{needs.versions.outputs.menhir}}
+
+      - name: Generate parser
+        run: make generate
+
+      - name: Compare with Menhir
+        run: opam exec -- make compare-menhir
 
   check-queries:
     name: Check Queries
