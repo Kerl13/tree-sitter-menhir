@@ -26,6 +26,7 @@
     "c": true,
     "node": true,
     "python": true,
-    "rust": true
+    "rust": true,
+    "swift": false
   }
 }

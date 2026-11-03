@@ -23,9 +23,6 @@ dist/
 __pycache__/
 *.pyc
 
-# Swift
-.build/
-
 # Menhir sources used for testing
 /test_suite/
 
