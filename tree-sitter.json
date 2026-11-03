@@ -25,9 +25,7 @@
   "bindings": {
     "c": true,
     "node": true,
-    "rust": true,
-    "go": true,
-    "python": false,
-    "swift": false
+    "python": true,
+    "rust": true
   }
 }

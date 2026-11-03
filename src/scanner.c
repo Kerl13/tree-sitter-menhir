@@ -1,6 +1,7 @@
 #include <assert.h>
+#include <stdlib.h>
 #include <string.h>
-#include <tree_sitter/parser.h>
+#include "tree_sitter/parser.h"
 #include <wctype.h>
 
 enum TokenType {
@@ -445,7 +446,7 @@ static bool scan_ocaml_type_expr(Scanner *scanner, TSLexer *lexer) {
   }
 }
 
-void *tree_sitter_menhir_external_scanner_create() {
+void *tree_sitter_menhir_external_scanner_create(void) {
   Scanner *scanner = calloc(1, sizeof(Scanner));
   return scanner;
 }
@@ -458,13 +459,17 @@ void tree_sitter_menhir_external_scanner_destroy(void *payload) {
 
 unsigned tree_sitter_menhir_external_scanner_serialize(void *payload,
                                                        char *buffer) {
+  (void)payload;
+  (void)buffer;
   return 0;
 }
 
 void tree_sitter_menhir_external_scanner_deserialize(void *payload,
                                                      const char *buffer,
                                                      unsigned length) {
-  return;
+  (void)payload;
+  (void)buffer;
+  (void)length;
 }
 
 bool tree_sitter_menhir_external_scanner_scan(void *payload, TSLexer *lexer,
