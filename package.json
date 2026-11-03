@@ -4,7 +4,6 @@
   "description": "Tree-sitter parser for Menhir files with OCaml language injection",
   "main": "bindings/node",
   "types": "bindings/node",
-  "repository": "https://github.com/Kerl13/tree-sitter-menhir",
   "keywords": [
     "parser",
     "ocaml",
@@ -12,18 +11,15 @@
     "tree-sitter",
     "incremental"
   ],
-  "scripts": {
-    "install": "node-gyp-build",
-    "build": "tree-sitter generate --abi 14",
-    "test": "node --test bindings/node/*_test.js",
-    "test:corpus": "tree-sitter test",
-    "test:examples": "bash script/parse_examples.sh",
-    "lint": "eslint grammar.js",
-    "prestart": "tree-sitter build --wasm",
-    "start": "tree-sitter playground"
-  },
   "author": "Martin Pépin",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kerl13/tree-sitter-menhir.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Kerl13/tree-sitter-menhir/issues"
+  },
   "dependencies": {
     "node-addon-api": "^8.0.0",
     "node-gyp-build": "^4.8.0"
@@ -31,6 +27,7 @@
   "devDependencies": {
     "eslint": "^9.15.0",
     "eslint-config-treesitter": "^1.0.2",
+    "prebuildify": "^6.0.1",
     "tree-sitter": "^0.25.0",
     "tree-sitter-cli": "0.27.0"
   },
@@ -46,9 +43,18 @@
     "grammar.js",
     "tree-sitter.json",
     "binding.gyp",
-    "bindings/**",
+    "prebuilds/**",
+    "bindings/node/*",
     "queries/*",
-    "src/**",
-    "Cargo.toml"
-  ]
+    "src/**"
+  ],
+  "scripts": {
+    "install": "node-gyp-build",
+    "generate": "make generate",
+    "lint": "eslint grammar.js",
+    "prebuildify": "prebuildify --napi --strip",
+    "prestart": "tree-sitter build --wasm",
+    "start": "tree-sitter playground",
+    "test": "node --test bindings/node/*_test.js"
+  }
 }

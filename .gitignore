@@ -1,9 +1,33 @@
+# Node
 /node_modules/
 /build/
-/test_suite/
 /prebuilds/
 *.wasm
-.DS_Store
+
+# Rust
 /target/
 Cargo.lock
-package-lock.json
+
+# C (Makefile, CMake)
+*.o
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.pc
+
+# Python
+*.egg-info/
+dist/
+__pycache__/
+*.pyc
+
+# Swift
+.build/
+
+# Menhir sources used for testing
+/test_suite/
+
+.direnv/
+.DS_Store

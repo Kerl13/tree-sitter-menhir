@@ -83,20 +83,17 @@ OCaml code in actions, headers, and attributes will have full syntax highlightin
 
 ## Development
 
+The versions of the tree-sitter CLI and the parser ABI are pinned in the
+`Makefile`. The ABI is 14 because most Emacs builds cannot load ABI 15 yet.
+`package.json` pins the same tree-sitter CLI.
+
 ```bash
-# Install dependencies
-npm install
-
-# Generate parser
-npm run build
-
-# Run tests
-npm run test:corpus    # Corpus tests
-npm run test           # Node binding tests
-npm run test:examples  # Parse real Menhir files
-
-# Start playground
-npm start
+npm install            # Install dependencies (tree-sitter CLI, eslint)
+make generate          # Regenerate src/ from grammar.js at the pinned ABI
+make test              # Corpus tests
+npm test               # Node binding tests
+npm run lint           # Lint grammar.js
+npm start              # Playground
 ```
 
 ## Testing
