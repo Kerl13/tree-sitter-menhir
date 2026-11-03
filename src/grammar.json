@@ -411,6 +411,10 @@
           ]
         },
         {
+          "type": "SYMBOL",
+          "name": "merge_function"
+        },
+        {
           "type": "STRING",
           "value": ";"
         }
@@ -592,6 +596,18 @@
           ]
         },
         {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "merge_function"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
           "type": "REPEAT",
           "content": {
             "type": "STRING",
@@ -731,6 +747,13 @@
               "type": "BLANK"
             }
           ]
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "attribute"
+          }
         }
       ]
     },
@@ -744,6 +767,19 @@
         {
           "type": "SYMBOL",
           "name": "symbol"
+        }
+      ]
+    },
+    "merge_function": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "%merge"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action"
         }
       ]
     },
@@ -1143,6 +1179,18 @@
         {
           "type": "SYMBOL",
           "name": "expression"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "merge_function"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         }
       ]
     },
@@ -1357,37 +1405,49 @@
       ]
     },
     "action_expression": {
-      "type": "CHOICE",
+      "type": "SEQ",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "menhir_action"
-        },
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "precedence"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "menhir_action"
-            }
-          ]
-        },
-        {
-          "type": "SEQ",
+          "type": "CHOICE",
           "members": [
             {
               "type": "SYMBOL",
               "name": "menhir_action"
             },
             {
-              "type": "SYMBOL",
-              "name": "precedence"
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "precedence"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "menhir_action"
+                }
+              ]
+            },
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "menhir_action"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "precedence"
+                }
+              ]
             }
           ]
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "attribute"
+          }
         }
       ]
     },

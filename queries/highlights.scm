@@ -16,6 +16,7 @@
   "%public"
   "%inline"
   "%prec"
+  "%merge"
   "let"
 ] @keyword
 
