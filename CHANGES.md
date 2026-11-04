@@ -1,4 +1,4 @@
-# Unreleased
+# 0.6.0 (2026-11-04)
 - #2: Support Menhir 20260209: `%merge` functions for the GLR back-end, and
   attributes after semantic actions
 - #2: Fix the scanning of embedded OCaml: a type variable before a closing
@@ -7,6 +7,8 @@
 - #2: Regenerate the bindings with tree-sitter CLI 0.27.0 at ABI 14, adding Go,
   Python and C bindings. The Rust crate now exposes `LANGUAGE` in place of
   `language()`
+- #3: Add this changelog, and a CI check that pull requests update it
+- #4: Stop publishing releases to npm
 
 # 0.5.0 (2026-04-06)
 First release from tmcgilchrist/tree-sitter-menhir, which takes over

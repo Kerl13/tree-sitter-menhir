@@ -1,6 +1,6 @@
 LANGUAGE_NAME := tree-sitter-menhir
 HOMEPAGE_URL := https://github.com/Kerl13/tree-sitter-menhir
-VERSION := 0.5.0
+VERSION := 0.6.0
 DESCRIPTION := Menhir grammar for tree-sitter with OCaml language injection
 
 # repository

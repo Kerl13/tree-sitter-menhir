@@ -12,7 +12,7 @@
     }
   ],
   "metadata": {
-    "version": "0.5.0",
+    "version": "0.6.0",
     "license": "MIT",
     "description": "Menhir grammar for tree-sitter with OCaml language injection",
     "links": {

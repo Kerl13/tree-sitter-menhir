@@ -22,9 +22,8 @@
 
 ### npm
 
-```bash
-npm install tree-sitter-menhir
-```
+Releases are not published to npm. The `tree-sitter-menhir` package there
+is the last upstream release, 0.4.0, which predates this repository.
 
 ### Cargo
 
