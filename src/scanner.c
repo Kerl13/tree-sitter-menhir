@@ -298,12 +298,9 @@ static bool scan_ocaml_code_block(Scanner *scanner, TSLexer *lexer) {
     switch (c) {
       case '{':
         if (!consumed) advance(lexer);
-        // {|...|} and {id|...|id} are OCaml quoted strings, not braces.
-        if (scan_quoted_string(scanner, lexer)) {
-          advance(lexer);
-        } else {
-          brace_depth++;
-        }
+        // Like Menhir, count every brace, even those of an OCaml quoted
+        // string {|...|}: Menhir's lexer does not know about them.
+        brace_depth++;
         break;
 
       case '}':
