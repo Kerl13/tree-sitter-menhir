@@ -1,6 +1,6 @@
 # tree-sitter-menhir
 
-[![CI](https://github.com/Kerl13/tree-sitter-menhir/actions/workflows/ci.yml/badge.svg)](https://github.com/Kerl13/tree-sitter-menhir/actions/workflows/ci.yml)
+[![CI](https://github.com/tmcgilchrist/tree-sitter-menhir/actions/workflows/ci.yml/badge.svg)](https://github.com/tmcgilchrist/tree-sitter-menhir/actions/workflows/ci.yml)
 
 [Menhir](http://gallium.inria.fr/~fpottier/menhir/) grammar for [tree-sitter](https://github.com/tree-sitter/tree-sitter)
 

@@ -1,0 +1,16 @@
+name: Check Changelog
+
+on:
+  pull_request:
+    types: [assigned, opened, synchronize, reopened, labeled, unlabeled]
+    branches: [ master ]
+
+jobs:
+  check-changelog:
+    name: Check Changelog
+    runs-on: ubuntu-slim
+    steps:
+      - uses: tarides/changelog-check-action@v4
+        with:
+          changelog: CHANGES.md
+          labels: "no changelog"
