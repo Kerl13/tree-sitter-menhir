@@ -1,4 +1,4 @@
-# 0.6.1 (unreleased)
+# 0.6.1 (2026-11-05)
 Find the end of embedded OCaml code as Menhir's lexer does, so that tree-sitter
 accepts the files that Menhir accepts, and rejects the others.
 - #5: Count the braces of OCaml quoted strings in actions. Menhir does not know
