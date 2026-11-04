@@ -74,7 +74,7 @@
     "fields": {},
     "children": {
       "multiple": false,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "ocaml",
@@ -188,7 +188,7 @@
     "fields": {},
     "children": {
       "multiple": false,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "ocaml",
@@ -335,11 +335,6 @@
         }
       ]
     }
-  },
-  {
-    "type": "ocaml",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "ocaml_type",
@@ -812,6 +807,10 @@
     "type": "line_comment",
     "named": true,
     "extra": true
+  },
+  {
+    "type": "ocaml",
+    "named": true
   },
   {
     "type": "ocaml_comment",

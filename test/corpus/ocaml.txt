@@ -253,3 +253,160 @@ let g = "%}"
         (ocaml))))
   (postlude
     (ocaml)))
+
+==================
+Parentheses, braces and brackets nest in OCaml code
+==================
+
+%{
+  let r = { contents = (1, [2]) }
+%}
+%%
+
+main:
+| A { (fun () -> { contents = (1) }) () |> ignore } [@a ({x}) [y]]
+
+---
+
+(source_file
+  (declaration
+    (header
+      (ocaml)))
+  (old_rule
+    (symbol
+      (lid))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml))
+      (attribute
+        (ocaml)))))
+
+==================
+An unclosed parenthesis in an action is an error, as in Menhir
+:error
+==================
+
+%%
+
+main:
+| A { (2 }
+
+---
+
+
+
+==================
+A closing parenthesis in an action is an error, as in Menhir
+:error
+==================
+
+%%
+
+main:
+| A { ) }
+
+---
+
+
+
+==================
+An unclosed parenthesis in a header is an error, as in Menhir
+:error
+==================
+
+%{
+  let x = (
+%}
+%%
+
+---
+
+
+
+==================
+An unclosed parenthesis in an attribute is an error, as in Menhir
+:error
+==================
+
+%%
+
+main:
+| A { () } [@a ( ]
+
+---
+
+
+
+==================
+Escaped character literals in actions
+==================
+
+%%
+
+main:
+| A { '\}' }
+| B { '\(' }
+| C { '\125' }
+| D { '\x7d' }
+
+---
+
+(source_file
+  (old_rule
+    (symbol
+      (lid))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml)))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml)))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml)))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml)))))
+
+==================
+Quoted strings are not special in comments in actions, as in Menhir
+==================
+
+%%
+
+main:
+| A { (* {| *) () }
+
+---
+
+(source_file
+  (old_rule
+    (symbol
+      (lid))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml)))))

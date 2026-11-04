@@ -105,9 +105,11 @@ The grammar is tested at several levels:
   (`make test`).
 - Menhir's own sources and test suite, at the commit of the pinned release
   (`make test-menhir`). Every valid `.mly` file (480 of them) must parse without
-  errors, and every file that Menhir rejects with a syntax error must produce
-  an error. Use `make test-menhir MENHIR_REF=master` to try unreleased Menhir;
-  CI does this weekly.
+  errors. Of the files that Menhir rejects, every one with a syntax or lexical
+  error (75 of them) must produce an error, and the others (124, with errors
+  such as an undefined symbol) must parse without errors. Use
+  `make test-menhir MENHIR_REF=master` to try unreleased Menhir; CI does this
+  weekly.
 - A comparison with the `menhir` binary itself (`make compare-menhir`, needs
   `menhir` on the `PATH`). For each file, the declared tokens, start symbols and
   rule names seen by tree-sitter must match what `menhir --only-preprocess-u`

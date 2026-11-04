@@ -17,9 +17,14 @@ module.exports = grammar({
 
   externals: $ => [
     $.ocaml_comment, // OCaml-style comments: (* ... *)
-    $._ocaml_content, // OCaml code block content (external scanner)
+    $._action_content, // OCaml code in { }
+    $._header_content, // OCaml code in %{ %}
+    $._attribute_content, // Key and payload of [@ ] and %[@ ]
     $._ocaml_type_content, // OCaml type expression content (external scanner)
     $._postlude_content, // Everything after the second %% (external scanner)
+    // A % followed by identifier characters that do not form a directive,
+    // as in %tokenA. Used nowhere, so that it is always a syntax error.
+    $._unknown_directive,
   ],
 
   rules: {
@@ -43,8 +48,9 @@ module.exports = grammar({
 
     lid: $ => RegExp(lowercase + identchar + '*'),
     uid: $ => RegExp(uppercase + identchar + '*'),
-    // Quoted identifier - allows escape sequences like \" inside
-    qid: $ => /"([\x20-\x21\x23-\x5b\x5d-\x7e]|\\.)*"/,
+    // Quoted identifier (a token alias), with the escape sequences that
+    // Menhir allows. Menhir rejects \n and a newline.
+    qid: $ => /"([^"\\\n\r]|\\[\\'"tbr ])*"/,
     symbol: $ => choice($.lid, $.uid, $.qid),
 
     // Declarations
@@ -234,25 +240,26 @@ module.exports = grammar({
 
     header: $ => seq(
       '%{',
-      optional($.ocaml),
+      optional(alias($._header_content, $.ocaml)),
       '%}',
     ),
 
     action: $ => seq(
       '{',
-      optional($.ocaml),
+      optional(alias($._action_content, $.ocaml)),
       '}',
     ),
 
+    // Menhir requires a key right after [@.
     attribute: $ => seq(
       '[@',
-      optional($.ocaml),
+      alias($._attribute_content, $.ocaml),
       ']',
     ),
 
     grammar_attribute: $ => seq(
       '%[@',
-      optional($.ocaml),
+      alias($._attribute_content, $.ocaml),
       ']',
     ),
 
@@ -264,10 +271,6 @@ module.exports = grammar({
 
     // Menhir treats everything after the second %% as the postlude.
     postlude: $ => alias($._postlude_content, $.ocaml),
-
-    // OCaml code injection - external scanner tokenizes the content
-    // which will be parsed by tree-sitter-ocaml grammar via injection
-    ocaml: $ => $._ocaml_content,
 
     // OCaml type injection - external scanner tokenizes the content
     // which will be parsed by tree-sitter-ocaml/grammars/type via injection
