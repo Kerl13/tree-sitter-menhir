@@ -16,14 +16,14 @@ Type variable before a closing brace in a header
       (ocaml))))
 
 ==================
-Quoted strings in actions
+Braces in OCaml quoted strings count, as in Menhir
 ==================
 
 %%
 
 main:
-| A { {| } ] %} |} }
-| B { {id| } |} |id} }
+| A { ignore {|x|}; () }
+| B { ignore {| { |} }; () }
 
 ---
 
@@ -45,6 +45,18 @@ main:
             (uid))))
       (action
         (ocaml)))))
+
+==================
+A closing brace in an OCaml quoted string ends the action
+:error
+==================
+
+%%
+
+main:
+| A { ignore {| } |}; () }
+
+---
 
 ==================
 Character and string literals in actions
