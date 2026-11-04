@@ -6,7 +6,8 @@
 
 ## Features
 
-- ✅ Full Menhir syntax support (both old and new rule syntax)
+- ✅ Full Menhir syntax support, up to Menhir 20260209 (both old and new rule
+  syntax, attributes, and `%merge` functions for the GLR back-end)
 - ✅ **Language injection** for OCaml code using [tree-sitter-ocaml](https://github.com/tree-sitter/tree-sitter-ocaml)
   - Headers: `%{ ... %}`
   - Actions: `{ ... }`
@@ -83,28 +84,40 @@ OCaml code in actions, headers, and attributes will have full syntax highlightin
 
 ## Development
 
+The versions of the tree-sitter CLI, the parser ABI and Menhir are pinned in
+the `Makefile`, and CI reads them from there. The ABI is 14 because most Emacs
+builds cannot load ABI 15 yet. `package.json` pins the same tree-sitter CLI,
+and CI checks that the two agree.
+
 ```bash
-# Install dependencies
-npm install
-
-# Generate parser
-npm run build
-
-# Run tests
-npm run test:corpus    # Corpus tests
-npm run test           # Node binding tests
-npm run test:examples  # Parse real Menhir files
-
-# Start playground
-npm start
+npm install            # Install dependencies (tree-sitter CLI, eslint)
+make generate          # Regenerate src/ from grammar.js at the pinned ABI
+make test              # Corpus and highlight tests
+npm test               # Node binding tests
+npm run lint           # Lint grammar.js
+npm start              # Playground
 ```
 
 ## Testing
 
-The grammar is tested against:
-- Custom corpus tests in `test/corpus/`
-- Example Menhir files in `test/examples/`
-- Official Menhir test suite (800+ real-world `.mly` files)
+The grammar is tested at several levels:
+
+- Corpus tests in `test/corpus/` and highlight tests in `test/highlight/`
+  (`make test`).
+- Menhir's own sources and test suite, at the commit of the pinned release
+  (`make test-menhir`). Every valid `.mly` file (480 of them) must parse without
+  errors, and every file that Menhir rejects with a syntax error must produce
+  an error. Use `make test-menhir MENHIR_REF=master` to try unreleased Menhir;
+  CI does this weekly.
+- A comparison with the `menhir` binary itself (`make compare-menhir`, needs
+  `menhir` on the `PATH`). For each file, the declared tokens, start symbols and
+  rule names seen by tree-sitter must match what `menhir --only-preprocess-u`
+  reports.
+- Fuzzing of the corpus with `tree-sitter fuzz` (in CI).
+
+To move to a new Menhir release, update `MENHIR_VERSION` (the opam version) and
+`MENHIR_REF` (the commit of that release on Menhir's `master` branch; release
+tags do not include the test suite) in the `Makefile`.
 
 ## References
 

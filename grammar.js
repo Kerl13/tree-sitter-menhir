@@ -19,6 +19,7 @@ module.exports = grammar({
     $.ocaml_comment, // OCaml-style comments: (* ... *)
     $._ocaml_content, // OCaml code block content (external scanner)
     $._ocaml_type_content, // OCaml type expression content (external scanner)
+    $._postlude_content, // Everything after the second %% (external scanner)
   ],
 
   rules: {
@@ -67,6 +68,9 @@ module.exports = grammar({
 
       seq('%on_error_reduce', clist($.strict_actual)),
 
+      // A default %merge function, used by the GLR back-end.
+      $.merge_function,
+
       ';',
     ),
 
@@ -97,6 +101,7 @@ module.exports = grammar({
       ':',
       optional($._low_prec_bar),
       separated_nonempty_list($._high_prec_bar, $.production_group),
+      optional($.merge_function),
       repeat(';'),
     ),
 
@@ -114,10 +119,16 @@ module.exports = grammar({
       ),
       choice($.action, $.type),
       optional($.precedence),
+      repeat($.attribute),
     ),
 
     precedence: $ => seq(
       '%prec', $.symbol,
+    ),
+
+    // %merge { ... }, for the GLR back-end (Menhir 20260112 and later).
+    merge_function: $ => seq(
+      '%merge', $.action,
     ),
 
     producer: $ => seq(
@@ -152,6 +163,7 @@ module.exports = grammar({
       plist($.symbol),
       $.equality_symbol,
       $.expression,
+      optional($.merge_function),
     ),
 
     equality_symbol: $ => choice('==', ':='),
@@ -185,12 +197,13 @@ module.exports = grammar({
       seq($.symbol_expression, $.modifier, repeat($.attribute)),
     ),
 
-    action_expression: $ => choice(
-      $.menhir_action,
-
-      seq($.precedence, $.menhir_action),
-
-      seq($.menhir_action, $.precedence),
+    action_expression: $ => seq(
+      choice(
+        $.menhir_action,
+        seq($.precedence, $.menhir_action),
+        seq($.menhir_action, $.precedence),
+      ),
+      repeat($.attribute),
     ),
 
     menhir_action: $ => choice(
@@ -249,7 +262,8 @@ module.exports = grammar({
       '>',
     ),
 
-    postlude: $ => $.ocaml,
+    // Menhir treats everything after the second %% as the postlude.
+    postlude: $ => alias($._postlude_content, $.ocaml),
 
     // OCaml code injection - external scanner tokenizes the content
     // which will be parsed by tree-sitter-ocaml grammar via injection

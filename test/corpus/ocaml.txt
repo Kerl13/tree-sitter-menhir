@@ -1,0 +1,243 @@
+==================
+Type variable before a closing brace in a header
+==================
+
+%{
+  type 'a t = { x : 'a}
+  let f (x : 'a) = x
+%}
+%%
+
+---
+
+(source_file
+  (declaration
+    (header
+      (ocaml))))
+
+==================
+Quoted strings in actions
+==================
+
+%%
+
+main:
+| A { {| } ] %} |} }
+| B { {id| } |} |id} }
+
+---
+
+(source_file
+  (old_rule
+    (symbol
+      (lid))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml)))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml)))))
+
+==================
+Character and string literals in actions
+==================
+
+%%
+
+main:
+| A { '}' }
+| B { '\'' }
+| C { '"' }
+| D { "}" ^ "\"}" }
+| E { (* } *) () }
+
+---
+
+(source_file
+  (old_rule
+    (symbol
+      (lid))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml)))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml)))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml)))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml)))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml)))))
+
+==================
+Position keywords and nested braces in actions
+==================
+
+%%
+
+main:
+| x = A { { r with field = ($startpos, $endpos(x), $1) } }
+| B {}
+
+---
+
+(source_file
+  (old_rule
+    (symbol
+      (lid))
+    (production_group
+      (producer
+        (lid)
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml)))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml)))))
+
+==================
+Point-free semantic actions
+==================
+
+%%
+
+let main :=
+  | x = A; <>
+  | x = A; y = B; <Pair>
+
+---
+
+(source_file
+  (new_rule
+    (lid)
+    (equality_symbol)
+    (expression
+      (seq_expression
+        (pattern
+          (lid))
+        (symbol_expression
+          (symbol
+            (uid)))
+        (seq_expression
+          (action_expression
+            (menhir_action
+              (type)))))
+      (seq_expression
+        (pattern
+          (lid))
+        (symbol_expression
+          (symbol
+            (uid)))
+        (seq_expression
+          (pattern
+            (lid))
+          (symbol_expression
+            (symbol
+              (uid)))
+          (seq_expression
+            (action_expression
+              (menhir_action
+                (type
+                  (ocaml_type))))))))))
+
+==================
+OCaml types
+==================
+
+%token <int -> int> F
+%token <[> `A | `B] list> V
+%token <[< `A ] -> unit> W
+%type <(* a comment > *) int> main
+%%
+
+---
+
+(source_file
+  (declaration
+    (type
+      (ocaml_type))
+    (terminal_alias_attrs
+      (uid)))
+  (declaration
+    (type
+      (ocaml_type))
+    (terminal_alias_attrs
+      (uid)))
+  (declaration
+    (type
+      (ocaml_type))
+    (terminal_alias_attrs
+      (uid)))
+  (declaration
+    (type
+      (ocaml_type))
+    (strict_actual
+      (symbol
+        (lid)))))
+
+==================
+Postlude is everything after the second %%
+==================
+
+%%
+
+main: A { () }
+
+%%
+
+let f = function } ]
+let g = "%}"
+
+---
+
+(source_file
+  (old_rule
+    (symbol
+      (lid))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml))))
+  (postlude
+    (ocaml)))

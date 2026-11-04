@@ -23,6 +23,10 @@
       "required": true,
       "types": [
         {
+          "type": "attribute",
+          "named": true
+        },
+        {
           "type": "menhir_action",
           "named": true
         },
@@ -97,6 +101,10 @@
         },
         {
           "type": "header",
+          "named": true
+        },
+        {
+          "type": "merge_function",
           "named": true
         },
         {
@@ -259,6 +267,21 @@
     }
   },
   {
+    "type": "merge_function",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "action",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "modifier",
     "named": true,
     "fields": {}
@@ -285,6 +308,10 @@
         },
         {
           "type": "lid",
+          "named": true
+        },
+        {
+          "type": "merge_function",
           "named": true
         },
         {
@@ -333,6 +360,10 @@
         },
         {
           "type": "flags",
+          "named": true
+        },
+        {
+          "type": "merge_function",
           "named": true
         },
         {
@@ -433,6 +464,10 @@
       "types": [
         {
           "type": "action",
+          "named": true
+        },
+        {
+          "type": "attribute",
           "named": true
         },
         {
@@ -646,6 +681,10 @@
   },
   {
     "type": "%left",
+    "named": false
+  },
+  {
+    "type": "%merge",
     "named": false
   },
   {

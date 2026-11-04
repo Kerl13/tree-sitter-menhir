@@ -1,0 +1,32 @@
+name: Menhir Head
+
+# Parse the test suite of unreleased Menhir, to hear about new syntax
+# before it reaches a release.
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  menhir-suite:
+    name: Parse Menhir master
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Read the tree-sitter version from the Makefile
+        id: versions
+        run: echo "tree-sitter=$(make ts-version)" >> "$GITHUB_OUTPUT"
+
+      - name: Set up tree-sitter
+        uses: tree-sitter/setup-action/cli@v2
+        with:
+          tree-sitter-ref: ${{steps.versions.outputs.tree-sitter}}
+
+      - name: Generate parser
+        run: make generate
+
+      - name: Parse the Menhir test suite
+        run: make test-menhir MENHIR_REF=master
