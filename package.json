@@ -1,6 +1,6 @@
 {
   "name": "tree-sitter-menhir",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Tree-sitter parser for Menhir files with OCaml language injection",
   "main": "bindings/node",
   "types": "bindings/node",
