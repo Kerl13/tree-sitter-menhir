@@ -214,3 +214,15 @@ main: RBRACKET [@x {| ] |}] { () }
           (ocaml)))
       (action
         (ocaml)))))
+
+==================
+The key of an attribute must follow [@ directly, as in Menhir
+:error
+==================
+
+%%
+
+main:
+| A { () } [@ a]
+
+---

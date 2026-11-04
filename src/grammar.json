@@ -80,7 +80,7 @@
     },
     "qid": {
       "type": "PATTERN",
-      "value": "\"([\\x20-\\x21\\x23-\\x5b\\x5d-\\x7e]|\\\\.)*\""
+      "value": "\"([^\"\\\\\\n\\r]|\\\\[\\\\'\"tbr ])*\""
     },
     "symbol": {
       "type": "CHOICE",
@@ -1567,8 +1567,13 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "ocaml"
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_header_content"
+              },
+              "named": true,
+              "value": "ocaml"
             },
             {
               "type": "BLANK"
@@ -1592,8 +1597,13 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "ocaml"
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_action_content"
+              },
+              "named": true,
+              "value": "ocaml"
             },
             {
               "type": "BLANK"
@@ -1614,16 +1624,13 @@
           "value": "[@"
         },
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "ocaml"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_attribute_content"
+          },
+          "named": true,
+          "value": "ocaml"
         },
         {
           "type": "STRING",
@@ -1639,16 +1646,13 @@
           "value": "%[@"
         },
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "ocaml"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_attribute_content"
+          },
+          "named": true,
+          "value": "ocaml"
         },
         {
           "type": "STRING",
@@ -1690,10 +1694,6 @@
       "named": true,
       "value": "ocaml"
     },
-    "ocaml": {
-      "type": "SYMBOL",
-      "name": "_ocaml_content"
-    },
     "ocaml_type": {
       "type": "SYMBOL",
       "name": "_ocaml_type_content"
@@ -1726,7 +1726,15 @@
     },
     {
       "type": "SYMBOL",
-      "name": "_ocaml_content"
+      "name": "_action_content"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_header_content"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_attribute_content"
     },
     {
       "type": "SYMBOL",
@@ -1735,6 +1743,10 @@
     {
       "type": "SYMBOL",
       "name": "_postlude_content"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_unknown_directive"
     }
   ],
   "inline": [

@@ -2,8 +2,10 @@
 # Parse the .mly files of Menhir's own sources and test suite.
 #
 #   * Every .mly file outside test/static/bad must parse without errors.
-#   * Every file in test/static/bad that Menhir rejects with a syntax error
-#     (according to its .exp file) must produce an error here too.
+#   * Every file in test/static/bad that Menhir rejects with a syntax or
+#     lexical error (according to its .exp file) must produce an error here
+#     too. The other files there have errors that Menhir finds later, such
+#     as an undefined symbol, so they must parse without errors.
 #
 # Environment:
 #   MENHIR_REF  commit or branch of https://gitlab.inria.fr/fpottier/menhir
@@ -47,22 +49,36 @@ if ! "$TS" parse --quiet --paths "$list"; then
   exit 1
 fi
 
-# Invalid files: those that Menhir rejects with a syntax error.
+# Invalid files. Menhir's error messages for syntax errors, and for the
+# errors of its lexer (see driver/stage1/Lexer.mll).
+syntax='syntax error|unbalanced opening|unterminated|unknown directive'
+syntax="$syntax|unexpected character|illegal newline|illegal backslash"
+syntax="$syntax|is not permitted in a token alias"
 failures=0
-count=0
-for exp in $(grep -l -i 'syntax error' "$DIR"/test/static/bad/*.exp); do
-  mly=${exp%.exp}.mly
-  [ -f "$mly" ] || continue
-  count=$((count + 1))
-  if "$TS" parse --quiet "$mly" >/dev/null 2>&1; then
-    echo "FAIL: $mly is a syntax error for Menhir but parses cleanly" >&2
-    failures=$((failures + 1))
+rejected=0
+accepted=0
+for mly in "$DIR"/test/static/bad/*.mly; do
+  exp=${mly%.mly}.exp
+  if [ -f "$exp" ] && grep -E -q "$syntax" "$exp"; then
+    rejected=$((rejected + 1))
+    if "$TS" parse --quiet "$mly" >/dev/null 2>&1; then
+      echo "FAIL: $mly is a syntax error for Menhir but parses cleanly" >&2
+      failures=$((failures + 1))
+    fi
+  else
+    # No .exp file: a second file for a test of several files.
+    accepted=$((accepted + 1))
+    if ! "$TS" parse --quiet "$mly" >/dev/null 2>&1; then
+      echo "FAIL: $mly has no syntax error for Menhir but does not parse" >&2
+      failures=$((failures + 1))
+    fi
   fi
 done
-echo "Checked $count files that Menhir rejects with a syntax error"
+echo "Checked $rejected files that Menhir rejects with a syntax error"
+echo "Checked $accepted files that Menhir rejects for other reasons"
 
 if [ "$failures" -ne 0 ]; then
-  echo "FAIL: $failures invalid files were accepted" >&2
+  echo "FAIL: $failures invalid files were not handled as Menhir does" >&2
   exit 1
 fi
 echo "OK"

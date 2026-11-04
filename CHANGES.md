@@ -1,16 +1,30 @@
+# 0.6.1 (unreleased)
+Find the end of embedded OCaml code as Menhir's lexer does, so that tree-sitter
+accepts the files that Menhir accepts, and rejects the others.
+- #5: Count the braces of OCaml quoted strings in actions. Menhir does not know
+  about quoted strings, so `{| } |}` ends the action
+- #6: Do not treat quoted strings in comments specially, as Menhir does not,
+  so `(* {| *)` is a complete comment
+- #6: Skip escaped character literals such as `'\}'` in actions
+- #6: Reject unbalanced parentheses in actions, headers and attributes, a
+  space between `[@` and the attribute's key, unknown directives such as
+  `%tokenA`, and the escape `\n` in token aliases
+- #6: Check all of Menhir's invalid test files: those with a syntax error must
+  produce an error, and the others must parse
+- #5: Add an example GLR grammar, `test/examples/calc-glr.mly`, that uses the
+  syntax added in 0.6.0
+
 # 0.6.0 (2026-11-04)
 - #2: Support Menhir 20260209: `%merge` functions for the GLR back-end, and
   attributes after semantic actions
 - #2: Fix the scanning of embedded OCaml: a type variable before a closing
-  brace, and `}`, `]` or `%}` in the postlude
+  brace, OCaml quoted strings in actions, and `}`, `]` or `%}` in the postlude
 - #2: Test against Menhir's own test suite and the `menhir` binary, in CI
 - #2: Regenerate the bindings with tree-sitter CLI 0.27.0 at ABI 14, adding Go,
   Python and C bindings. The Rust crate now exposes `LANGUAGE` in place of
   `language()`
 - #3: Add this changelog, and a CI check that pull requests update it
 - #4: Stop publishing releases to npm
-- #5: Add an example GLR grammar, `test/examples/calc-glr.mly`, that uses the
-  syntax added in 0.6.0
 
 # 0.5.0 (2026-04-06)
 First release from tmcgilchrist/tree-sitter-menhir, which takes over
