@@ -1,0 +1,69 @@
+name: Rust
+
+# Test the crate as crates.io users get it: on each OS, at the minimum
+# supported Rust version, and built from the packaged .crate file.
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - src/**
+      - queries/**
+      - bindings/rust/**
+      - Cargo.toml
+      - tree-sitter.json
+      - .github/workflows/rust.yml
+  pull_request:
+    paths:
+      - src/**
+      - queries/**
+      - bindings/rust/**
+      - Cargo.toml
+      - tree-sitter.json
+      - .github/workflows/rust.yml
+  workflow_dispatch:
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    # Runs against the committed src/parser.c, which is what cargo publishes.
+    name: Test (${{matrix.os}}, Rust ${{matrix.toolchain}})
+    runs-on: ${{matrix.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        toolchain: [stable]
+        include:
+          # Keep in step with rust-version in Cargo.toml.
+          - os: ubuntu-latest
+            toolchain: '1.90'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v2
+        with:
+          toolchain: ${{matrix.toolchain}}
+
+      - name: Run tests
+        run: cargo test
+
+  package:
+    # Builds from the .crate file, so it fails if Cargo.toml's include list
+    # leaves out a file the build needs.
+    name: Package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v2
+
+      - name: Package and build the crate
+        run: cargo package
