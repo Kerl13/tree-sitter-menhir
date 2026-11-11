@@ -1,6 +1,7 @@
 # tree-sitter-menhir
 
 [![CI](https://github.com/tmcgilchrist/tree-sitter-menhir/actions/workflows/ci.yml/badge.svg)](https://github.com/tmcgilchrist/tree-sitter-menhir/actions/workflows/ci.yml)
+[![crates.io](https://img.shields.io/crates/v/tree-sitter-menhir.svg)](https://crates.io/crates/tree-sitter-menhir)
 
 [Menhir](http://gallium.inria.fr/~fpottier/menhir/) grammar for [tree-sitter](https://github.com/tree-sitter/tree-sitter)
 
@@ -26,6 +27,8 @@ Releases are not published to npm. The `tree-sitter-menhir` package there
 is the last upstream release, 0.4.0, which predates this repository.
 
 ### Cargo
+
+The crate is published on [crates.io](https://crates.io/crates/tree-sitter-menhir).
 
 ```bash
 cargo add tree-sitter-menhir
