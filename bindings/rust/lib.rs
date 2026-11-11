@@ -61,4 +61,34 @@ mod tests {
             .set_language(&super::LANGUAGE.into())
             .expect("Error loading Menhir parser");
     }
+
+    // Editors load the queries through these constants, so a query that
+    // names a node or field the grammar no longer has must fail here.
+    #[test]
+    fn test_highlights_query_is_valid() {
+        tree_sitter::Query::new(&super::LANGUAGE.into(), super::HIGHLIGHTS_QUERY)
+            .expect("Invalid highlights query");
+    }
+
+    #[test]
+    fn test_injections_query_is_valid() {
+        tree_sitter::Query::new(&super::LANGUAGE.into(), super::INJECTIONS_QUERY)
+            .expect("Invalid injections query");
+    }
+
+    #[test]
+    fn test_node_types_matches_grammar() {
+        let language: tree_sitter::Language = super::LANGUAGE.into();
+        for kind in ["source_file", "new_rule", "ocaml"] {
+            assert!(
+                super::NODE_TYPES.contains(&format!("\"type\": \"{kind}\"")),
+                "node-types.json has no {kind} node"
+            );
+            assert_ne!(
+                language.id_for_node_kind(kind, true),
+                0,
+                "grammar has no {kind} node"
+            );
+        }
+    }
 }

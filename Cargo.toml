@@ -4,6 +4,7 @@ autoexamples = false
 categories = [ "parser-implementations", "parsing", "text-editors" ]
 description = "Menhir grammar for tree-sitter with OCaml language injection"
 edition = "2024"
+rust-version = "1.90"
 keywords = [ "incremental", "parsing", "tree-sitter", "menhir" ]
 license = "MIT"
 name = "tree-sitter-menhir"
