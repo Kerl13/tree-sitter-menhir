@@ -1,3 +1,8 @@
+# Unreleased
+- #8: Test the Rust crate in CI on Linux, macOS and Windows, at its minimum
+  Rust version (now declared as 1.90), and built from the packaged crate, and
+  check that the queries it exports compile against the grammar
+
 # 0.6.1 (2026-11-05)
 Find the end of embedded OCaml code as Menhir's lexer does, so that tree-sitter
 accepts the files that Menhir accepts, and rejects the others.
