@@ -1,4 +1,4 @@
-module github.com/Kerl13/tree-sitter-menhir
+module github.com/tmcgilchrist/tree-sitter-menhir
 
 go 1.22
 

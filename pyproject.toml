@@ -19,7 +19,7 @@ requires-python = ">=3.10"
 version = "0.6.1"
 
 [project.urls]
-Homepage = "https://github.com/Kerl13/tree-sitter-menhir"
+Homepage = "https://github.com/tmcgilchrist/tree-sitter-menhir"
 
 [project.optional-dependencies]
 core = [ "tree-sitter~=0.24" ]
