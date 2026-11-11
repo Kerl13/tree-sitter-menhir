@@ -15,10 +15,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Kerl13/tree-sitter-menhir.git"
+    "url": "https://github.com/tmcgilchrist/tree-sitter-menhir.git"
   },
   "bugs": {
-    "url": "https://github.com/Kerl13/tree-sitter-menhir/issues"
+    "url": "https://github.com/tmcgilchrist/tree-sitter-menhir/issues"
   },
   "dependencies": {
     "node-addon-api": "^8.0.0",

@@ -2,6 +2,12 @@
 - #8: Test the Rust crate in CI on Linux, macOS and Windows, at its minimum
   Rust version (now declared as 1.90), and built from the packaged crate, and
   check that the queries it exports compile against the grammar
+- #9: Point the package metadata at tmcgilchrist/tree-sitter-menhir, and
+  publish tagged releases to crates.io by trusted publishing, after checking
+  that the tag, package versions and committed parser agree. The Go module is
+  now `github.com/tmcgilchrist/tree-sitter-menhir`; update imports of the
+  Kerl13 path
+
 
 # 0.6.1 (2026-11-05)
 Find the end of embedded OCaml code as Menhir's lexer does, so that tree-sitter

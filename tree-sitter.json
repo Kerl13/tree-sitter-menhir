@@ -16,7 +16,7 @@
     "license": "MIT",
     "description": "Menhir grammar for tree-sitter with OCaml language injection",
     "links": {
-      "repository": "https://github.com/Kerl13/tree-sitter-menhir"
+      "repository": "https://github.com/tmcgilchrist/tree-sitter-menhir"
     }
   },
   "parser": {

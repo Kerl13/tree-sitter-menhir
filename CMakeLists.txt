@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13)
 project(tree-sitter-menhir
         VERSION "0.6.1"
         DESCRIPTION "Menhir grammar for tree-sitter with OCaml language injection"
-        HOMEPAGE_URL "https://github.com/Kerl13/tree-sitter-menhir"
+        HOMEPAGE_URL "https://github.com/tmcgilchrist/tree-sitter-menhir"
         LANGUAGES C)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
