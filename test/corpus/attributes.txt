@@ -1,0 +1,228 @@
+==================
+Attributes on tokens, rules and producers
+==================
+
+%token A "a" [@foo "foo"] [@a 0]
+%token B [@foo.bar "foo"]
+%attribute main [@cost 0]
+%[@claim "this is a grammar attribute"]
+%%
+
+main [@main ()] [@cost 0]:
+  A B [@producer true] { () }
+
+---
+
+(source_file
+  (declaration
+    (terminal_alias_attrs
+      (uid)
+      (qid)
+      (attribute
+        (ocaml))
+      (attribute
+        (ocaml))))
+  (declaration
+    (terminal_alias_attrs
+      (uid)
+      (attribute
+        (ocaml))))
+  (declaration
+    (strict_actual
+      (symbol
+        (lid)))
+    (attribute
+      (ocaml)))
+  (declaration
+    (grammar_attribute
+      (ocaml)))
+  (old_rule
+    (symbol
+      (lid))
+    (attribute
+      (ocaml))
+    (attribute
+      (ocaml))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (producer
+        (actual
+          (symbol
+            (uid)))
+        (attribute
+          (ocaml)))
+      (action
+        (ocaml)))))
+
+==================
+Attributes after a semantic action
+==================
+
+%%
+
+%public option(X):
+  /* nothing */
+    { None }
+    [@name none]
+| x = X
+    { Some x }
+    [@name some]
+
+main:
+| e = expr EOL
+    { e } %prec low
+    [@name eol] [@cost 1]
+
+---
+
+(source_file
+  (old_rule
+    (flags)
+    (symbol
+      (lid))
+    (symbol
+      (uid))
+    (comment)
+    (production_group
+      (action
+        (ocaml))
+      (attribute
+        (ocaml)))
+    (production_group
+      (producer
+        (lid)
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml))
+      (attribute
+        (ocaml))))
+  (old_rule
+    (symbol
+      (lid))
+    (production_group
+      (producer
+        (lid)
+        (actual
+          (symbol
+            (lid))))
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml))
+      (precedence
+        (symbol
+          (lid)))
+      (attribute
+        (ocaml))
+      (attribute
+        (ocaml)))))
+
+==================
+Attributes after a new-style action
+==================
+
+%%
+
+let main :=
+  | x = A; { x } [@name a]
+  | %prec low { () } [@name b]
+  | { () } %prec low [@name c]
+  | <> [@name d]
+
+---
+
+(source_file
+  (new_rule
+    (lid)
+    (equality_symbol)
+    (expression
+      (seq_expression
+        (pattern
+          (lid))
+        (symbol_expression
+          (symbol
+            (uid)))
+        (seq_expression
+          (action_expression
+            (menhir_action
+              (action
+                (ocaml)))
+            (attribute
+              (ocaml)))))
+      (seq_expression
+        (action_expression
+          (precedence
+            (symbol
+              (lid)))
+          (menhir_action
+            (action
+              (ocaml)))
+          (attribute
+            (ocaml))))
+      (seq_expression
+        (action_expression
+          (menhir_action
+            (action
+              (ocaml)))
+          (precedence
+            (symbol
+              (lid)))
+          (attribute
+            (ocaml))))
+      (seq_expression
+        (action_expression
+          (menhir_action
+            (type))
+          (attribute
+            (ocaml)))))))
+
+==================
+Attribute payloads with brackets and strings
+==================
+
+%token RBRACKET [@symbol "]"] [@list [1; 2; [3]]]
+%%
+
+main: RBRACKET [@x {| ] |}] { () }
+
+---
+
+(source_file
+  (declaration
+    (terminal_alias_attrs
+      (uid)
+      (attribute
+        (ocaml))
+      (attribute
+        (ocaml))))
+  (old_rule
+    (symbol
+      (lid))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid)))
+        (attribute
+          (ocaml)))
+      (action
+        (ocaml)))))
+
+==================
+The key of an attribute must follow [@ directly, as in Menhir
+:error
+==================
+
+%%
+
+main:
+| A { () } [@ a]
+
+---

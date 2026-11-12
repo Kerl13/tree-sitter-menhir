@@ -1,7 +1,7 @@
 // Reference: https://gitlab.inria.fr/fpottier/menhir/blob/master/src/lexer.mll
-const lowercase = "[a-zß-öø-ÿ_]"
-const uppercase = "[A-ZÀ-ÖØ-Þ]"
-const identchar = "[a-zA-Z_À-ÖØ-öø-ÿ0-9]"
+const lowercase = '[a-zß-öø-ÿ_]';
+const uppercase = '[A-ZÀ-ÖØ-Þ]';
+const identchar = '[a-zA-Z_À-ÖØ-öø-ÿ0-9]';
 
 module.exports = grammar({
   name: 'menhir',
@@ -10,13 +10,21 @@ module.exports = grammar({
     /\s/,
     $.line_comment,
     $.comment,
-    $.ocaml_comment
+    $.ocaml_comment,
   ],
 
   inline: $ => [$.rule, $.continuation],
 
   externals: $ => [
-    $.ocaml_comment
+    $.ocaml_comment, // OCaml-style comments: (* ... *)
+    $._action_content, // OCaml code in { }
+    $._header_content, // OCaml code in %{ %}
+    $._attribute_content, // Key and payload of [@ ] and %[@ ]
+    $._ocaml_type_content, // OCaml type expression content (external scanner)
+    $._postlude_content, // Everything after the second %% (external scanner)
+    // A % followed by identifier characters that do not form a directive,
+    // as in %tokenA. Used nowhere, so that it is always a syntax error.
+    $._unknown_directive,
   ],
 
   rules: {
@@ -26,8 +34,8 @@ module.exports = grammar({
       repeat($.rule),
       optional(seq(
         '%%',
-        optional($.postlude)
-      ))
+        optional($.postlude),
+      )),
     ),
 
     // Bars are a little annoying, see comment in
@@ -40,7 +48,9 @@ module.exports = grammar({
 
     lid: $ => RegExp(lowercase + identchar + '*'),
     uid: $ => RegExp(uppercase + identchar + '*'),
-    qid: $ => /"[\x23-\x5b\x5d-\x7e\x20\x21]+"/,
+    // Quoted identifier (a token alias), with the escape sequences that
+    // Menhir allows. Menhir rejects \n and a newline.
+    qid: $ => /"([^"\\\n\r]|\\[\\'"tbr ])*"/,
     symbol: $ => choice($.lid, $.uid, $.qid),
 
     // Declarations
@@ -64,15 +74,18 @@ module.exports = grammar({
 
       seq('%on_error_reduce', clist($.strict_actual)),
 
-      ';'
+      // A default %merge function, used by the GLR back-end.
+      $.merge_function,
+
+      ';',
     ),
 
     terminal_alias_attrs: $ => seq(
-      $.uid, optional($.qid), repeat($.attribute)
+      $.uid, optional($.qid), repeat($.attribute),
     ),
 
     priority_keyword: $ => choice(
-      '%left', '%right', '%nonassoc'
+      '%left', '%right', '%nonassoc',
     ),
 
     non_terminal: $ => $.lid,
@@ -81,7 +94,7 @@ module.exports = grammar({
 
     rule: $ => choice(
       $.old_rule,
-      $.new_rule
+      $.new_rule,
     ),
 
     // Production rules -- old syntax
@@ -94,35 +107,42 @@ module.exports = grammar({
       ':',
       optional($._low_prec_bar),
       separated_nonempty_list($._high_prec_bar, $.production_group),
-      repeat(';')
+      optional($.merge_function),
+      repeat(';'),
     ),
 
     flags: $ => choice(
       '%public',
       '%inline',
       seq('%public', '%inline'),
-      seq('%inline', '%public')
+      seq('%inline', '%public'),
     ),
 
     production_group: $ => seq(
       separated_nonempty_list(
         $._high_prec_bar,
-        seq(repeat($.producer), optional($.precedence))
+        seq(repeat($.producer), optional($.precedence)),
       ),
       choice($.action, $.type),
-      optional($.precedence)
+      optional($.precedence),
+      repeat($.attribute),
     ),
 
     precedence: $ => seq(
-      '%prec', $.symbol
+      '%prec', $.symbol,
+    ),
+
+    // %merge { ... }, for the GLR back-end (Menhir 20260112 and later).
+    merge_function: $ => seq(
+      '%merge', $.action,
     ),
 
     producer: $ => seq(
-        optional(seq($.lid, '=')),  // XXX. do I need to expand in two rules here?
-        $.actual,
-        repeat($.attribute),
-        repeat(';')  // XXX. there is realy a SEMI* in the official parser… What the heck
-      ),
+      optional(seq($.lid, '=')), // XXX. do I need to expand in two rules here?
+      $.actual,
+      repeat($.attribute),
+      repeat(';'), // XXX. there is realy a SEMI* in the official parser… What the heck
+    ),
 
     strict_actual: $ =>
       generic_actual($, $.strict_actual, $.strict_actual),
@@ -132,11 +152,11 @@ module.exports = grammar({
 
     lax_actual: $ => choice(
       generic_actual($, $.lax_actual, $.actual),
-      separated_nonempty_list($._high_prec_bar, $.production_group)
+      separated_nonempty_list($._high_prec_bar, $.production_group),
     ),
 
     modifier: $ => choice(
-      '?', '*', '+'
+      '?', '*', '+',
     ),
 
     // Production rules -- new sytax
@@ -148,14 +168,15 @@ module.exports = grammar({
       repeat($.attribute),
       plist($.symbol),
       $.equality_symbol,
-      $.expression
+      $.expression,
+      optional($.merge_function),
     ),
 
     equality_symbol: $ => choice('==', ':='),
 
     expression: $ => seq(
       optional('|'),
-      separated_nonempty_list('|', $.seq_expression)
+      separated_nonempty_list('|', $.seq_expression),
     ),
 
     seq_expression: $ => choice(
@@ -165,7 +186,7 @@ module.exports = grammar({
 
       $.symbol_expression,
 
-      $.action_expression
+      $.action_expression,
     ),
 
     continuation: $ => seq(';', $.seq_expression),
@@ -176,23 +197,24 @@ module.exports = grammar({
       seq(
         alias($.symbol, $.funcall),
         '(', separated_nonempty_list(',', $.expression), ')',
-        repeat($.attribute)
+        repeat($.attribute),
       ),
 
-      seq($.symbol_expression, $.modifier, repeat($.attribute))
+      seq($.symbol_expression, $.modifier, repeat($.attribute)),
     ),
 
-    action_expression: $ => choice(
-      $.menhir_action,
-
-      seq($.precedence, $.menhir_action),
-
-      seq($.menhir_action, $.precedence)
+    action_expression: $ => seq(
+      choice(
+        $.menhir_action,
+        seq($.precedence, $.menhir_action),
+        seq($.menhir_action, $.precedence),
+      ),
+      repeat($.attribute),
     ),
 
     menhir_action: $ => choice(
       $.action,
-      $.type
+      $.type,
     ),
 
     pattern: $ => choice(
@@ -201,7 +223,7 @@ module.exports = grammar({
       '~',
       // '(' [separated_list(',', pattern)] ')'
       seq('(', ')'),
-      seq('(', separated_nonempty_list(',', $.pattern), ')')
+      seq('(', separated_nonempty_list(',', $.pattern), ')'),
     ),
 
     // Comments
@@ -211,78 +233,85 @@ module.exports = grammar({
     comment: $ => token(seq(
       '/*',
       /[^*]*\*+([^/*][^*]*\*+)*/,
-      '/'
+      '/',
     )),
 
     // OCaml
 
     header: $ => seq(
       '%{',
-      optional($.ocaml),
-      '%}'
+      optional(alias($._header_content, $.ocaml)),
+      '%}',
     ),
 
     action: $ => seq(
       '{',
-      optional($.ocaml),
-      '}'
+      optional(alias($._action_content, $.ocaml)),
+      '}',
     ),
 
+    // Menhir requires a key right after [@.
     attribute: $ => seq(
       '[@',
-      optional($.ocaml),
-      ']'
+      alias($._attribute_content, $.ocaml),
+      ']',
     ),
 
     grammar_attribute: $ => seq(
       '%[@',
-      optional($.ocaml),
-      ']'
+      alias($._attribute_content, $.ocaml),
+      ']',
     ),
 
     type: $ => seq(
       '<',
       optional($.ocaml_type),
-      '>'
+      '>',
     ),
 
-    postlude: $ => $.ocaml,
+    // Menhir treats everything after the second %% as the postlude.
+    postlude: $ => alias($._postlude_content, $.ocaml),
 
-    ocaml: $ => $._ocaml,
+    // OCaml type injection - external scanner tokenizes the content
+    // which will be parsed by tree-sitter-ocaml/grammars/type via injection
+    ocaml_type: $ => $._ocaml_type_content,
+  },
+});
 
-    _ocaml: $ => repeat1(choice(
-      seq('{', optional($._ocaml), '}'),
-      seq('[', optional($._ocaml), ']'),
-      /"([^"\\]|\x00|\\(.|\n))*"/,
-      /'([^'\\]|\x00|\\[\\"'ntbr ]|\\[0-9][0-9][0-9]|\\x[0-9A-Fa-f][0-9A-Fa-f]|\\o[0-3][0-7][0-7])'/,
-      /'?[A-Za-z_][a-zA-Z0-9_']*/,
-      /[^{}\[\]"'%(A-Za-z_]+/,
-      '%', '('
-    )),
-
-    ocaml_type: $ => repeat1(/->?|\[>?|[^-\[>]+/),
-  }
-})
-
+/**
+ * @param {any} sep
+ * @param {any} rule
+ */
 function separated_nonempty_list(sep, rule) {
-  return seq(rule, repeat(seq(sep, rule)))
+  return seq(rule, repeat(seq(sep, rule)));
 }
 
+/**
+ * @param {any} rule
+ */
 function clist(rule) {
-  return separated_nonempty_list(optional(','), rule)
+  return separated_nonempty_list(optional(','), rule);
 }
 
+/**
+ * @param {any} rule
+ */
 function plist(rule) {
-  return optional(seq('(', separated_nonempty_list(',', rule), ')'))
+  return optional(seq('(', separated_nonempty_list(',', rule), ')'));
 }
 
+/**
+ * @param {any} $
+ * @param {any} rule_a
+ * @param {any} rule_b
+ */
 function generic_actual($, rule_a, rule_b) {
   return choice(
     seq($.symbol),
     seq(
       alias($.symbol, $.funcall),
-      '(', separated_nonempty_list(',', rule_a), ')'
+      '(', separated_nonempty_list(',', rule_a), ')',
     ),
     seq(rule_b, $.modifier),
-  )
+  );
 }

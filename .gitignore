@@ -1,3 +1,30 @@
-/node_modules
-/build
-/test_suite
+# Node
+/node_modules/
+/build/
+/prebuilds/
+*.wasm
+
+# Rust
+/target/
+Cargo.lock
+
+# C (Makefile, CMake)
+*.o
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.pc
+
+# Python
+*.egg-info/
+dist/
+__pycache__/
+*.pyc
+
+# Menhir sources used for testing
+/test_suite/
+
+.direnv/
+.DS_Store

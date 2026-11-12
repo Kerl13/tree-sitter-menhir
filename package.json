@@ -1,24 +1,60 @@
 {
   "name": "tree-sitter-menhir",
-  "version": "0.4.0",
-  "description": "Tree-sitter parser for menhir files",
+  "version": "0.6.1",
+  "description": "Tree-sitter parser for Menhir files with OCaml language injection",
   "main": "bindings/node",
-  "repository": "https://github.com/Kerl13/tree-sitter-menhir",
+  "types": "bindings/node",
   "keywords": [
     "parser",
     "ocaml",
-    "menhir"
+    "menhir",
+    "tree-sitter",
+    "incremental"
   ],
-  "scripts": {
-    "build": "tree-sitter generate",
-    "test": "tree-sitter test && script/run_menhir_test_suite.sh"
-  },
   "author": "Martin Pépin",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tmcgilchrist/tree-sitter-menhir.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tmcgilchrist/tree-sitter-menhir/issues"
+  },
   "dependencies": {
-    "nan": "^2.16.0"
+    "node-addon-api": "^8.0.0",
+    "node-gyp-build": "^4.8.0"
   },
   "devDependencies": {
-    "tree-sitter-cli": "^0.20.6"
+    "eslint": "^9.15.0",
+    "eslint-config-treesitter": "^1.0.2",
+    "prebuildify": "^6.0.1",
+    "tree-sitter": "^0.25.0",
+    "tree-sitter-cli": "0.27.0"
+  },
+  "peerDependencies": {
+    "tree-sitter": "^0.25.0"
+  },
+  "peerDependenciesMeta": {
+    "tree-sitter": {
+      "optional": true
+    }
+  },
+  "files": [
+    "grammar.js",
+    "tree-sitter.json",
+    "binding.gyp",
+    "prebuilds/**",
+    "bindings/node/*",
+    "queries/*",
+    "src/**"
+  ],
+  "scripts": {
+    "install": "node-gyp-build",
+    "generate": "make generate",
+    "lint": "eslint grammar.js",
+    "prebuildify": "prebuildify --napi --strip",
+    "prestart": "tree-sitter build --wasm",
+    "start": "tree-sitter playground",
+    "test": "node --test bindings/node/*_test.js"
   }
 }

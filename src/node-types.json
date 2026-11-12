@@ -23,6 +23,10 @@
       "required": true,
       "types": [
         {
+          "type": "attribute",
+          "named": true
+        },
+        {
           "type": "menhir_action",
           "named": true
         },
@@ -70,7 +74,7 @@
     "fields": {},
     "children": {
       "multiple": false,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "ocaml",
@@ -97,6 +101,10 @@
         },
         {
           "type": "header",
+          "named": true
+        },
+        {
+          "type": "merge_function",
           "named": true
         },
         {
@@ -180,7 +188,7 @@
     "fields": {},
     "children": {
       "multiple": false,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "ocaml",
@@ -259,6 +267,21 @@
     }
   },
   {
+    "type": "merge_function",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "action",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "modifier",
     "named": true,
     "fields": {}
@@ -288,6 +311,10 @@
           "named": true
         },
         {
+          "type": "merge_function",
+          "named": true
+        },
+        {
           "type": "symbol",
           "named": true
         }
@@ -310,11 +337,6 @@
     }
   },
   {
-    "type": "ocaml",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "ocaml_type",
     "named": true,
     "fields": {}
@@ -333,6 +355,10 @@
         },
         {
           "type": "flags",
+          "named": true
+        },
+        {
+          "type": "merge_function",
           "named": true
         },
         {
@@ -436,6 +462,10 @@
           "named": true
         },
         {
+          "type": "attribute",
+          "named": true
+        },
+        {
           "type": "precedence",
           "named": true
         },
@@ -480,6 +510,7 @@
   {
     "type": "source_file",
     "named": true,
+    "root": true,
     "fields": {},
     "children": {
       "multiple": true,
@@ -628,10 +659,6 @@
     }
   },
   {
-    "type": "%",
-    "named": false
-  },
-  {
     "type": "%%",
     "named": false
   },
@@ -649,6 +676,10 @@
   },
   {
     "type": "%left",
+    "named": false
+  },
+  {
+    "type": "%merge",
     "named": false
   },
   {
@@ -748,10 +779,6 @@
     "named": false
   },
   {
-    "type": "[",
-    "named": false
-  },
-  {
     "type": "[@",
     "named": false
   },
@@ -765,7 +792,8 @@
   },
   {
     "type": "comment",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "let",
@@ -777,11 +805,17 @@
   },
   {
     "type": "line_comment",
+    "named": true,
+    "extra": true
+  },
+  {
+    "type": "ocaml",
     "named": true
   },
   {
     "type": "ocaml_comment",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "qid",

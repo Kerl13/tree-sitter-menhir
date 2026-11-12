@@ -1,0 +1,118 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+
+jobs:
+  versions:
+    # Versions come from the Makefile, as in ci.yml.
+    name: Resolve Versions
+    runs-on: ubuntu-latest
+    outputs:
+      tree-sitter: ${{steps.read.outputs.tree-sitter}}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Read versions from the Makefile
+        id: read
+        run: echo "tree-sitter=$(make ts-version)" >> "$GITHUB_OUTPUT"
+
+      # The version is written in four files; all must match each other,
+      # and the tag being released.
+      - name: Check the package versions
+        run: |
+          set -eu
+          cargo=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -n 1)
+          python=$(sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml | head -n 1)
+          node=$(jq -r .version package.json)
+          ts=$(jq -r .metadata.version tree-sitter.json)
+          echo "Cargo.toml $cargo, pyproject.toml $python, package.json $node, tree-sitter.json $ts"
+          if [ "$python" != "$cargo" ] || [ "$node" != "$cargo" ] || [ "$ts" != "$cargo" ]; then
+            echo "package versions differ" >&2
+            exit 1
+          fi
+          if [ "$GITHUB_REF_TYPE" = tag ] && [ "$GITHUB_REF_NAME" != "v$cargo" ]; then
+            echo "tag $GITHUB_REF_NAME does not match version $cargo" >&2
+            exit 1
+          fi
+
+  build-and-test:
+    name: Build and Test
+    needs: versions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+
+      - name: Set up tree-sitter
+        uses: tree-sitter/setup-action/cli@v2
+        with:
+          tree-sitter-ref: ${{needs.versions.outputs.tree-sitter}}
+
+      - name: Generate parser
+        run: make generate
+
+      # cargo publish ships the committed src/, so it must be what
+      # grammar.js generates.
+      - name: Check the committed parser is up to date
+        run: git diff --exit-code src/
+
+      - name: Run tests
+        run: tree-sitter test
+
+  publish-crates:
+    name: Publish to crates.io
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: read
+      id-token: write # to request a crates.io token by trusted publishing
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v2
+
+      # Exchanges the workflow's GitHub identity for a short-lived token, so
+      # no crates.io token is stored in the repository. Needs this repository
+      # and workflow set as a trusted publisher in the crate's settings.
+      - name: Authenticate with crates.io
+        id: auth
+        uses: rust-lang/crates-io-auth-action@v1
+
+      # Publish the committed bindings/rust and src/ as they are: cargo
+      # refuses to publish from a dirty working tree.
+      - name: Publish to crates.io
+        run: cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+
+  create-release:
+    name: Create GitHub Release
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true

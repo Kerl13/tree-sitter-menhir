@@ -1,4 +1,5 @@
 {
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
   "name": "menhir",
   "rules": {
     "source_file": {
@@ -79,7 +80,7 @@
     },
     "qid": {
       "type": "PATTERN",
-      "value": "\"[\\x23-\\x5b\\x5d-\\x7e\\x20\\x21]+\""
+      "value": "\"([^\"\\\\\\n\\r]|\\\\[\\\\'\"tbr ])*\""
     },
     "symbol": {
       "type": "CHOICE",
@@ -410,6 +411,10 @@
           ]
         },
         {
+          "type": "SYMBOL",
+          "name": "merge_function"
+        },
+        {
           "type": "STRING",
           "value": ";"
         }
@@ -591,6 +596,18 @@
           ]
         },
         {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "merge_function"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
           "type": "REPEAT",
           "content": {
             "type": "STRING",
@@ -730,6 +747,13 @@
               "type": "BLANK"
             }
           ]
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "attribute"
+          }
         }
       ]
     },
@@ -743,6 +767,19 @@
         {
           "type": "SYMBOL",
           "name": "symbol"
+        }
+      ]
+    },
+    "merge_function": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "%merge"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action"
         }
       ]
     },
@@ -1142,6 +1179,18 @@
         {
           "type": "SYMBOL",
           "name": "expression"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "merge_function"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         }
       ]
     },
@@ -1356,37 +1405,49 @@
       ]
     },
     "action_expression": {
-      "type": "CHOICE",
+      "type": "SEQ",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "menhir_action"
-        },
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "precedence"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "menhir_action"
-            }
-          ]
-        },
-        {
-          "type": "SEQ",
+          "type": "CHOICE",
           "members": [
             {
               "type": "SYMBOL",
               "name": "menhir_action"
             },
             {
-              "type": "SYMBOL",
-              "name": "precedence"
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "precedence"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "menhir_action"
+                }
+              ]
+            },
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "menhir_action"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "precedence"
+                }
+              ]
             }
           ]
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "attribute"
+          }
         }
       ]
     },
@@ -1506,8 +1567,13 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "ocaml"
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_header_content"
+              },
+              "named": true,
+              "value": "ocaml"
             },
             {
               "type": "BLANK"
@@ -1531,8 +1597,13 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "ocaml"
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_action_content"
+              },
+              "named": true,
+              "value": "ocaml"
             },
             {
               "type": "BLANK"
@@ -1553,16 +1624,13 @@
           "value": "[@"
         },
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "ocaml"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_attribute_content"
+          },
+          "named": true,
+          "value": "ocaml"
         },
         {
           "type": "STRING",
@@ -1578,16 +1646,13 @@
           "value": "%[@"
         },
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "ocaml"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_attribute_content"
+          },
+          "named": true,
+          "value": "ocaml"
         },
         {
           "type": "STRING",
@@ -1621,101 +1686,17 @@
       ]
     },
     "postlude": {
-      "type": "SYMBOL",
-      "name": "ocaml"
-    },
-    "ocaml": {
-      "type": "SYMBOL",
-      "name": "_ocaml"
-    },
-    "_ocaml": {
-      "type": "REPEAT1",
+      "type": "ALIAS",
       "content": {
-        "type": "CHOICE",
-        "members": [
-          {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "STRING",
-                "value": "{"
-              },
-              {
-                "type": "CHOICE",
-                "members": [
-                  {
-                    "type": "SYMBOL",
-                    "name": "_ocaml"
-                  },
-                  {
-                    "type": "BLANK"
-                  }
-                ]
-              },
-              {
-                "type": "STRING",
-                "value": "}"
-              }
-            ]
-          },
-          {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "STRING",
-                "value": "["
-              },
-              {
-                "type": "CHOICE",
-                "members": [
-                  {
-                    "type": "SYMBOL",
-                    "name": "_ocaml"
-                  },
-                  {
-                    "type": "BLANK"
-                  }
-                ]
-              },
-              {
-                "type": "STRING",
-                "value": "]"
-              }
-            ]
-          },
-          {
-            "type": "PATTERN",
-            "value": "\"([^\"\\\\]|\\x00|\\\\(.|\\n))*\""
-          },
-          {
-            "type": "PATTERN",
-            "value": "'([^'\\\\]|\\x00|\\\\[\\\\\"'ntbr ]|\\\\[0-9][0-9][0-9]|\\\\x[0-9A-Fa-f][0-9A-Fa-f]|\\\\o[0-3][0-7][0-7])'"
-          },
-          {
-            "type": "PATTERN",
-            "value": "'?[A-Za-z_][a-zA-Z0-9_']*"
-          },
-          {
-            "type": "PATTERN",
-            "value": "[^{}\\[\\]\"'%(A-Za-z_]+"
-          },
-          {
-            "type": "STRING",
-            "value": "%"
-          },
-          {
-            "type": "STRING",
-            "value": "("
-          }
-        ]
-      }
+        "type": "SYMBOL",
+        "name": "_postlude_content"
+      },
+      "named": true,
+      "value": "ocaml"
     },
     "ocaml_type": {
-      "type": "REPEAT1",
-      "content": {
-        "type": "PATTERN",
-        "value": "->?|\\[>?|[^-\\[>]+"
-      }
+      "type": "SYMBOL",
+      "name": "_ocaml_type_content"
     }
   },
   "extras": [
@@ -1742,12 +1723,36 @@
     {
       "type": "SYMBOL",
       "name": "ocaml_comment"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_action_content"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_header_content"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_attribute_content"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_ocaml_type_content"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_postlude_content"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_unknown_directive"
     }
   ],
   "inline": [
     "rule",
     "continuation"
   ],
-  "supertypes": []
+  "supertypes": [],
+  "reserved": {}
 }
-

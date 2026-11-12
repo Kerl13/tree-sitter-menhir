@@ -39,3 +39,40 @@ Declarations
   (declaration (strict_actual (symbol (lid)))
                (strict_actual (symbol (lid)))
                (strict_actual (symbol (lid)))))
+
+==================
+Escape sequences in token aliases
+==================
+
+%token A "a\"b\\c\t"
+%%
+
+---
+
+(source_file
+  (declaration
+    (terminal_alias_attrs
+      (uid)
+      (qid))))
+
+==================
+A newline escape in a token alias is an error, as in Menhir
+:error
+==================
+
+%token A "a\nb"
+%%
+
+---
+
+
+
+==================
+A directive followed by identifier characters is an error, as in Menhir
+:error
+==================
+
+%tokenA
+%%
+
+---

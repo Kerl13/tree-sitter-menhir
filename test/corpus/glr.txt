@@ -1,0 +1,182 @@
+==================
+Default merge function declaration
+==================
+
+%token A
+%start<unit> main
+%merge { fun _ _ _ -> assert false }
+
+%%
+
+main: A { () }
+
+---
+
+(source_file
+  (declaration
+    (terminal_alias_attrs
+      (uid)))
+  (declaration
+    (type
+      (ocaml_type))
+    (non_terminal
+      (lid)))
+  (declaration
+    (merge_function
+      (action
+        (ocaml))))
+  (old_rule
+    (symbol
+      (lid))
+    (production_group
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml)))))
+
+==================
+Merge function after an old-style rule
+==================
+
+%token INT PLUS EOL
+%start<int> main
+%%
+
+main:
+| e = expr EOL
+    { e }
+(* A comment between the action and %merge. *)
+%merge { fun _e1 _e2 -> assert false }
+
+expr:
+| i = INT
+    { i }
+| e1 = expr PLUS e2 = expr
+    { e1 + e2 }
+%merge
+    { fun e1 e2 ->
+        let range = ($startpos, $endpos) in
+        disj range e1 e2 }
+;
+
+---
+
+(source_file
+  (declaration
+    (terminal_alias_attrs
+      (uid))
+    (terminal_alias_attrs
+      (uid))
+    (terminal_alias_attrs
+      (uid)))
+  (declaration
+    (type
+      (ocaml_type))
+    (non_terminal
+      (lid)))
+  (old_rule
+    (symbol
+      (lid))
+    (production_group
+      (producer
+        (lid)
+        (actual
+          (symbol
+            (lid))))
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml)))
+    (ocaml_comment)
+    (merge_function
+      (action
+        (ocaml))))
+  (old_rule
+    (symbol
+      (lid))
+    (production_group
+      (producer
+        (lid)
+        (actual
+          (symbol
+            (uid))))
+      (action
+        (ocaml)))
+    (production_group
+      (producer
+        (lid)
+        (actual
+          (symbol
+            (lid))))
+      (producer
+        (actual
+          (symbol
+            (uid))))
+      (producer
+        (lid)
+        (actual
+          (symbol
+            (lid))))
+      (action
+        (ocaml)))
+    (merge_function
+      (action
+        (ocaml)))))
+
+==================
+Merge function after a new-style rule
+==================
+
+%token A
+%start<unit> main
+%%
+
+let main :=
+  | A; { () }
+  | A; A; { () }
+  %merge { fun _ _ -> () }
+
+---
+
+(source_file
+  (declaration
+    (terminal_alias_attrs
+      (uid)))
+  (declaration
+    (type
+      (ocaml_type))
+    (non_terminal
+      (lid)))
+  (new_rule
+    (lid)
+    (equality_symbol)
+    (expression
+      (seq_expression
+        (symbol_expression
+          (symbol
+            (uid)))
+        (seq_expression
+          (action_expression
+            (menhir_action
+              (action
+                (ocaml))))))
+      (seq_expression
+        (symbol_expression
+          (symbol
+            (uid)))
+        (seq_expression
+          (symbol_expression
+            (symbol
+              (uid)))
+          (seq_expression
+            (action_expression
+              (menhir_action
+                (action
+                  (ocaml))))))))
+    (merge_function
+      (action
+        (ocaml)))))

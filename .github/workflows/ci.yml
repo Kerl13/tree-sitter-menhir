@@ -1,0 +1,205 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - grammar.js
+      - src/**
+      - test/**
+      - queries/**
+      - bindings/**
+      - binding.gyp
+      - script/**
+      - Makefile
+      - package.json
+      - .github/workflows/ci.yml
+  pull_request:
+    paths:
+      - grammar.js
+      - src/**
+      - test/**
+      - queries/**
+      - bindings/**
+      - binding.gyp
+      - script/**
+      - Makefile
+      - package.json
+      - .github/workflows/ci.yml
+  workflow_dispatch:
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
+
+jobs:
+  versions:
+    # Versions come from the Makefile; other jobs read them from here.
+    name: Resolve Versions
+    runs-on: ubuntu-latest
+    outputs:
+      tree-sitter: ${{steps.read.outputs.tree-sitter}}
+      abi: ${{steps.read.outputs.abi}}
+      menhir: ${{steps.read.outputs.menhir}}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Read versions from the Makefile
+        id: read
+        run: |
+          {
+            echo "tree-sitter=$(make ts-version)"
+            echo "abi=$(make abi-version)"
+            echo "menhir=$(make menhir-version)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Check the copies that cannot be derived
+        run: |
+          set -eu
+          abi=$(make abi-version)
+          ts=$(make ts-version)
+
+          # package.json can't read the Makefile, so check it matches.
+          pinned=$(jq -r '.devDependencies["tree-sitter-cli"]' package.json)
+          if [ "$pinned" != "${ts#v}" ]; then
+            echo "package.json pins tree-sitter-cli $pinned, Makefile says $ts" >&2
+            exit 1
+          fi
+
+          # Emacs loads the committed parser, so it must be at the pinned ABI.
+          built=$(sed -n 's/#define LANGUAGE_VERSION //p' src/parser.c)
+          if [ "$built" != "$abi" ]; then
+            echo "src/parser.c is ABI $built, Makefile says $abi" >&2
+            echo "run 'make generate' and commit the result" >&2
+            exit 1
+          fi
+
+  test:
+    name: Test Parser
+    needs: versions
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-2022 # newer windows requires newer node requires newer ABI
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up tree-sitter
+        uses: tree-sitter/setup-action/cli@v2
+        with:
+          tree-sitter-ref: ${{needs.versions.outputs.tree-sitter}}
+
+      - name: Run parser tests
+        uses: tree-sitter/parser-test-action@v3
+        with:
+          generate: true
+          abi-version: ${{needs.versions.outputs.abi}}
+          node-version: '20'
+          test-rust: ${{runner.os == 'Linux'}}
+          test-node: true
+          test-python: false
+          test-go: true
+          test-swift: false # no Swift binding
+
+  parse-examples:
+    name: Parse Examples
+    needs: versions
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up tree-sitter
+        uses: tree-sitter/setup-action/cli@v2
+        with:
+          tree-sitter-ref: ${{needs.versions.outputs.tree-sitter}}
+
+      - name: Generate parser
+        run: make generate
+
+      - name: Parse example files
+        uses: tree-sitter/parse-action@v4
+        with:
+          files: test/examples/*.mly
+
+  menhir-suite:
+    # Every valid .mly file in Menhir's sources and test suite must parse,
+    # and every one Menhir rejects with a syntax error must not.
+    name: Parse Menhir Test Suite
+    needs: versions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up tree-sitter
+        uses: tree-sitter/setup-action/cli@v2
+        with:
+          tree-sitter-ref: ${{needs.versions.outputs.tree-sitter}}
+
+      - name: Generate parser
+        run: make generate
+
+      - name: Parse the Menhir test suite
+        run: make test-menhir
+
+  compare-menhir:
+    # Cross-check tokens, start symbols and rule names with Menhir itself.
+    name: Compare With Menhir ${{needs.versions.outputs.menhir}}
+    needs: versions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up tree-sitter
+        uses: tree-sitter/setup-action/cli@v2
+        with:
+          tree-sitter-ref: ${{needs.versions.outputs.tree-sitter}}
+
+      - name: Set up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: '5'
+
+      - name: Install Menhir
+        run: opam install --yes menhir.${{needs.versions.outputs.menhir}}
+
+      - name: Generate parser
+        run: make generate
+
+      - name: Compare with Menhir
+        run: opam exec -- make compare-menhir
+
+  check-queries:
+    name: Check Queries
+    needs: versions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up tree-sitter
+        uses: tree-sitter/setup-action/cli@v2
+        with:
+          tree-sitter-ref: ${{needs.versions.outputs.tree-sitter}}
+
+      - name: Generate parser
+        run: make generate
+
+      # Fails on a query that names a node type the grammar does not have.
+      - name: Check queries against the grammar
+        run: |
+          for query in queries/*.scm; do
+            tree-sitter query "$query" test/examples/*.mly > /dev/null
+          done

@@ -24,3 +24,17 @@ comment
   (line_comment)
   (comment)
   (ocaml_comment))
+
+=====
+Quoted strings are not special in comments, as in Menhir
+=====
+
+(* {| *)
+(* {id| *)
+%%
+
+---
+
+(source_file
+  (ocaml_comment)
+  (ocaml_comment))
